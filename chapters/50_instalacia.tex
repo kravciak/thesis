@@ -1,0 +1,63 @@
+\chapter{Inštalácia}
+\section{Príprava systému}
+
+\subsubsection{Operačný systém}
+0. Operačný systém : DreamSpark - Windows 8 Professional N 64-bit (English)
+
+\subsubsection{Java}
+problem pri pridavani schemy definovanej xml dokumentom
+fix: com.espertech.esper.client.ConfigurationException: Failed to read schema via URL 'null'
+\myTable{
+\begin{tabular}{ | l | c | }
+	\hline
+	Verzia	&	Stav	\\
+	\hline
+	jdk1.7.0\_25	&	OK	\\ \hline
+	jdk1.7.0\_71	&	NOK	\\ \hline
+	jdk1.7.0\_72	&	OK	\\ \hline
+	jdk1.8.0\_25	&	NOK	\\ \hline
+	jdk1.8.0\_31	&	OK	\\
+	\hline
+\end{tabular}
+}{Verzie Javy kompatibilné s esper xml schémami}{table:vmware-parametre}
+	
+\subsubsection{Maven}
+Maven 3.2.3	http://maven.apache.org/
+\begin{lstlisting}[label=lst:crm,caption=Čiastočný výpis konfigurácie crm]
+PATH = C:\Apache\apache-maven-3.2.3\bin
+JAVA_HOME - C:\Program Files\Java\jdk1.8.0_31
+mvn install
+\end{lstlisting}
+
+\subsubsection{Cassandra}
+=== Apache Cassandra 2.1.2	http://cassandra.apache.org/
+\begin{lstlisting}
+PATH = C:\Apache\apache-cassandra-2.1.2\bin
+\end{lstlisting}
+
+\subsubsection{RubyOnRails}
+RailsInstaller 3.1.0	http://railsinstaller.org/en
+bundle install
+	a. problem s certifikatom (fix: https://gist.github.com/fnichol/867550)
+		Error:SSL\_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed,
+	b. http://nodejs.org/
+		ExecJS::ProgramError - TypeError: Object doesn't support this property or method
+
+
+\section{Spustenie aplikácie}
+Git pull projekt, ked je system pripraveny
+https://github.com/kravciak/ThesisWeb/archive/master.zip
+
+\subsubsection{Api}
+mvn install
+mvn -run..?
+\subsubsection{Web}
+bundle install
+rails s
+\subsubsection{Twitter Stream}
+ruby twitter.rb - stream
+\subsubsection{Clients Web}
+ruby client.rb - sinatra
+
+\section{Použitie}
+popis GUI..

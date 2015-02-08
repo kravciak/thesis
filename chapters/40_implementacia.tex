@@ -1,0 +1,57 @@
+\chapter{Implementácia}
+Táto kapitola popisuje implementačné 
+
+\section{Api}
+	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu, rozšírenú o spring framework.
+	\subsection{Konfiguračné súbory}
+		application-config.xml
+		database.properties
+		esper.cfg.xml
+		logback.xml
+	\subsection{Databáza}
+		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom.
+	
+		\subsubsection{Databáza konfigurácie}
+		HyperSQL DataBase
+		HSQLDB je databáza napísaná v jave, pre ukladanie tabuliek ponúka pamäťový a diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu.
+		Do tejto databázy sú ukladané konfiguračné položky aplikácie. Databáza obsahuje tabuľku schém a statementov, jej štruktúru vidíme na obrázku.
+			
+		Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a upraviť položku dataSource.
+		
+		\subsubsection{Databáza udalostí}
+		Prístup k 
+	
+	\subsection{Spring framework}
+		Ako základ serverovej časti aplikácie som použil spring. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
+		Spring Framework poskytuje v aplikácii podporu pre dependency injection, správu transakcií a prístup k dátam pomocou jdbc. Serverová časť aplikácie využíva nasledujúce knižnice:
+		\begin{description}
+			\item[spring-core:] Pomocou anotácie @Autowired sú v aplikácii riešené závislosti väčšiny komponent.
+			\item[spring-jdbc:] Prístup do databázy je realizovaný pomocou spring triedy NamedParameterJdbcTemplate, ktorá oproti jdbc pridáva možnosť prístupu k vygenerovanému id nového záznamu.
+			\item[spring-webmvc:] Prístup k dátam a ovládaniu serverovej časti aplikácie je umožnený pomocou restovej api.
+			\item[spring-boot-starter-web:] Táto závislosť umožňuje použitie pribaleného tomcat serveru. Ten sa spustí pri štarte aplikácie a sprístupní restovú api.
+		\end{description}
+
+	\subsection{Esper engine}
+		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov.
+		\begin{description}
+			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Tento formát umožňuje 
+			\item[Udalosti] ktoré engine spracováva musia byť v XML formáte. Toto obmedzenie je zapríčinené 
+			\item[Statementy] 
+		\end{description}
+		
+		listener
+		xml,json output
+	\subsection{Maven}
+		
+
+\section{Web}
+	RubyOnRails - her rest client
+	bootstrap
+	ziadna databaza
+	
+\section{UseCase}
+		Twitter stream
+		Clients web
+
+- 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
+- moznost prehravania historickych dat (vysledokv) ako vstup
