@@ -1,52 +1,101 @@
-\chapter{Inštalácia}
+\chapter{Inštalácia \& Použitie}
+	Táto kapitola sa bude zaoberať názorným postupom, ktorý je potrebný k spusteniu aplikácie. Postup zahŕňa kroky od prípravy systému, inštaláciu aplikácie až po popis administračného rozhrania a názorné príklady použitia.
+	
+	\myTable{
+		\begin{tabular}{ | l | r | r | }
+			\hline
+			Program & Verzia & Zdroj	\\
+			\hline
+			Windows	8	&	Professional N 64-bit	&	Microsoft DreamSpark	\\ \hline
+			Java JDK	&	1.8.0\_31	&	www.oracle.com	\\ \hline
+			Maven	&	3.2.3	&	maven.apache.org	\\ \hline
+			Cassandra	&	2.1.2	&	cassandra.apache.org	\\ \hline
+			RailsInstaller	&	3.1.0	&	railsinstaller.org	\\ \hline
+			Node.js	&	0.10.31	&	nodejs.org	\\ \hline
+		\end{tabular}
+	}{Verzie programov použitých pri inštalácii}{table:program-verzia}
+		
 \section{Príprava systému}
+	Aplikácia je k dispozícii vo forme zdrojových kódov. Pred použitím ju preto musíme skompilovať, nastaviť databázu a premenné prostredia a stiahnuť závislé knižnice. Táto sekcia sa zaoberá prípravou systému a prostredia ku spusteniu aplikácie.
 
 \subsubsection{Operačný systém}
-0. Operačný systém : DreamSpark - Windows 8 Professional N 64-bit (English)
+	Ako operačný systém bol použitý Windows 8 Professional N 64-bit. Táto verzia je pre študentov FIS dostupná prostredníctvom projektu DreamSpark - software spoločnosti Microsoft licencovaného pre akademické inštitúcie. Windows 8 bol nainštalovaný s predvolenými nastaveniami. Vzhľadom na minimálne požiadavky databázového systému Cassandra 2GB RAM by bolo vhodné použiť systém s minimálne 4GB RAM.
 
-\subsubsection{Java}
-problem pri pridavani schemy definovanej xml dokumentom
-fix: com.espertech.esper.client.ConfigurationException: Failed to read schema via URL 'null'
-\myTable{
-\begin{tabular}{ | l | c | }
-	\hline
-	Verzia	&	Stav	\\
-	\hline
-	jdk1.7.0\_25	&	OK	\\ \hline
-	jdk1.7.0\_71	&	NOK	\\ \hline
-	jdk1.7.0\_72	&	OK	\\ \hline
-	jdk1.8.0\_25	&	NOK	\\ \hline
-	jdk1.8.0\_31	&	OK	\\
-	\hline
-\end{tabular}
-}{Verzie Javy kompatibilné s esper xml schémami}{table:vmware-parametre}
+\subsubsection{Java}	% http://download.oracle.com/otn-pub/java/jdk/8u31-b13/jdk-8u31-windows-x64.exe
+	Ako programovací jazyk serverovej časti aplikácie bola použitá java. Demonštračná kompilácia využíva aktuálnu verziu jdk1.8.0\_31. Je samozrejme možné použitie iných verzií, avšak knižnica esper správne pracuje len s niektorými z nich. Konkrétne nastáva problém pri pridaní schémy definovanej XML dokumentom do esper konfigurácie, kde vzniká výnimka:
+	\begin{lstlisting}[label=lst:exjava,caption=Výnimka pri definovaní XML schémy v niektorých verziách javy]
+	com.espertech.esper.client.ConfigurationException: Failed to read schema via URL 'null'
+	\end{lstlisting}
 	
-\subsubsection{Maven}
-Maven 3.2.3	http://maven.apache.org/
-\begin{lstlisting}[label=lst:crm,caption=Čiastočný výpis konfigurácie crm]
-PATH = C:\Apache\apache-maven-3.2.3\bin
-JAVA_HOME - C:\Program Files\Java\jdk1.8.0_31
-mvn install
-\end{lstlisting}
+	Testované verzie javy a ich kompatibilita je v nasledujúcej tabuľke:
+	\myTable{
+	\begin{tabular}{ | l | c | }
+		\hline
+		Verzia	&	Stav	\\
+		\hline
+		jdk1.7.0\_25	&	kompatibilná	\\ \hline
+		jdk1.7.0\_71	&	nekompatibilná	\\ \hline
+		jdk1.7.0\_72	&	kompatibilná	\\ \hline
+		jdk1.8.0\_25	&	nekompatibilná	\\ \hline
+		jdk1.8.0\_31	&	kompatibilná	\\ \hline
+	\end{tabular}
+	}{Kompatibilita verzií javy s esper xml schémami}{table:java-kompatibilita}
+	
+	Java bola nainštalovaná použitím predvolených nastavení, súčasťou ktorých je aj inštalácia JRE. Po nainštalovaní definujeme premennú prostredia JAVA\_HOME nasledovne:
+	\begin{lstlisting}
+		JAVA_HOME - C:\Program Files\Java\jdk1.8.0_31
+	\end{lstlisting}
+	Toto nastavenie je vyžadované nástrojom Maven, ktorý popisuje nasledujúca sekcia.
+	
+\subsubsection{Maven}	% http://maven.apache.org/
+	Na zostavenie projektu bol použitý Maven vo verzii 3.2.3. Inštalácia pozostáva zo stiahnutia zip archívu (binárnej distribúcie) zo stránky projektu a rozbalenia do cieľového adresára. Pre jednoduchšie použitie je vhodné rozšíriť PATH o cestu k binárnym súborom nástroja, v tomto prípade:
+	\begin{lstlisting}
+		PATH = %PATH%;C:\Apache\apache-maven-3.2.3\bin
+	\end{lstlisting}
 
-\subsubsection{Cassandra}
-=== Apache Cassandra 2.1.2	http://cassandra.apache.org/
-\begin{lstlisting}
-PATH = C:\Apache\apache-cassandra-2.1.2\bin
-\end{lstlisting}
+\subsubsection{Cassandra}	% http://cassandra.apache.org/
+	Cassandra je okrem binárnej verzie distribuovaná aj ako spustiteľný MSI inštalátor vďaka DataStax komunite. Tento spôsob inštalácie je pohodlnejší, avšak aktuálna verzia 2.1.2 pre operačný systém Windows po inštalácii nepracovala správne. Prejavili sa problémy ako chyby pri spustení spôsobené chybnou verziou knižnice jamm použitej pri kompilácii či poruchy Windows agenta.
+		
+	Pre projekt som kvôli týmto dôvodom použil binárnu distribúciu. Inštalácia tejto verzie je veľmi podobná inštalácii Mavenu, preberanému v predošlej sekcii. Na stránkach projektu stiahneme archív a rozbalíme ho do cieľového adresára. Tiež rozšírime systémovú premennú PATH o cestu k spúšťacím súborom takto:
+	\begin{lstlisting}
+		PATH = %PATH%;C:\Apache\apache-cassandra-2.1.2\bin
+	\end{lstlisting}
+	
+	%TODO:CQL
+	Zo stránok projektu je CQL
 
-\subsubsection{RubyOnRails}
-RailsInstaller 3.1.0	http://railsinstaller.org/en
-bundle install
-	a. problem s certifikatom (fix: https://gist.github.com/fnichol/867550)
-		Error:SSL\_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed,
-	b. http://nodejs.org/
+\subsubsection{RubyOnRails}	% http://railsinstaller.org/ 3.1.0
+	Inštalácia frameworku RubyOnRails na windows platforme ja náročnejšia, pretože obsahuje viacero komponent, preto použijeme program RailsInstaller. Ten v použitej verzii obsahuje nasledujúce komponenty použité v projekte:
+	\begin{itemize}
+		\item Ruby 2.1.5 - interpretátor jazyka Ruby
+		\item Rails 4.1 - webový framework pre administračné rozhranie
+		\item Bundler - manažér závislostí projektu, funkciou podobný nástroju Maven
+		\item Git - verzovací nástroj použitý prestiahnutie projektu z verejného repozitára
+		\item DevKit - nástroj pre zostrojenie (build) natívnych C/C++ rozšírení na Windowse
+	\end{itemize}
+
+	Pri inštalácii použijeme predvolené nastavenia. Pri prvom použití nástroja bundler však narazíme na problém s certifikátmi:
+	\begin{lstlisting}
+		Error:SSL\_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed.
+	\end{lstlisting}
+	Riešenie pozostáva zo stiahnutia súboru obsahujúceho certifikáty certifikačných autorít. Ten následne sprístupníme pre ruby definovaním premennej prostredia \cite{web:certificate-fix}.
+	\begin{lstlisting}
+		ruby "%USERPROFILE%\Desktop\win_fetch_cacerts.rb"
+		SSL_CERT_FILE = C:\RailsInstaller\cacert.pem
+	\end{lstlisting}
+		
+	Problém s certifikátmi sa týmto vyriešil. Pri vytvorení a spustení prvej aplikácie ale narazíme na ďalšu výnimku:
+	\begin{lstlisting}
 		ExecJS::ProgramError - TypeError: Object doesn't support this property or method
-
+	\end{lstlisting}
+	Táto je spôsobená nekompatibilitou predvoleného windows javascript runtime a rails prostredia pri spracovaní assets (css a js) súborov. Jedným z riešení tohoto problému je inštalácia platformy Node.js. Pre potreby projektu postačuje predvolená inštalácia.
+	
+	Týmto krokmi sme pripravili prostredie pre spustenie aplikácie. Podrobný postup pre spustenie je popísaný v nasledujúcej sekcii.
 
 \section{Spustenie aplikácie}
+
 Git pull projekt, ked je system pripraveny
-https://github.com/kravciak/ThesisWeb/archive/master.zip
+%https://github.com/kravciak/ThesisWeb/archive/master.zip
 
 \subsubsection{Api}
 mvn install
@@ -61,3 +110,4 @@ ruby client.rb - sinatra
 
 \section{Použitie}
 popis GUI..
+názorné priklady

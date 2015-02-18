@@ -1,5 +1,5 @@
 \chapter{Implementácia}
-Táto kapitola popisuje implementačné 
+Táto kapitola popisuje implementačné...
 
 \section{Api}
 	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu, rozšírenú o spring framework.
@@ -9,7 +9,7 @@ Táto kapitola popisuje implementačné
 		esper.cfg.xml
 		logback.xml
 	\subsection{Databáza}
-		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom.
+		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom. Je to tak kvôli predpokladu že esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
 	
 		\subsubsection{Databáza konfigurácie}
 		HyperSQL DataBase
@@ -22,7 +22,7 @@ Táto kapitola popisuje implementačné
 		Prístup k 
 	
 	\subsection{Spring framework}
-		Ako základ serverovej časti aplikácie som použil spring. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
+		Ako základ serverovej časti aplikácie som použil Spring framework. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
 		Spring Framework poskytuje v aplikácii podporu pre dependency injection, správu transakcií a prístup k dátam pomocou jdbc. Serverová časť aplikácie využíva nasledujúce knižnice:
 		\begin{description}
 			\item[spring-core:] Pomocou anotácie @Autowired sú v aplikácii riešené závislosti väčšiny komponent.
@@ -34,14 +34,33 @@ Táto kapitola popisuje implementačné
 	\subsection{Esper engine}
 		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov.
 		\begin{description}
-			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Tento formát umožňuje 
-			\item[Udalosti] ktoré engine spracováva musia byť v XML formáte. Toto obmedzenie je zapríčinené 
-			\item[Statementy] 
+			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Oproti POJO reprezentácii umožňuje tento formát vytváranie schém počas behu čo je z pohľadu užívateľa nutnosťou. V prípade potreby by bolo možné použiť udalosti reprezentované pomocou java.util.Map alebo objektovým poľom, avšak to vyžaduje definovanie formátu prenosu a následné spracovanie do požadovaného formátu klientom, čo nie je veľmi intuitívne. Použitie XML reprezentácie klientovi umožní komunikovať priamo s esperom.
+			
+			\item[Udalosti] ktoré engine spracováva musia byť v XML formáte. Toto obmedzenie je zapríčinené XML reprezentáciou schém. Ako zdroje udalostí týmto eliminujeme adaptéry CSV a HTTP z esperio knižnice. Na prijímanie XML udalostí slúži rest služba. Tá spracováva vstupný stream dvoma spôsobmi:
+			\begin{itemize}
+				\item Ako jednotlivé udalosti, kde koreňový element udalosti reprezentuje názov schémy reprezentujúcej udalosť.
+				\item Ako stream udalostí, kde je koreňový element nazvaný "events" a obaľuje jednotlivé udalosti definované v predošlom bode. Koreňový element je v tomto prípade ignorovaný.
+			\end{itemize}
+			
+			\item[Statementy] pridávané do esper engine môžu obsahovať len meno a epl výraz. Preto je ku každému statementu priradený aj užívateľský objekt - statementBean s dodatočnými informáciami:
+			\begin{itemize}
+				\item ID ktoré unikátne identifikuje statement v rámci celej aplikácie, nie len daného esper provideru
+				\item TTL hovoriaci ako dlho má byť nájdená udalosť perzistentná.
+				\item STATE udávajúci či je konkrétny statement spustený alebo zastavený
+			\end{itemize}
+				
+			
+			Pri pridávaní statementu do esper engine je kontrolovaná unikátnosť mena v rámci daného esper providera. V prípade že existuje statement s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený statement je následne uložený.
 		\end{description}
 		
-		listener
-		xml,json output
+		Aplikácia definuje jeden globálny listener, ktorý je priradený všetkým statementom. Ten v prípade výskytu udalosti vyhovujúcej niektorému z definovaných statementov uloží udalosť vo forme obsahu json objektu do databázy.
+		
+		Esper umožňuje export výsledkov pomocou JSONRenderer a XMLRenderer, avšak tieto triedy produkujú formátovaný výstup, čo je v serverovej časti aplikácie neželané. Preto je konverzia realizovaná upravenými verziami týchto tried, ktoré nepridávajú formátovacie znaky a produkujú validné XML a JDON dokumenty. Predvolene je použitý upravený JSONRenderer.
+		
+		Pri ukladaní týchto týchto výsledkov do databázy je nastavený TTL, ktorý bol definovaný pri vytvorení statementu. Ak TTL pri vytvorení statementu nebolo definované použije sa predvolené nastavenie, kde sú výsledky persistentné až kým ich užívateľ manuálne neodstráni.
+
 	\subsection{Maven}
+		Aplikácie je zostavená pre pomocou nástroja maven...
 		
 
 \section{Web}
