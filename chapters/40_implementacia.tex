@@ -1,8 +1,8 @@
 \chapter{Implementácia}
-Táto kapitola popisuje implementačné...
+Táto kapitola popisuje implementačné detaily projektu. 
 
 \section{Api}
-	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu a framework spring.
+	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu s použitím spring frameworku.
 	\subsection{Konfiguračné súbory}
 		application-config.xml
 		database.properties
@@ -12,14 +12,13 @@ Táto kapitola popisuje implementačné...
 		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom. Je to tak kvôli predpokladu že esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
 	
 		\subsubsection{Databáza konfigurácie}
-		HyperSQL DataBase
-		HSQLDB je databáza napísaná v jave, pre ukladanie tabuliek ponúka pamäťový a diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu.
-		Do tejto databázy sú ukladané konfiguračné položky aplikácie. Databáza obsahuje tabuľku schém a statementov, jej štruktúru vidíme na obrázku.
-			
-		Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a upraviť položku dataSource.
+		Ako databázu pre ukladanie stavu esperu a jednotlivých konfiguračných položiek som použil \ac{HSQLDB}. Táto databáza je napísaná v jave a pre ukladanie tabuliek ponúka pamäťový aj diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu. Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a zmeniť položku dataSource.
 		
+		Databáza obsahuje tabuľku schém a statementov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na nasledujúcom obrázku.
+		%TODO model databazy
+			
 		\subsubsection{Databáza udalostí}
-		Prístup k 
+		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná.
 	
 	\subsection{Spring framework}
 		Ako základ serverovej časti aplikácie som použil Spring framework. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
@@ -60,14 +59,29 @@ Táto kapitola popisuje implementačné...
 		Pri ukladaní týchto týchto výsledkov do databázy je nastavený TTL, ktorý bol definovaný pri vytvorení statementu. Ak TTL pri vytvorení statementu nebolo definované použije sa predvolené nastavenie, kde sú výsledky persistentné až kým ich užívateľ manuálne neodstráni.
 
 	\subsection{Maven}
-		Aplikácie je zostavená pre pomocou nástroja maven...
+		Zostavenie projektu je jednou z nevyhnutných súčastí tvorby java aplikácií. Na uľahčenie tohoto procesu je možné použiť viacero nástrojov, ktorých hlavnými predstaviteľmi sú maven, gradle a ant. Api komponent tejto aplikácie je zostavený pomocou nástroja maven. 
 		
+		Maven uľahčuje prácu vo viacerých oblastiach, a to \cite{web:maven-doc}:
+		\begin{itemize}
+			\item Uľahčenie prekladu aplikácie
+			\item Poskytnutie jednotného riešenia pre zostavenie aplikácie
+			\item Poskytnutie informácií o projekte
+			\item Poskytnutie vzorov pre vývoj aplikácií
+			\item Umožnenie transparentnej migrácie nových vlastností programu
+		\end{itemize}
+		Pre túto prácu je najdôležitejšia prvá oblasť. Vďaka mavenu nemusí distribúcia projektu obsahovať všetky knižnice závislostí, ani nemusia byť jednotlivo sťahované pri zostavovaní projektu. Všetky potrebné závislosti sú definované v súbore pom.xml a pri preklade automaticky stiahnuté z internetu. Tento súbor zároveň definuje vlastnosti projektu ako názov, verziu, verziu javy použitú pre zostavenie, spôsob generovania dokumentácie a iné detaily.
+		
+		Maven tiež umožňuje vytvárať v pom.xml súboroch závislosti a odkazovať sa na externé konfigurácie. Táto funkcionalita je v projekte využitá pri spring závislostiach, kde je verzia niektorých komponent definovaná v externom rodičovskom súbore. Rodičom spring závislostí projektu je spring-boot-starter-parent.
+		
+		%Väčšina funkcionality mavenu sa skladá z pluginov, k
 
 \section{Web}
-	RubyOnRails - her rest client
-	bootstrap
-	ziadna databaza
+	Web časť projektu slúži ako administračné rozhranie. Je riešené formou webovej aplikácie, ktorej základ je framework Ruby On Rails. Ten umožňuje rýchle vytváranie stránok, kde prevažuje prístup "convention over configuration". Dôležitou súčasťou frameworku sú gemy, ktoré reprezentujú závislosti projektu. Jedným z najpodstatnejších v tomto projekte je gem "her", ktorý zabezpečuje komunikáciu s Api časťou projektu.
 	
+	Grafická stránka tohoto projektu sa opiera o framework Bootstrap. Ten v základnej konfigurácii poskytuje html komponenty s vylepšeným UI. Tiež opravuje niektoré chyby kompatibility pri zobrazovaní stránok v rôznych prehliadačoch.
+	
+	Web nevyužíva žiadne persistentné úložisko dát...
+		
 \section{UseCase}
 	\subsection{Twitter Stream}
 	\subsection{Contacts Web}

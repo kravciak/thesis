@@ -1,19 +1,22 @@
 \chapter{Technológie}
 \section{Esper}
-	Esper je komponenta, ktorá umožňuje spracovanie komplexných udalostí \acro{CEP}. Umožňuje vývoj aplikácií spracovávajúcich veľké množstvo udalostí - v reálnom čase ako aj historických. Tieto udalosti je možné filtrovať a analyzovať podľa potreby a reagovať v reálnom čase na predom definované stavy.  Esper je dostupný v troch verziách:
+	Esper je komponenta, ktorá umožňuje spracovanie komplexných udalostí \ac{CEP}. Umožňuje vývoj aplikácií spracovávajúcich veľké množstvo udalostí - v reálnom čase ako aj historických. Tieto udalosti je možné filtrovať a analyzovať podľa potreby a reagovať v reálnom čase na predom definované stavy.  Esper je dostupný v troch verziách:
 	\begin{description}
-		\item[Esper] je riešenie
+		\item[Esper] je dostupné ako open source s možnosťou komerčnej podpory. Táto verzia obsahuje základ potrebný pre použitie esperu, užívateľ však musí jednotlivé statementy, schémy a nastavenia realizovať programovo. Je preto náročný na použitie pre ľudí, ktorí nevedia programovať. Riešenie je vhodné pre firmy, ktoré buď nevyužijú platenú verziu alebo majú špecifické požiadavky na výsledný produkt a sú schopné túto verziu podľa svojich potrieb upraviť.
 		
-		\item[Esper HA] je riešenie umožňujúce vysokú dostupnosť Esperu. Zabezpečuje že stav je po vypnutí alebo havárii obnoviteľný. Táto verzia je bohužiaľ spoplatnená, dostupná je trial verzia, pre ktorej použitie je nutné identifikovať sa ako spoločnosť. Cena nie je na webových stránkach dostupná. Táto verzia je vhodná pre projekty závislé na vysokej dostupnosti esperu a inštitúcie, pre ktoré je 
+		\item[Esper HA] je riešenie umožňujúce vysokú dostupnosť Esperu. Zabezpečuje že stav je po vypnutí alebo havárii obnoviteľný. Statementy, schémy a iné nastavenia si EsperHA pri reštarte uchováva, čo je výhoda oproti predchádzajúcej verzii - kde je nutné tieto úkony riešiť programovo. Táto verzia je vhodná pre projekty závislé na vysokej dostupnosti esperu a subjekty, pre ktoré je kritická neustála kontrola prichádzajúcich udalostí.
+		EsperHA je spoplatnený, dostupná je trial len verzia, pre ktorej použitie je nutné identifikovať sa ako spoločnosť. Cena nie je na webových stránkach dostupná.
 		
-		\item[Esper Enterprise Edition] 
+		\item[Esper Enterprise Edition] je kompletný produkt "na kľúč", obsahujúci všetky komponenty potrebné pre nasadenie do podniku. V jednom balíku je obsiahnuté GUI pre správu esperu, restové služby poskytujúce prístup zvonku, \ac{EPL} editor, zobrazovacie nástroje umožňujúce kontinuálne zobrazenie výsledkov v grafoch a tabuľkách. EsperEE je možné skombinovať s EsperEA pre dodatočné zabezpečenie vysokej dostupnosti. EsperEE je spoplatnený, rovnako ako pri EsperEA je dostupná trial verzia po splnení určitých podmienok. Cena nie je dostupná, tieto dve dve riešenia sú určené predovšetkým pre podnikový sektor.
 	\end{description}
 	
-	esperio
-	
-	
-	EPL - Event Processing Language
+	Pre tento projekt je použitá verzia Esper, ktorá je rozšírená o prístup k základným funkciám pomocou restovej api a persistenciu niektorých nastavení a nájdených výsledkov.
+
+	\subsection{Event Processing Language}
+	\ac{EPL} je jazyk ...
+
 \section{Cassandra}
+	
 	CQL - Cassandra Query Language
 \section{Frameworky}
 	\subsection{Spring}
