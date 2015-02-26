@@ -10,14 +10,72 @@
 		\item[Esper Enterprise Edition] je kompletný produkt "na kľúč", obsahujúci všetky komponenty potrebné pre nasadenie do podniku. V jednom balíku je obsiahnuté GUI pre správu esperu, restové služby poskytujúce prístup zvonku, \ac{EPL} editor, zobrazovacie nástroje umožňujúce kontinuálne zobrazenie výsledkov v grafoch a tabuľkách. EsperEE je možné skombinovať s EsperEA pre dodatočné zabezpečenie vysokej dostupnosti. EsperEE je spoplatnený, rovnako ako pri EsperEA je dostupná trial verzia po splnení určitých podmienok. Cena nie je dostupná, tieto dve dve riešenia sú určené predovšetkým pre podnikový sektor.
 	\end{description}
 	
-	Pre tento projekt je použitá verzia Esper, ktorá je rozšírená o prístup k základným funkciám pomocou restovej api a persistenciu niektorých nastavení a nájdených výsledkov.
+	Pre tento projekt je použitá verzia Esper, ktorú som rozšíril o prístup k základným funkciám pomocou restovej api a persistenciu niektorých nastavení a nájdených výsledkov. Táto verzia je dostupná pod GNU General Public License (GPL) (GPL v2).
 
-	\subsection{Event Processing Language}
-	\ac{EPL} je jazyk ...
+	\subsection{Procesný model}
+
+	\subsection{Typ udalosti}
+	Každá udalosť spracovávaná esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť definované pri štarte aplikácie, alebo programovo počas behu. EPL obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti pomocou EPL.
+	
+	\myTable{
+	\begin{tabular}{ | l | p{10cm} | }
+		\hline
+		Trieda	&	Popis	\\ \hline
+		java.lang.Object	&	Akýkoľvek Java POJO (plain-old java object) s getter metódami. Takáto definícia je najjednoduchšia na úkor možnosti úprav počas behu programu.	\\ \hline
+		java.util.Map	&	Udalosti definované ako implementácia java.util.Map interface, kde každá hodnota záznamu je vlastnosť udalosti.	\\ \hline
+		Object[] (pole objektov)	&	Udalosti definované objektovým poľom, kde každá hodnota poľa je vlastnosť udalosti.	\\ \hline
+		org.w3c.dom.Node	&	XML objektový model dokumentu popisujúci štruktúru udalosti.	\\ \hline
+	\end{tabular}
+	}{kompatibilita}{table:kom}
+
+	\subsection{EPL}
+		Event Processing Language je jazyk umožňujúci definovanie statementov a patternov v CEP. Syntaxou je podobný SQL. Obsahuje klauzuly SELECT, FROM, WHERE, GROUP BY, HAVING a ORDER BY. Namiesto tabuliek však pracuje so streamami, kde riadok tabuľky nahrádza prichádzajúca udalosť. Streamy udalostí je možné spájať pomocou joinov, filtrovať a agregovať.
+		
+		Klauzula INSERT INTO je použiteľná na presmerovanie udalostí na iný stream pre dodatočné spracovanie. Klauzula UPDATE slúži na úpravu vlastností udalosti a je aplikovaná pred spracovaním statementu. 
+		
+		EPL statementy môžu obsahovať definíciu náhľadov (view). Tieto majú viacero funkcií, ako okná náhľadu na stream udalostí, tvorenie štatistík v vlastností udalosti alebo zoskupovanie udalostí. Náhľady môžu byť reťazené. Zabudované náhľady sú napríklad win:length - aplikuje statement na definovaný počet udalostí, win:time - aplikuje statement na udalosti obmedzené časovo alebo std:lastevent - ktorý obsahuje poslednú prijatú udalosť.
+		
+		EPL definuje koncept pomenovaných okien (named windows), ktoré slúžia ako štruktúra uchovávajúca udalosti. Je možné do nej vkladať nové udalosti a mazať staré. Výhodou tejto štruktúry je možnosť jej použitia viacerými statementami, pretože je globálna, teda zdieľaná v rozsahu daného service providera.	
+		
+		Pomocou EPL môžeme tiež definovať premenné, ktoré slúžia na vkladanie parametrov do statementu a definovanie schém udalostí. Tými sa zaoberá nasledujúca sekcia.
+		
+		\subsubsection{Syntax}
+		Každý EPL statement musí obsahovať minimálne klauzulu SELECT a FROM.
+
+		SELECT klauzula môže obsahovať náhradný znak * alebo vymenovať požadované vlastnosti udalosti. Tiež definuje typ výslednej udalosti publikovanej statementom. SELECT poskytuje aj nepovinné klauzuly istream (input), irstream (input \& remove) a rstream (remove), ktoré definujú streamy, ktorých udalosti sa majú poslať na UpdateListener a observery statementu. Prednastavené je použitie nastavenia istream.
+		
+		FROM klauzula špecifikuje jeden alebo viac streamov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero streamov. Podporovaný je tiež join so relačnou databázou ako zdrojom dát. To je možné využiť na prístup k historickým dátam. 
+
+		%TODO blabla k prikladom
+		\begin{lstlisting}[label=lst:epl-simple,caption=Jednoduchý EPL statement]
+		select * from TweetEvent.win:time(60 sec) where message='happy'
+		\end{lstlisting}
+		
+		\begin{lstlisting}[label=lst:epl-join,caption=Jednoduchý EPL statements použitím join]
+		select * from TickEvent.std:unique(symbol) as t, NewsEvent.std:unique(symbol) as n
+		where t.symbol = n.symbol
+		\end{lstlisting}
+		
+		\begin{lstlisting}[label=lst:epl-pattern,caption=EPL statement s použitím patternu]
+		select tick.symbol as symbol, tick.price as price
+		from pattern[every tick=StockTick where timer:within(10 sec)]
+		\end{lstlisting}
+				
+		Reprezentácia udalostí formou pojo, xml..
+		\subsubsection{Objektový model}	
+
+	\subsection{Api}
+		\subsubsection{Konfigurácia}
+		EPServiceProvider, epadministrator, epruntime
+		
+		\subsubsection{Vytváranie statementov}
+		\subsubsection{Spracovanie výsledkov}
 
 \section{Cassandra}
+	...
+	\subsection{Cassandra Query Language}
+	\ac{CQL} je jazyk ...
 	
-	CQL - Cassandra Query Language
 \section{Frameworky}
 	\subsection{Spring}
 	\subsection{RubyOnRails}
