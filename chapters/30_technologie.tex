@@ -48,8 +48,8 @@
 
 	Po definovaní typu udalosti sa na ne môžeme odkazovať klauzulou FROM v EPL statementoch. Tie sú bližšie popísané v nasledujúcej sekcii.
 
-	\subsection{EPL}
-		Event Processing Language je jazyk umožňujúci definovanie statementov a patternov v CEP. Syntaxou je podobný SQL. Obsahuje klauzuly SELECT, FROM, WHERE, GROUP BY, HAVING a ORDER BY. Namiesto tabuliek však pracuje so streamami, kde riadok tabuľky nahrádza prichádzajúca udalosť. Streamy udalostí je možné spájať pomocou joinov, filtrovať a agregovať.
+	\subsection{Event Processing Language}
+		\ac{EPL} je jazyk umožňujúci definovanie statementov a patternov v CEP. Syntaxou je podobný SQL. Obsahuje klauzuly SELECT, FROM, WHERE, GROUP BY, HAVING a ORDER BY. Namiesto tabuliek však pracuje so streamami, kde riadok tabuľky nahrádza prichádzajúca udalosť. Streamy udalostí je možné spájať pomocou joinov, filtrovať a agregovať.
 		
 		Klauzula INSERT INTO je použiteľná na presmerovanie udalostí na iný stream pre dodatočné spracovanie. Klauzula UPDATE slúži na úpravu vlastností udalosti a je aplikovaná pred spracovaním statementu. 
 		
@@ -66,9 +66,7 @@
 		
 		FROM klauzula špecifikuje jeden alebo viac streamov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero streamov. Podporovaný je tiež join so relačnou databázou ako zdrojom dát. To je možné využiť napríklad na prístup k historickým dátam.
 
-		EPL umožňuje definovať pattern, a to ako samostatný výraz alebo ako súčasť statementu. Pattern sa môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Môžu preto byť použité v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
-		
-		%TODO Patterny
+		Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. EPL umožňuje definovať pattern ako samostatný výraz alebo ako súčasť statementu. Pattern sa môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Môžu preto byť použité v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
 
 		V nasledujúcich výpisoch sú príklady statementov, zobrazujúcich príklady syntaxe popisovanej v predchádzajúcom texte.
 				
@@ -90,15 +88,43 @@
 		having sum(a.price + b.price) > 100
 		\end{lstlisting}
 				
-		Reprezentácia udalostí formou pojo, xml..
 		\subsubsection{Objektový model}	
-
-	\subsection{Api}
-		\subsubsection{Konfigurácia}
-		EPServiceProvider, epadministrator, epruntime
+		Objektový model je sada tried poskytujúcich objektovú reprezentáciu statementu alebo patternu. Tá umožňuje zostrojiť, zmeniť alebo získať údaje z EPL statementov a patternov na vyššom stupni ako pri práci s textovou reprezentáciou. Objektový model pozostáva z objektového grafu, ktorého prvky je jednoducho prístupné. Táto forma tiež umožňuje kontrolu EPL syntaxe pred pridaním statementu alebo patternu do esperu. Objektový model umožňuje plný export do textovej formy a naopak.
 		
-		\subsubsection{Vytváranie statementov}
-		\subsubsection{Spracovanie výsledkov}
+		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné.
+		
+	\subsection{Api}
+		Esper pre svoje ovládanie neposkytuje grafické rozhranie. Na komunikáciu používa api, ktorá definuje tieto primárne rozhrania:
+		\begin{itemize}
+			\item Rozhranie udalostí a ich typov
+			\item Administrátorské rozhranie na vytváranie a správu EPL statementov a patternov a definovanie konfigurácie esperu
+			\item Runtime rozhranie, ktoré slúži na posielanie udalostí do esperu, definovanie premenných a spúšťanie on-demand výrazov.
+		\end{itemize}
+		
+		\subsubsection{EP Service Provider}
+		EPServiceProvider reprezentuje konkrétnu inštanciu esperu. Každá takáto inštancia je nezávislá od ostatných a má svoje vlastné administrátorské a runtime rozhranie. Pri prístupe umožňuje rozhranie voľbu "getDefaultProvider" bez parametrov, ktorá vráti predvolenú inštanciu, alebo "getProvider" s textovým parametrom URI identifikujúcim konkrétnu inštanciu. Tá je vytvorená ak ešte neexistuje. Opakované volania s rovnakým URI vracajú stále rovnakú inštanciu.
+		
+		\subsubsection{EP Administrator}
+		EPAdministrator umožňuje registrovanie EPL statementov, patternov alebo ich objektovej reprezentácie do esperu a to metódami createPattern, createStatement a create pre objektový model. Tieto funkcie poskytujú voliteľné parametre umožňujúce definovať meno statementu a užívateľský objekt, ktorý je v tejto aplikácii využitý na ukladanie dodatočných informácií o statemente - napríklad definovanie TTL pri ukladaní výsledkov do databázy.
+		
+		Po registrácii nového EPL výrazu rozhranie vracia inštanciu vytvoreného EPStatement, pomocou ktorej môžeme ovládať už vytvorený statement alebo pristupovať k výsledkom. V tejto aplikácii je z ovládacích funkcií implementovaná stop() a start(), ktoré definujú, či je statement aktívny.
+		
+		Esper poskytuje tri možnosti ako pristupovať k výsledkom konkrétneho statementu. Tieto je možné rôzne kombinovať. Možnosti sú predstavené v nasledujúcom výpise:
+		\begin{description}
+			\item[Listener] V prvom prípade aplikácia poskytuje implementáciu rozhraní UpdateListener alebo StatementAwareUpdateListener vytváranému statementu. Takýto listener bude následne notifikovaný pri výskyte novej udalosti a metóde update bude predaná inštancia EventBean, ktorá obsahuje výsledok statementu.
+			\item[Subscriber] Týmto spôsobom esper posiela výsledky na definovaný subscriber. Je to najrýchlejšia možnosť, pretože esper predáva typované výsledky priamo do objektov aplikácie, nemusí teba zostavovať inštancie EventBean ako v predošlom prípade. Nevýhodou je že statement môže mať registrovaný maximálne jeden subscriber, naproti predošlému spôsobu, kde umožňoval definovať viacero listenerov.
+			\item[Pull Api] Týmto spôsobom aplikácia pristupuje k výsledkom on-demand spôsobom, kde si jednorázovo žiadosťou o výsledky daného statementu získa zoznam EventBean prístupný pomocou iterátora. Toto je využiteľné v prípade kedy aplikácia nevyžaduje nepretržité predávanie nových výsledkov v real-time.
+		\end{description}
+		V tomto projekte bol použitý prvý spôsob listenera. Aplikácia v tomto prípade použije implementáciu rozhrania StatementAwareUpdateListener, ktorá je registrovaná pro vytváraní nového statementu metódou addListener. Vďaka použitiu rozhrania StatementAwareUpdateListener a nie UpdateListener získava aplikácia prístup k statementu, ktorý konkrétnu udalosť vyprodukoval, pre všetky statementy môže byť preto definovaný jediný spoločný listener.
+		
+		Esper podporuje tiež spracovanie udalostí, ktoré nevyhoveli žiadnemu statemenentu. Tieto výsledky získame registrovaním implementácie rozhrania UnmatchedListener. 
+		
+		\subsubsection{EP Runtime}
+		EPRuntime rozhranie slúži na odosielanie nových udalostí do esperu k spracovaniu, nastavenie a prístup k hodnotám premenných a spúšťanie on-demand EPL výrazov. Na odosielanie nových udalostí slúži metóda sendEvent, ktorá je preťažená. Typ parametra tejto metódy indikuje typ udalosti odosielanej do esperu. Tieto typy boli bližšie popísané v predchádzajúcich sekciách.
+		
+		V prípade použitia XML definície typov udalostí sa pri spracovaní prichádzajúcej udalosti skontroluje že meno koreňového elementu prichádzajúcej udalosti je zhodné s menom typu udalosti definovanej XML schémou.
+		
+		Ak aplikácia nepozná EPL výrazy dopredu alebo nevyžaduje streamovanie výsledkov, je možné prostredníctvom EPRuntime spúšťať jednorázové výrazy. Tieto nie sú permanentné, po ich vykonaní je výsledok okamžite predaný aplikácii pre spracovanie. Použitie nachádzajú napríklad s pomenovanými oknami a tabuľkami, ktoré je možné indexovať pre zrýchlenie prístupu.		
 
 \section{Cassandra}
 	...
@@ -106,7 +132,42 @@
 	\ac{CQL} je jazyk ...
 	
 \section{Frameworky}
+	Pre uľahčenie vývoja projektov je dnes bežné použitie frameworku. Rozsahom malé aplikácie často vyžadujú použitie funkcionality (prihlasovanie, odosielanie mailov, práca s databázou, zjednotenie grafického zobrazenia pre rôzne platformy, správu závislostí), ktorej implementácia je zdĺhavá a v málo prípadoch lepšia ako pri opätovnom použitý riešenia na to stavaného. Pri vývoji jednotlivých častí tohoto projektu boli použité voľne dostupné frameworky, ktorých bližším popisom sa zaoberá táto sekcia.
+
 	\subsection{Spring}
+	
 	\subsection{RubyOnRails}
+	
 	\subsection{Sinatra}
+	Sinatra je jazyk použiteľný pre rýchly vývoj jednoduchých webových aplikácií postavených na ruby. Framework zapuzdruje jednoduchý webový server. Umožňuje definovať takzvané route, predstavujúce url, ktoré aplikácia rozoznáva. Obsahom bloku definujúceho route je telo metódy, ktorá sa má vykonať pri zavolaní danej url. Tieto bloky akceptujú vstupné parametre, predstavujúce GET a POST parametre. Príklad takejto routy zobrazuje nasledujúci výpis.
+	\begin{lstlisting}[label=lst:sinatra-sampel,caption=Príklad definovania GET route vo frameworku Sinatra]
+	get '/hello/:name' do |n|
+		"Ahoj #{n}!"
+	end
+	\end{lstlisting}
+	V tejto aplikácii bola Sinatra použitá pri demonštrácii jedného z usecase - webu kontaktov. Celá logika aplikácie pozostáva vďaka použitiu tohoto frameworku z 32 riadkov.
+
 	\subsection{Bootstrap}
+	Bootstrap framework je najpopulárnejším HTML a CSS frameworkom pre vývoj webových projektov. Umožňuje rýchly a jednoduchý vývoj front-end aplikácie. Je dostupný vo forme css súborov ako aj sass pre jednoduché použitie v rails projektoch. Distribuovaný je pod MIT licenciou.
+	
+	Bootstrap poskytuje triedy upravujúce zobrazovanie základných HTML komponentov. Aplikovaný je pomocou premennej class na jednotlivých komponentoch. Distribúcia tiež zahŕňa sadu ikon, písem a javascript, ktorý je zodpovedný napríklad za zobrazenie vyskakovacích okien alebo pomocných textov. 
+	
+	Jednou z jeho najznámejších súčastí je mriežkový systém rozloženia stránky. Pred jeho použitím je potrebné pridať elementom, ktoré obaľujú stránku triedu container.	Mriežkový systém poskytuje responzívne rozhranie pozostávajúce z riadka obsahujúceho 12 stĺpcov, ktoré sa prispôsobujú podľa veľkosti obrazovky cieľového zariadenia. Tento systém umožňuje stránku rozdeliť na sekcie, ktoré je možné odsadiť, zarovnať, alebo rovnomerne rozložiť podľa potreby. Každý stĺpec funguje ako samostatná jednotka, ktorá môže obsahovať nový riadok s 12 stĺpcami. Stĺpce je možné spájať so skupín. Príklad použitia takéhoto rozloženia je vo výpise \ref{lst:bootstrap-grid}.
+	\begin{lstlisting}[label=lst:bootstrap-grid,caption=Príklad použitia Bootstrap grid systému]
+	<div class="row">
+		<div class="col-md-8">.col-md-8</div>
+		<div class="col-md-4">.col-md-4</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4">.col-md-4</div>
+		<div class="col-md-4">.col-md-4</div>
+		<div class="col-md-4">.col-md-4</div>
+	</div>
+	\end{lstlisting}
+	
+	Rozloženie stránky vytvorenej týmto kódom zobrazuje obrázok \ref{image_bootstrap-grid}.
+		
+	\myFigure{bootstrap-grid}{Ukážka Bootstrap grid systému}{Bootstrap grid systém}
+			
+	V tejto aplikácii bol bootstrap použitý pri vytváraní front-end administračného rozhrania ThesisWeb a usecase webu klientov.
+	

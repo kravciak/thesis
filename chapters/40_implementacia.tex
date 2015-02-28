@@ -1,7 +1,7 @@
 \chapter{Implementácia}
 Táto kapitola popisuje implementačné detaily projektu. 
 
-\section{Api}
+\section{ThesisApi}
 	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu s použitím spring frameworku.
 	\subsection{Konfiguračné súbory}
 		application-config.xml
@@ -75,7 +75,7 @@ Táto kapitola popisuje implementačné detaily projektu.
 		
 		%Väčšina funkcionality mavenu sa skladá z pluginov, k
 
-\section{Web}
+\section{ThesisWeb}
 	Web časť projektu slúži ako administračné rozhranie. Je riešené formou webovej aplikácie, ktorej základ je framework Ruby On Rails. Ten umožňuje rýchle vytváranie stránok, kde prevažuje prístup "convention over configuration". Dôležitou súčasťou frameworku sú gemy, ktoré reprezentujú závislosti projektu. Jedným z najpodstatnejších v tomto projekte je gem "her", ktorý zabezpečuje komunikáciu s Api časťou projektu.
 	
 	Grafická stránka tohoto projektu sa opiera o framework Bootstrap. Ten v základnej konfigurácii poskytuje html komponenty s vylepšeným UI. Tiež opravuje niektoré chyby kompatibility pri zobrazovaní stránok v rôznych prehliadačoch.
