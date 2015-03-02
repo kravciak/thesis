@@ -14,7 +14,7 @@
 
 	\subsection{Procesný model}
 
-	\subsection{Typ udalosti}
+	\subsection{Typy udalostí}
 	Každá udalosť spracovávaná esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť definované pri štarte aplikácie, alebo programovo počas behu. EPL tiež obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti pomocou EPL. Prehľad základných typov udalostí je v nasledujúcej tabuľke.
 
 	\myTable{
@@ -135,8 +135,32 @@
 	Pre uľahčenie vývoja projektov je dnes bežné použitie frameworku. Rozsahom malé aplikácie často vyžadujú použitie funkcionality (prihlasovanie, odosielanie mailov, práca s databázou, zjednotenie grafického zobrazenia pre rôzne platformy, správu závislostí), ktorej implementácia je zdĺhavá a v málo prípadoch lepšia ako pri opätovnom použitý riešenia na to stavaného. Pri vývoji jednotlivých častí tohoto projektu boli použité voľne dostupné frameworky, ktorých bližším popisom sa zaoberá táto sekcia.
 
 	\subsection{Spring}
+	Spring je framework napísaný v jave, distribuovaný pod Apache License verzie 2.0. Spring pozostáva z viacerých projektov zameraných na riešenie konkrétnych problémov vývoja aplikácie. V ThesisApi časti tejto aplikácie boli použité nasledujúce spring komponenty:
+	\begin{description}
+		\item[Spring Framework] svojou funkcionalitou rieši základné oblasti vývoja java aplikácií. Obsahuje základnú podporu pre injektovanie závislostí, správu transakcií, vývoj webových aplikácií alebo prístup k dátam. Táto funkcionalita je rozdelená do komponentov, z menovaných funcionalít to sú spring-core, spring-jdbc a spring-webmvc.
+		
+		\item[Spring Boot] je spôsob ako urýchliť vývoj spring aplikácií. Rovnako ako Ruby On Rails sa prikláňa k prístupu convention over configuration. Z využitej funkcionality je dôležitý hlavne webový server Tomcat, ktorý tento komponent obsahuje. Vďaka nemu nie je nutné robiť deploy war súborov serverovej časti aplikácie, stačí jednoducho zdrojové kódy preložiť a spustiť. Je možné tiež využiť komponenty obsiahnuté v rodičovskom pom súbore. Spring boot automaticky nakonfiguruje spring aplikáciu bez nutnosti XML konfiguračných súborov s predvolenými nastaveniami.
+	\end{description}
+		
+	\subsection{Ruby On Rails}
+	Mottom frameworku Ruby On Rails je snaha o dosiahnutie spokojnosti programátora a udržateľnú produktivitu. Framework uprednostňuje prístup convention over configuration, čo znamená že konfigurácia je preddefinovaná a ak programátor používa predom dohodnuté konvencie postačujú minimálne úpravy na dosiahnutie požadovaného výsledku. Konfiguráciu je samozrejme možné podľa potreby upraviť. Framework je voľne dostupný a distribuovaný pod MIT licenciou.
 	
-	\subsection{RubyOnRails}
+	Vytvorenie a spustenie nového projektu pozostáva z jednoduchej série príkazov zobrazených vo výpsie \ref{lst:ror-create}. Všetky závislosti sú automaticky stiahnuté pri vytvorení projektu nástrojom bundler.
+	\begin{lstlisting}[label=lst:ror-create,caption=Príklad vytvorenia a spustenia projektu v Ruby On Rails]
+		rails new myweb
+		cd myweb
+		rails s
+	\end{lstlisting}
+
+	Adresárová štruktúra projektu je prispôsobená MVC architektúre. Jednotlivé komponenty nájdeme v adresároch model, view a controller.
+	\begin{description}
+		\item[Model] je vrstva reprezentujúca údaje a ich logiku. Umožňuje definovať objekty, ktorých dáta vyžadujú uloženie v databáze. Vlastnosti týchto objektov sú mapované na relačné dáta. Model je možné definovať pomocou migrácií, ktoré po spustení upravujú štruktúru databázy a umožňujú rollback k predchádzajúcemu stavu. V modeloch je možné definovať kontroly vstupných dát, asociácie, funkcie na rozšírenie prístupu k údajom alebo spätné volania v závislosti na vykonávanej akcii.
+		\item[View] adresár je ďalej rozdelený do podadresárov reprezentujúcich jednotlivé controllery. Dôležitým je tiež adresár layout, ktorý ako názov napovedá obsahuje jednotný layout aplikácie. Prípona .erb súborov umožňuje použitie ruby kódu. V tomto adresári sa stretneme tiež so systémom vkladania čiastkových elementov stránky príkazom partial. Adresár helpers umožňuje definovať funkcie použiteľné v erb súboroch, ktoré sprehľadňujú štruktúru kódu.
+		\item[Controller] je zodpovedný za obsluhu požiadavku a vyprodukovanie odpovedi. Jeho úloha zvyčajne pozostáva z prijatia požiadavky, získania alebo uloženia dát do databázy, definovania premenných pre zobrazenia potrebného view súboru. Controller poskytuje prístup k request a response objektom a definuje premennú flash, ktorá môže obsahovať správu o úspechu alebo chybe danej akcie.
+	\end{description}
+	
+	Konfigurácia projektu je rozdelená do troch súborov podľa aktuálneho prostredia - test, development a production. Rovnako je možné podľa prostredia definovať rôzne databázy v súbore database.yml.
+	V konfigurácii framework nájdeme tiež súbory initializers, ktoré sú spustené pri štarte projektu a inicializujú jednotlivé komponenty a súbor routes obsahujúci smerovanie prichádzajúcich požiadavkov na jednotlivé controllery. Závislosti a použité komponenty sú definované v súbore Gemfile.
 	
 	\subsection{Sinatra}
 	Sinatra je jazyk použiteľný pre rýchly vývoj jednoduchých webových aplikácií postavených na ruby. Framework zapuzdruje jednoduchý webový server. Umožňuje definovať takzvané route, predstavujúce url, ktoré aplikácia rozoznáva. Obsahom bloku definujúceho route je telo metódy, ktorá sa má vykonať pri zavolaní danej url. Tieto bloky akceptujú vstupné parametre, predstavujúce GET a POST parametre. Príklad takejto routy zobrazuje nasledujúci výpis.
