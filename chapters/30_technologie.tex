@@ -127,11 +127,19 @@
 		Ak aplikácia nepozná EPL výrazy dopredu alebo nevyžaduje streamovanie výsledkov, je možné prostredníctvom EPRuntime spúšťať jednorázové výrazy. Tieto nie sú permanentné, po ich vykonaní je výsledok okamžite predaný aplikácii pre spracovanie. Použitie nachádzajú napríklad s pomenovanými oknami a tabuľkami, ktoré je možné indexovať pre zrýchlenie prístupu.		
 
 \section{Cassandra}
-
-	Pri porovnaní cassandry s relačnou databázou nájdeme podobné aj odlišné rysy. Column family je podobná tabuľke v tom že slúži ako kontajner pre riadky a stĺpce. 
+	http://planetcassandra.org/what-is-apache-cassandra/
 	
-	\subsection{Cassandra Query Language}
-	\ac{CQL} je jazyk ...
+	Cassandra je databázový projekt, ktorý pôvodne vznikol vo firme Facebook. Neskôr bol zverejnený ako open-source a v roku 2009 bol prijatý do Apache inkubátora. V roku 2010 získal top prioritu a je naďalej vyvíjaný a dostupný pod Apache 2.0 licenciou.
+	
+	Databáza je distribuovaná databáza, ktorá umožňuje spracovanie a uchovávanie veľkého množstva dát rozložených na veľkom počte menej výkonných serverov. Táto architektúra zároveň poskytuje vysokú dostupnosť dát pri zabezpečení proti strate dát pri výpadku niektorého zo serverov. Cassandra je navrhnutá na použitie veľkého počtu počítačov (v ráde stoviek) podľa možností rozložených v rôznych častiach sveta.
+	
+	Aj keď v mnohom pripomína Cassandra relačnú databázu, nepodporuje plne relačný model. Namiesto toho poskytuje klientom jednoduchý dátový model, ktorý je možné dynamicky upravovať.
+	
+	Cassandra bola navrhnutá pre beh na cenovo dostupnom hardware a podporuje rýchly zápis veľkého množstva dát pri zachovaní efektívnosti prístupu k nim. Týmto pomáha znižovať firemné náklady na hardware.
+	
+	Vďaka týmto vlastnostiam je cassandra využívaná množstvom známych firiem, medzi ktoré patrí napríklad CERN, eBay, GitHub, Netflix, Twitter alebo Cisco. Veľké produkčné nasadenia obsahujú stovky TB dát v klastroch obsahujúcich stovky serverov. Pri porovnaní výkonnosti s ostatnými NoSQL databázami  Cassandra získava výborné výkonnostné výsledky aj vďaka svojej jednoduchej architektúre, porovnanie s alternatívami vidíme na obrázku \ref{image_cassandra-performance}
+	
+	\myFigure{cassandra-performance}{Porovnanie výkonnosti cassandry s alternatívnymi NoSQL databázami}{Výkonnosť Cassandra databázy}
 	
 \section{Frameworky}
 	Pre uľahčenie vývoja projektov je dnes bežné použitie frameworku. Rozsahom malé aplikácie často vyžadujú použitie funkcionality (prihlasovanie, odosielanie mailov, práca s databázou, zjednotenie grafického zobrazenia pre rôzne platformy, správu závislostí), ktorej implementácia je zdĺhavá a v málo prípadoch lepšia ako pri opätovnom použitý riešenia na to stavaného. Pri vývoji jednotlivých častí tohoto projektu boli použité voľne dostupné frameworky, ktorých bližším popisom sa zaoberá táto sekcia.

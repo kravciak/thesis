@@ -19,7 +19,6 @@
 	\end{itemize}
 	
 	
-	
 	From \cite{web:cep-editorial}.
 	http://www.tibco.com/blog/2009/08/21/cep-versus-esp-an-essay-or-maybe-a-rant/
 
@@ -41,15 +40,19 @@
 
 	Naproti tomu NoSQL dátový model agreguje ukladané dáta do jedného objektu - napríklad dokumentu v prípade objektových databáz. V NoSQL nie je definovaná operácia JOIN, čo vedie k duplikácií informácií vo viacerých tabuľkách. Tento problém však vyvažuje dnes lacný úložný priestor, flexibilita dátového modelu, zlepšený výkon operácií čítania a zápisu a škálovateľnosť úlotohoto systému.
 	
-	Ďalším veľkým rozdielom je že relačné databázy musia definovať schému tabuľky, naproti NoSQL databázam, ktoré fungujú aj bez definovanej schémy. Úpravy schém tabuľky obsahujúcej údaje je často problematické, čo môže byť v dobe kedy je nutný kontinuálny vývoj aplikácie a neustále pridávanie novej funkcionality nepríjemné. Naproti tomu sú napríklad databázy dokumentov bez schémy, čo umožňuje úpravy jednotlivých položiek bez narušenia ostatnej funkcionality.
-	
-	\myFigure{dynamic_column_family}{Dynamická štruktúra tabuľky databázy Cassandra}{Dynamická štruktúra tabuľky}
+	Ďalším veľkým rozdielom je že relačné databázy musia definovať schému tabuľky, naproti NoSQL databázam, ktoré fungujú aj bez definovanej schémy. Úpravy schém tabuľky obsahujúcej údaje je často problematické, čo môže byť v dobe kedy je nutný kontinuálny vývoj aplikácie a neustále pridávanie novej funkcionality nepríjemné. Naproti tomu sú napríklad databázy dokumentov bez schémy, čo umožňuje úpravy jednotlivých položiek bez narušenia ostatnej funkcionality. Príklad tabuľky s dynamickou štruktúrou vidíme na obrázku \ref{image_dynamic_column_family}.
 
+	\myFigure{dynamic_column_family}{Dynamická štruktúra tabuľky databázy Cassandra}{Dynamická štruktúra tabuľky}
+	
+	Pre vyriešenie problémov s rastúcim počtom užívateľov a údajov je nutné aplikácie škálovať - a to horizontálne alebo vertikálne.
+	\begin{itemize}
+		\item Vertikálne škálovanie predstavuje centralizovaný prístup založený na vylepšovaní konfigurácie serverov, prípadne ich nahradení výkonnejšími servermi.
+		\item Horizontálne škálovanie predstavuje distribuovaný prístup, kde sú do konfigurácie pridané ďalšie servery, ktoré umožňujú rozloženie záťaže.
+	\end{itemize}
+	Pred príchodom NoSQL bolo obvyklé vertikálne škálovanie. Pri raste množstva dát boli potrebné výkonnejšie servery s väčšou RAM, výkonnejšími procesormi a väčším diskovým priestorom. Cena a komplikovanosť takýchto serverov však neúmerne stúpa so zvyšujúcimi sa požiadavkami, ako je možné vidieť na obrázku \ref{image_scale-up-out}. Po istej úrovni už nie je možné konfiguráciu serveru vylepšiť, je nutné zaobstarať ďalší a rozloženie zaťaženia databázy riešiť na aplikačnej úrovni, čo je veľmi náročná úloha pre programátorov a správcov databázy. 
 	
 	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu}{Škálovanie aplikácie vzhľadom na jej cenu}
 	
-	schema-less, mnozstvo dat...
-
 	\ac{NoSQL} zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
 	
 	Typy NoSQL databáz:
@@ -60,12 +63,7 @@
 		\item[Databázy širokých stĺpcov]
 	\end{description}
 	
-	
-	
-	
 	Relačné databázy neboli navrhnuté so zreteľom na požiadavky a nároky s ktorými sa dnešné aplikácie stretávajú. Tiež neumožňujú využiť výhody lacných úložísk dát a výpočtového výkonu.
-	
-	Dnes existuje viacero NoSQL databáz, 
 	
 	
 	

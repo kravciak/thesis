@@ -1,10 +1,15 @@
-\chapter{Implementácia}
+\chapter{Návrh a Implementácia}
 Táto kapitola popisuje implementačné detaily projektu. 
+img - use case
+-img - architektura aplikacie = web / api -rest-db
+-img - db model
+-img - rest api
+rozdiel v api export / get exportAll / getAll
 
 \section{ThesisApi}
 	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu s použitím spring frameworku.
 	\subsection{Konfiguračné súbory}
-		application-config.xml
+		application-config.xml - jdbc config
 		database.properties
 		esper.cfg.xml
 		logback.xml
@@ -14,11 +19,12 @@ Táto kapitola popisuje implementačné detaily projektu.
 		\subsubsection{Databáza konfigurácie}
 		Ako databázu pre ukladanie stavu esperu a jednotlivých konfiguračných položiek som použil \ac{HSQLDB}. Táto databáza je napísaná v jave a pre ukladanie tabuliek ponúka pamäťový aj diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu. Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a zmeniť položku dataSource.
 		
-		Databáza obsahuje tabuľku schém a statementov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na nasledujúcom obrázku.
-		%TODO model databazy
+		Databáza obsahuje tabuľku schém a statementov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na obrázku \ref{image_db-model-1}.
+		\myFigure{db-model-1}{Model databázy konfigurácie}{Model databázy konfigurácie}
 			
 		\subsubsection{Databáza udalostí}
 		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná.
+		\myFigure{db-model-2}{Model databázy udalostí}{Model databázy udalostí}
 	
 	\subsection{Spring framework}
 		Ako základ serverovej časti aplikácie som použil Spring framework. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
@@ -29,6 +35,42 @@ Táto kapitola popisuje implementačné detaily projektu.
 			\item[spring-webmvc:] Prístup k dátam a ovládaniu serverovej časti aplikácie je umožnený pomocou restovej api.
 			\item[spring-boot-starter-web:] Táto závislosť umožňuje použitie pribaleného tomcat serveru. Ten sa spustí pri štarte aplikácie a sprístupní restovú api.
 		\end{description}
+
+	\myTable{
+	\begin{tabular}{ | l | l | l | }
+		\hline
+		HTTP metóda & Funkcia & URL	\\
+		\hline
+					
+		GET    & ping()          & /esper/ping                                           \\
+		POST   & processStream() & /esper/events                                         \\
+		&&\\
+		GET    & get()           & /schemas/\{id\}                                       \\
+		GET    & getAll()        & /schemas                                              \\
+		POST   & create()        & /schemas                                              \\
+		DELETE & delete()        & /schemas/\{id\}                                       \\
+		&&\\
+		GET    & control()       & /statements/\{id\}/control                            \\
+		GET    & get()           & /statements/\{id\}                                    \\
+		GET    & getAll()        & /statements                                           \\
+		POST   & create()        & /statements                                           \\
+		DELETE & delete()        & /statements/\{id\}                                    \\
+		&&\\
+		DELETE & deleteAll()   & /statements/\{statement\_id\}/results                 \\
+		DELETE & deleteOne()   & /statements/\{statement\_id\}/results/\{uuid\}        \\
+		GET    & exportOne()   & /statements/\{statement\_id\}/results/\{uuid\}/export \\
+		GET    & exportAll()   & /statements/\{statement\_id\}/results/export          \\
+		GET    & getOne()      & /statements/\{statement\_id\}/results/\{uuid\}        \\
+		GET    & getAll()      & /statements/\{statement\_id\}/results                 \\
+		GET    & count()       & /statements/\{statement\_id\}/results/count           \\
+		GET    & replayAll()   & /statements/\{statement\_id\}/results/replay          \\
+		GET    & replayOne()   & /statements/\{statement\_id\}/results/\{uuid\}/replay \\
+		\hline
+	\end{tabular}
+	}{Mapovanie funkcií na REST URL}{table:rest-urls}
+
+	\myFigure{api-funkcie}{Parametre funkcií REST rozhrania}{Parametre funkcií REST rozhrania}
+	\myFigure{components}{Diagram komponentov aplikácie}{Diagram komponentov aplikácie}
 
 	\subsection{Esper engine}
 		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov.
@@ -83,9 +125,18 @@ Táto kapitola popisuje implementačné detaily projektu.
 	Web nevyužíva žiadne persistentné úložisko dát. Všetky realizované zmeny sú posielané na restovú api, ktorá zmeny spracuje a uloží. Zobrazované údaje sú tiež získavané zo vzdialeného zdroja.
 		
 \section{UseCase}
+	Na predvedenie možností použitia aplikácie som vytvoril 2 jednoduché programy. Prvý Twitter Stream demonštruje možnosť zasielania udalostí na server a Contacts Web predstavuje možnosť alternatívneho použitia esperu. 
 	
 	\subsection{Twitter Stream}
+	Twitter Stream predstavuje možnosť zasielanie streamu udalostí na REST rozhranie serveru. Skript je napísaný v Ruby a demonštruje ako sa je možné pomocou necelých 30 riadkov kódu napojiť na Twitter Api a presmerovať vzorku tweetov na server. Prijatý tweet je vo forme objektu, ktorý je nutné pred preposlaním formátovať do XML dokumentu. Skript pred spustením odošle na server požiadavku pre registrovanie schémy tweetu, ktorá sa nachádza v samostatnom súbore.
+	
+	Podobne ako je predvedené v Twitter Stream je možné naprogramovať ďalšie generátory udalostí. Jedinou podmienkou je definovanie schémy (čo je možné aj pomocou administračného rozhrania) pred spustením generátora a streamovanie udalostí vo forme XML dokumentov na URL definovanú v administračnom rozhraní.
+	
 	\subsection{Contacts Web}
-		
-- 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
-- moznost prehravania historickych dat (vysledokv) ako vstup
+	Contacts Web je webová aplikácia, zostavená pomocou frameworku Sinatra a Bootstrap. Aplikácia obsahuje prezentačnú a aplikačnú vrstvu, databázová vrstva je riešená pomocou REST volaní na server. Vďaka tomu je možné logiku aplikácie zmestiť do necelých 30 riadkov kódu.
+	
+	Logika aplikácie pozostáva z obsluhy požiadavkov na vytvorenie nového kontaktu, zmazanie existujúceho a výpis existujúcich kontaktov. Všetky tieto požiadavky sú posielané na server.
+	
+	Možnosť filtrovania údajov pomocou preddefinovaných pravidiel.
+	Deklaratívne programovanie.
+	
