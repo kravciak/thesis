@@ -1,11 +1,19 @@
 \chapter*{Úvod}
 \addcontentsline{toc}{chapter}{\protect\numberline{}Úvod}
 
-Dejte si záležet na úvodu, kde popíšete motivaci a cíle práce. Popište tam vizi jednoduché a deklarativní tvorby webových služeb pomocí SQL-like jazyku Esper. Probírali jsme ji na obědech.
+Rýchly nárast množstva dát produkovaných užívateľmi a aplikáciami prináša problémy s ich spracovaním a vyhodnocovaním. Pri analýze statických dát z bežnej databázy narážame na obmedzenia spôsobené dávkovým spracovaním dotazov. Technológia spracovania \ac{CEP} prináša možnosť spracovania prúdov informácií a ich komplexných závislostí v reálnom čase. Definuje pojem udalosť, ktorá predstavuje jednotku informácie s ktorou systém pracuje. Bližšie sa touto technológiou zaoberá kapitola \ref{chap:pojmy}.
 
-%Vo svojej práci som čerpal z množstva materiálov dostupných prevažne online. Čiastočne som využil aj prácu Tomáša Zvalu\cite{tomaszvala} o vysokej dostupnosti dát na virtuálnych serveroch, ktorú som rozšíril napríklad o pohľad na systémy zabezpečujúce automatické migrovanie procesov v prípade výpadku, podrobnejší popis vybraných oblastí a testy rýchlostí súborových systémov. Využil som tiež prácu, ktorú napísal Radek Zima\cite{radekzima}, konkrétne časť popisujúcu možnosti ukladania dát.
+Prvotným cieľom tejto diplomovej práce je vytvorenie grafického nástroja, ktorý umožní vykonávanie základných operácií potrebných pre prácu s esper engine. Tými sú správa schém a statementov, odosielanie udalostí a zobrazenie nájdených výsledkov. Použitím tohoto nástroja odpadá užívateľovi potreba znalosti programovacích platforiem java a net, pre ktoré je esper oficiálne dostupný.
 
-http://lucie.zolta.cz/index.php/softwarove-inzenyrstvi/38-deklarativni-programovani
-http://cs.wikipedia.org/wiki/Deklarativn%C3%AD_programov%C3%A1n%C3%AD
+Druhotným cieľom je rozdelenie väzby medzi administračným rozhraním a esper engine a umožnenie prístupu k základným operáciám definovaným v prvom cieli pomocou restovej api. Toto rozdelenie umožní vytváranie ďalších aplikácií, ktoré budú využívať esper engine taktiež bez nutnosti znalosti programovania v jave alebo NET platforme.
+
+So splnením druhého cieľa je tiež viazaný koncept deklaratívnej tvorby webových aplikácií. Bežne sa stretneme s imperatívnym programovacím prístupom, kde je funkcionalita riešená presne definovanými algoritmami, teda postupom ako danú úlohu vyriešiť. Deklaratívne programovanie naproti tomu hovorí čo sa má vykonať, nie ako sa to má vykonať.
+Využitie restovej api pre komunikáciu s esper engine umožňuje vytvárať jednoduché webové aplikácie, ktorých dátová časť je riešená deklaratívne. Pred použitím je nutné definovať schému dát napríklad pomocou administračného rozhrania a nastaviť statementy, ktoré budú zachytávať a filtrovať prichádzajúce dáta. Následne sa stačí odosielať nové záznamy na definovanú URL. Tie vyhovujúce definovaným filtrom budú prístupné vo výsledkoch daného statementu.
+
+Tretím cieľom práce je umožnenie práce s historickými dátami. Jedným spôsobom realizácie bude možnosť odosielania súborov obsahujúcich dáta vo formáte XML. Druhým zaujímavejším riešením je možnosť presmerovania výsledkov konkrétneho statementu na vstup esper engine ako nový zdroj dát.
+
+Použitie diplomovej práce vyžaduje základnú znalosť esper syntaxe a je koncipovaná ako pre začiatočníkov, ktorí môžu k esperu pristupovať bez znalosti javy tak pre pokročilých užívateľov, ktorým môže uľahčiť a sprehľadniť prácu. Súčasťou práce je tiež postup prípravy systému a inštalácia, keďže tieto úkony nie sú triviálne.
+
+Pri písaní práce som čerpal prevažne z online dokumentácie esperu a ruby on rails frameworku. Tiež som využil bakalársku prácu Štefana Repčeka \cite{bp-repcek} a diplomovú prácu Jána Dema \cite{dp-demo} ako množstvo iných dostupných materiálov dostupných prevažne online.
 
 \emptydoublepage

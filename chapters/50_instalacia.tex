@@ -139,14 +139,103 @@
 	Pre používanie je potrebné mať spustené Api.
 
 \section{Použitie}
-	Hlavná obrazovka je rozdelená na štyri hlavné časti reprezentujúce správu konkrétnej časti esperu.
+
+	\subsection{ThesisApi}
+	Serverová časť aplikácie je prístupná prostredníctvom restovej api počúvajúcej na porte 80. Jej použitie teda spočíva z zavolaní správnej URL so správnymi parametrami. Po spustení je aplikácia predvolene prístupná na adrese http://localhost:8080/. Vo výpise \ref{lst:rest-api} sú zobrazené príklady volaní, ktoré server akceptuje.
+
+	\begin{lstlisting}[label=lst:rest-api,caption=Príklad volaní REST API]
+	Výpis prvých 100 schém
+	http://localhost:8080/schemas?offset=0&limit=100
+	
+	Výpis prvých 100 statementov
+	http://localhost:8080/statements?offset=0&limit=100
+	
+	Zobrazenie výsledkov
+	http://localhost:8080/statements/53/results
+	\end{lstlisting}
+	
+	Každá metóda má definovaný spôsob prístupu, teda jedinečnú kombináciu URL a metódy volania (GET, POST, DELETE). Tabuľka \ref{table:rest-urls} poskytuje kompletný prehľad mapovania http metódy a url na funkciu, ktorá obsluhuje dané volanie.	Funkcie sú rozdelené do štyroch hlavných skupín podľa oblasti, ktorú obsluhujú. Takisto ich mapovanie zodpovedá konkrétnej oblasti.
+	
+	\myTable{
+		\begin{tabular}{ | l | l | l | }
+			\hline
+			HTTP metóda & Funkcia & URL	\\
+			\hline
+			
+			GET    & ping()          & /esper/ping                                           \\
+			POST   & processStream() & /esper/events                                         \\
+			&&\\
+			GET    & get()           & /schemas/\{id\}                                       \\
+			GET    & getAll()        & /schemas                                              \\
+			POST   & create()        & /schemas                                              \\
+			DELETE & delete()        & /schemas/\{id\}                                       \\
+			&&\\
+			GET    & control()       & /statements/\{id\}/control                            \\
+			GET    & get()           & /statements/\{id\}                                    \\
+			GET    & getAll()        & /statements                                           \\
+			POST   & create()        & /statements                                           \\
+			DELETE & delete()        & /statements/\{id\}                                    \\
+			&&\\
+			DELETE & deleteAll()   & /statements/\{statement\_id\}/results                 \\
+			DELETE & deleteOne()   & /statements/\{statement\_id\}/results/\{uuid\}        \\
+			GET    & exportOne()   & /statements/\{statement\_id\}/results/\{uuid\}/export \\
+			GET    & exportAll()   & /statements/\{statement\_id\}/results/export          \\
+			GET    & getOne()      & /statements/\{statement\_id\}/results/\{uuid\}        \\
+			GET    & getAll()      & /statements/\{statement\_id\}/results                 \\
+			GET    & count()       & /statements/\{statement\_id\}/results/count           \\
+			GET    & replayAll()   & /statements/\{statement\_id\}/results/replay          \\
+			GET    & replayOne()   & /statements/\{statement\_id\}/results/\{uuid\}/replay \\
+			\hline
+		\end{tabular}
+	}{Mapovanie funkcií na REST URL}{table:rest-urls}
+	
+	Obrázok \ref{image_api-funkcie} predstavuje parametre funkcií REST rozhrania. Rovnako ako tabuľka \ref{table:rest-urls} je rozdelený do štyroch skupín predstavujúcich triedy obsahujúcu konkrétnu funkciu. Ich vzájomnou kombináciou sme schopní identifikovať všetky REST volania, ktoré umožňuje serverová časť aplikácia spracovať.
+
+	\myFigure{api-funkcie}{Parametre funkcií REST rozhrania}{Parametre funkcií REST rozhrania}
+
+	%TODO Formát prijímaných udalostí udalosti, spracovanie streamu umožňuje veľké súbory
+	%TODO Streamovanie je realizované pomocou Faraday::UploadIO komponentu aplikácie.
+
+	\subsection{ThesisWeb}
+	Hlavná obrazovka zobrazuje tri oblasti esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém, správu statementov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym statementom.
+	\myFigure{gui-menu}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
+	
+	Pod týmto menu sa nachádza navigačný panel s informáciou o ceste k práve zobrazovanej stránke. Po jeho pravej strane sú ovládacie tlačidlá na pridávanie, mazanie, prípadne export elementov na stránke. Súčasťou navigačného panelu je na stránke schém a statementov vyhľadávanie, ktoré umožňuje filtrovať pomocou mena schémy alebo statementu.
+	
+	
+	Pod navigačným menu sa nachádza samotný obsah stránky. Nasledujúci text popisuje každú zo štyroch hlavných sekcií.
 	\begin{description}
-		\item[Schémy] ...
-		\item[Statementy] ...
-		\item[Sender] ...
-		\item[Výsledky] ...
+		\item[Schémy:] Na hlavnej obrazovke je možné vidieť zoznam schém a pri niektorých z nich číslo. Toto číslo reprezentuje počet statementov závislých na konkrétnej schéme. Pro rozkliknutí schémy sa zobrazí jej detail. Na ľavej strane sú zobrazené dodatočné informácie vrátane zoznamu statementov závislých na danej schéme. Na pravej strane obrazovky je konkrétna XML schéma. Pomocou ovládacích tlačidiel je možné túto schému exportovať alebo zmazať v prípade že neobsahuje žiaden na nej závislý statement.
+
+		Pri pridávaní je nutné vyplniť meno schémy, koreňový element umožňujúci esper engine jedinečne identifikovať schému (zhodný s koreňovým elementu definície schémy) a XML definíciu schémy.
+
+		\item[Statementy:] Podobne ako v prípade schém nájdeme na hlavnej obrazovke zoznam statementov a pri každom z nich počet udalostí, ktoré mu vyhovujú. Po rozkliknutí sa zobrazí detail statementu. Na tejto stránke je zaujímavá z popisu statementu na ľavej strane URL adresa pomocou ktorej sú výsledky dostupné priamo zo serverovej API a odkaz pre zobrazenie výsledkov.
+		Na pravej strane je zobrazená schéma statementu s menami polí ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
+		Ovládací panel statementu umožňuje spustiť, pozastaviť alebo zmazať daný statement. Pozastavené statementy nevyhľadávajú nové udalosti
+		\myFigure{gui-replay-form}{Formulár preposielania historických udalostí na esper engine}{Formulár preposielania historických udalostí}
+		
+		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať statement v esper engine. V prípade že už existuje statement s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky statementu držané v databáze. Posledné textové pole obsahuje text vytváraného statementu. Novo vytvorený statement je predvolene v spustenom stave.
+		
+		\item[Streamer:] Pre posielanie nových udalostí existuje viacero spôsobov, jedným z nich je odoslanie udalostí pomocou administračného rozhrania na tejto stránke. V hornej časti je URL, ktorú je možné použiť na odosielanie udalostí priamo na API serverovej časti. Štruktúra odosielanej udalosti je bližšie popísaná v použití serverovej časti aplikácie a esper dokumentácii.
+		Pre odoslanie udalostí je možné použiť formulár alebo udalosti načítať zo súboru. Obe možnosti sa dajú použiť súčasne. Pri načítaní zo súboru sú odosielané udalosti streamované, čo umožňuje posielať veľké objemy dát.
+
+		V ovládacích prvkoch stránky nájdeme tlačidlo pre odoslanie vzorky dát. Tieto sú načítané zo súboru a vyhovujú prednastaveným schémam a statementom. Ich použitie uľahčuje pochopenie fungovania aplikácie.
+		
+		\item[Výsledky] Pre zobrazenie výsledkov musíme najprv vybrať statement, ktorého výsledky chceme vidieť. Na stránku výsledkov je možné sa dostať z detailu statementu kliknutím na odkaz s počtom výsledkov alebo na poslednú položku z menu.
+		Na základnej stránke je tabuľka so zoznamom výsledkov. Tieto je možné stránkovať, avšak z dôvodu použitia NoSQL databázy nie je možné preskočiť na konkrétnu stránku. Je to zapríčinené tým, že použitá databáza nepozná klauzulu OFFSET a k výsledkom je tak možné pristupovať len špecifikáciou ich primárneho kľúča, alebo vzťahu k inému primárnemu kľúču.
+		Po rozkliknutí konkrétneho výsledku sa na ľavej strane zobrazí jeho detailný popis, v ktorom je možné vidieť napríklad statement ktorému výsledok patrí alebo čas za ktorý expiruje. Pod týmito metadátami je daný výsledok zobrazený v JSON formáte.
+		
+		Podobne ako na stránke statementu, kde je možné preposlať všetky výsledky je možné preposlať jeden konkrétny výsledok pomocou panelu v pravej časti tejto stránky.
+
+		Vďaka ovládacím prvkom je možné exportovať alebo zmazať všetky výsledky na hlavnej stránke, alebo konkrétny výsledok pri zobrazení jeho detailu. V navigačnom paneli je zobrazené aj UUID výsledku.
 	\end{description}
-popis GUI..
+
+	
+	\myFigure{gui-breadcrumbs}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
+	
+	\myFigure{gui-schema}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
+	
+
 názorné priklady
 - 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
 - moznost prehravania historickych dat (vysledokv) ako vstup

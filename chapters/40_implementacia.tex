@@ -1,10 +1,7 @@
 \chapter{Návrh a Implementácia}
 Táto kapitola popisuje implementačné detaily projektu. 
-img - use case
--img - architektura aplikacie = web / api -rest-db
--img - db model
--img - rest api
-rozdiel v api export / get exportAll / getAll
+%TODO img - use case
+%TODO rozdiel v api export / get exportAll / getAll
 
 \section{ThesisApi}
 	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu s použitím spring frameworku.
@@ -36,40 +33,6 @@ rozdiel v api export / get exportAll / getAll
 			\item[spring-boot-starter-web:] Táto závislosť umožňuje použitie pribaleného tomcat serveru. Ten sa spustí pri štarte aplikácie a sprístupní restovú api.
 		\end{description}
 
-	\myTable{
-	\begin{tabular}{ | l | l | l | }
-		\hline
-		HTTP metóda & Funkcia & URL	\\
-		\hline
-					
-		GET    & ping()          & /esper/ping                                           \\
-		POST   & processStream() & /esper/events                                         \\
-		&&\\
-		GET    & get()           & /schemas/\{id\}                                       \\
-		GET    & getAll()        & /schemas                                              \\
-		POST   & create()        & /schemas                                              \\
-		DELETE & delete()        & /schemas/\{id\}                                       \\
-		&&\\
-		GET    & control()       & /statements/\{id\}/control                            \\
-		GET    & get()           & /statements/\{id\}                                    \\
-		GET    & getAll()        & /statements                                           \\
-		POST   & create()        & /statements                                           \\
-		DELETE & delete()        & /statements/\{id\}                                    \\
-		&&\\
-		DELETE & deleteAll()   & /statements/\{statement\_id\}/results                 \\
-		DELETE & deleteOne()   & /statements/\{statement\_id\}/results/\{uuid\}        \\
-		GET    & exportOne()   & /statements/\{statement\_id\}/results/\{uuid\}/export \\
-		GET    & exportAll()   & /statements/\{statement\_id\}/results/export          \\
-		GET    & getOne()      & /statements/\{statement\_id\}/results/\{uuid\}        \\
-		GET    & getAll()      & /statements/\{statement\_id\}/results                 \\
-		GET    & count()       & /statements/\{statement\_id\}/results/count           \\
-		GET    & replayAll()   & /statements/\{statement\_id\}/results/replay          \\
-		GET    & replayOne()   & /statements/\{statement\_id\}/results/\{uuid\}/replay \\
-		\hline
-	\end{tabular}
-	}{Mapovanie funkcií na REST URL}{table:rest-urls}
-
-	\myFigure{api-funkcie}{Parametre funkcií REST rozhrania}{Parametre funkcií REST rozhrania}
 	\myFigure{components}{Diagram komponentov aplikácie}{Diagram komponentov aplikácie}
 
 	\subsection{Esper engine}
