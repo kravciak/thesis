@@ -1,23 +1,40 @@
 \chapter{Návrh a Implementácia}
-Táto kapitola popisuje implementačné detaily projektu. 
-%TODO img - use case
-%TODO rozdiel v api export / get exportAll / getAll
+\label{chap:implementacia}
+
+Táto kapitola popisuje implementačné detaily projektu. Kompletný projekt obsahuje štyri časti, serverovú api, jej administračné rozhranie a dva príklady použitia. Administračné rozhranie ako aj oba príklady použitia sú závislé na serverovej časti, na ktorej restové rozhranie sa pripájajú. Serverová api je nezávislá, jedinou prerekvizitou je databáza cassandra, ktorá musí byť spustená ako prvá. Závislosti komponentov aplikácie zobrazuje diagram \ref{image_components}.
+\myFigure{components}{Diagram komponentov aplikácie}{Diagram komponentov aplikácie}
+
+Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresároch. Projekt navyše obsahuje adresár so vzorovými schémami a udalosťami.
 
 \section{ThesisApi}
 	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu s použitím spring frameworku.
+
+	Vo finálnej verzii som ponechal aj súbory v balíčku sample, ktoré slúžia na testovanie aplikácie. Ich použitím je možné jednorázovo spustiť serverovú časť aplikácie, načítať schémy a definovanými pravidlami vyhodnotiť udalosti uložené v csv súboroch v resources adresári. Takéto jednorázové spustenie uľahčuje hľadanie chýb, prípadne testovanie novej funkcionality aplikácie.
+
+	
+model
+exportall - getall
+
 	\subsection{Konfiguračné súbory}
-		application-config.xml - jdbc config
-		database.properties
-		esper.cfg.xml
-		logback.xml
+		Aplikácie využíva konfiguračné súbory umiestnené v adresári resources, ktoré sú načítané pri spustení. Najdôležitejšími z nich sú konfigurácie spring frameworku a databázy:
+		\begin{description}
+			\item[application-config.xml:] Konfiguračný súbor spring frameworku, ktorého najzaujímavejšou časťou je konfigurácia jdbc. Tá špecifikuje adaptér pripojenia k databáze konfigurácie, konkrétne parametre pripojenia sú načítané zo súboru database.properties.
+			\item[database.properties:] Súbor obsahuje nastavenie pripojenia k databázi. Jeho úpravou môžeme jednoducho nahradiť použitý databázový systém iným.
+		\end{description}
+		Ďalej v tomto adresári nájdeme vzorové schémy udalostí a samotné udalosti použité pre testovanie alebo konfiguráciu logovania.
+	
 	\subsection{Databáza}
 		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom. Je to tak kvôli predpokladu že esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
+		
+		Prístup k databázam zabezpečujú triedy v balíčku DAO, ktoré sú pre použitie injektované do ostatných objektov aplikácie. Balíček obsahuje tri triedy, dva z nich slúžia na správu schém a statementov a využívajú konfiguráciu načítanú zo súboru database.properties. Tretia trieda slúži na prácu s výsledkami statementov o jej konfiguráciu sa stará trieda Constants.java. Implementácia triedy obsluhujúcej výsledky je riešená trochu odlišne, kde sú všetky dotazy špecifikované na začiatku a v konštruktore inicializované do objektu PreparedStatement. Je to takto z dôvodu optimalizácie rýchlosti zápisu.			
 	
 		\subsubsection{Databáza konfigurácie}
 		Ako databázu pre ukladanie stavu esperu a jednotlivých konfiguračných položiek som použil \ac{HSQLDB}. Táto databáza je napísaná v jave a pre ukladanie tabuliek ponúka pamäťový aj diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu. Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a zmeniť položku dataSource.
 		
 		Databáza obsahuje tabuľku schém a statementov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na obrázku \ref{image_db-model-1}.
 		\myFigure{db-model-1}{Model databázy konfigurácie}{Model databázy konfigurácie}
+		
+		Pri ukončení aplikácie je nutné sa od databázy odpojiť aby boli zmeny dočasne uložené v pamäti presunuté na disk. Toto odpojenie zaobstaráva spúšťací súbor aplikácie, volaním príkazu "SHUTDOWN". Odpojenie je nutné vykonať aj pri nastavení automatického ukončenia relácie v parametroch pripojenia k databáze.
 			
 		\subsubsection{Databáza udalostí}
 		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná.
@@ -32,8 +49,17 @@ Táto kapitola popisuje implementačné detaily projektu.
 			\item[spring-webmvc:] Prístup k dátam a ovládaniu serverovej časti aplikácie je umožnený pomocou restovej api.
 			\item[spring-boot-starter-web:] Táto závislosť umožňuje použitie pribaleného tomcat serveru. Ten sa spustí pri štarte aplikácie a sprístupní restovú api.
 		\end{description}
-
-	\myFigure{components}{Diagram komponentov aplikácie}{Diagram komponentov aplikácie}
+		
+		Súčasťou spring frameworku je webové rozšírenie umožňujúce tvorbu restových služieb. V tejto implementácii som ich rozdelil do štyroch zdrojových súborov podľa oblastí, ktoré obsluhujú. Prvé dva SchemaController a StatementsController poskytujú prístup k správe schém a statementov, ResultController umožňuje prácu s výsledkami statementov a EsperController sa stará o spracovanie prichádzajúcich udalostí. Každá trieda je anotovaná pomocou @RestController a každá metóda definuje unikátnu cestu a HTTP metódu, pomocou ktorej sa vzdialene volá. Za zmienku tiež stojí závislosť ResultController na StatementsController, kde cesta k volaniu jednotlivých metód je vnorená. Výpis \ref{lst:rest-api-path} zobrazuje cesty ku controllerom, pri ktorých si môžeme všimnúť že akceptujú vstup vo forme JSON. V nasledujúcich kapitolách budú tiež detailne špecifikované prístupové cesty k jednotlivým REST metódam. 
+		
+		\begin{lstlisting}[label=lst:rest-api-path,caption=Definícia ciest REST API]
+	@RequestMapping(value = "esper", produces = "application/json")
+	@RequestMapping(value = "schemas", produces = "application/json")
+	@RequestMapping(value = "statements", produces = "application/json")
+	@RequestMapping(value = "/statements/{statement_id}/results", produces = "application/json")
+		\end{lstlisting}
+		
+		Spustenie aplikácie je implementované v triede Application.java, v ktorej je načítaná konfigurácia. Pomocou rozšírenia spring boot sú použité prednastavené (nekonfigurované) hodnoty podľa prístupu convention-over-configuration. Následne je automaticky spustený aplikačný server tomcat, ktorý je súčasťou distribúcie.
 
 	\subsection{Esper engine}
 		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov.
@@ -53,13 +79,16 @@ Táto kapitola popisuje implementačné detaily projektu.
 				\item STATE udávajúci či je konkrétny statement spustený alebo zastavený
 			\end{itemize}
 				
-			
+
 			Pri pridávaní statementu do esper engine je kontrolovaná unikátnosť mena v rámci daného esper providera. V prípade že existuje statement s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený statement je následne uložený.
+			
+			Pri pridávaní XML schém udalostí je nutné ich konvertovať do typu Document. To zaobstaráva trieda Helpers.java, ktorá sa zároveň stará napríklad o konvertovanie typov udalostí do JSON formátu.
+			
 		\end{description}
 		
 		Aplikácia definuje jeden globálny listener, ktorý je priradený všetkým statementom. Ten v prípade výskytu udalosti vyhovujúcej niektorému z definovaných statementov uloží udalosť vo forme obsahu json objektu do databázy.
 		
-		Esper umožňuje export výsledkov pomocou JSONRenderer a XMLRenderer, avšak tieto triedy produkujú formátovaný výstup, čo je v serverovej časti aplikácie neželané. Preto je konverzia realizovaná upravenými verziami týchto tried, ktoré nepridávajú formátovacie znaky a produkujú validné XML a JDON dokumenty. Predvolene je použitý upravený JSONRenderer.
+		Esper umožňuje export výsledkov pomocou JSONRenderer a XMLRenderer, avšak tieto triedy produkujú formátovaný výstup, čo je v serverovej časti aplikácie neželané. Preto je konverzia realizovaná upravenými verziami týchto tried, ktoré nepridávajú formátovacie znaky a produkujú validné XML a JSON dokumenty. Predvolene je použitý upravený JSONRenderer.
 		
 		Pri ukladaní týchto týchto výsledkov do databázy je nastavený TTL, ktorý bol definovaný pri vytvorení statementu. Ak TTL pri vytvorení statementu nebolo definované použije sa predvolené nastavenie, kde sú výsledky persistentné až kým ich užívateľ manuálne neodstráni.
 
@@ -87,6 +116,12 @@ Táto kapitola popisuje implementačné detaily projektu.
 	
 	Web nevyužíva žiadne persistentné úložisko dát. Všetky realizované zmeny sú posielané na restovú api, ktorá zmeny spracuje a uloží. Zobrazované údaje sú tiež získavané zo vzdialeného zdroja.
 		
+	presmerovanie v pripade ze engine je offline
+	napojenie cez konfiguraciu v her
+	usecase
+
+
+	
 \section{UseCase}
 	Na predvedenie možností použitia aplikácie som vytvoril 2 jednoduché programy. Prvý Twitter Stream demonštruje možnosť zasielania udalostí na server a Contacts Web predstavuje možnosť alternatívneho použitia esperu. 
 	

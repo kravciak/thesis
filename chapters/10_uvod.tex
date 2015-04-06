@@ -10,7 +10,9 @@ Druhotným cieľom je rozdelenie väzby medzi administračným rozhraním a espe
 So splnením druhého cieľa je tiež viazaný koncept deklaratívnej tvorby webových aplikácií. Bežne sa stretneme s imperatívnym programovacím prístupom, kde je funkcionalita riešená presne definovanými algoritmami, teda postupom ako danú úlohu vyriešiť. Deklaratívne programovanie naproti tomu hovorí čo sa má vykonať, nie ako sa to má vykonať.
 Využitie restovej api pre komunikáciu s esper engine umožňuje vytvárať jednoduché webové aplikácie, ktorých dátová časť je riešená deklaratívne. Pred použitím je nutné definovať schému dát napríklad pomocou administračného rozhrania a nastaviť statementy, ktoré budú zachytávať a filtrovať prichádzajúce dáta. Následne sa stačí odosielať nové záznamy na definovanú URL. Tie vyhovujúce definovaným filtrom budú prístupné vo výsledkoch daného statementu.
 
-Tretím cieľom práce je umožnenie práce s historickými dátami. Jedným spôsobom realizácie bude možnosť odosielania súborov obsahujúcich dáta vo formáte XML. Druhým zaujímavejším riešením je možnosť presmerovania výsledkov konkrétneho statementu na vstup esper engine ako nový zdroj dát.
+Tretím cieľom práce je umožnenie práce s historickými dátami. Jedným spôsobom realizácie bude možnosť odosielania súborov obsahujúcich dáta vo formáte XML. Druhým zaujímavejším riešením bude možnosť presmerovania výsledkov konkrétneho statementu na vstup esper engine ako nový zdroj dát.
+
+Súčasťou práce je úvod do problematiky NoSQL databáz, ktorých použitie je vhodné hlavne pri spracovaní veľkého množstva dát. Keďže esper engine je stavaný na takéto úlohy bude pre ukladanie výsledkov použitá práve NoSQL databáza.
 
 Použitie diplomovej práce vyžaduje základnú znalosť esper syntaxe a je koncipovaná ako pre začiatočníkov, ktorí môžu k esperu pristupovať bez znalosti javy tak pre pokročilých užívateľov, ktorým môže uľahčiť a sprehľadniť prácu. Súčasťou práce je tiež postup prípravy systému a inštalácia, keďže tieto úkony nie sú triviálne.
 

@@ -1,10 +1,12 @@
 \chapter{Definícia pojmov}
 \label{chap:pojmy}
 
-	\section{Complex Event Processing}
+\section{CEP}
+	\ac{CEP} je definovaný ako sada nástrojov a techník na analýzu a kontrolu komplexného sledu vzájomne prepojených udalostí, na ktorých sú postavené moderné distribuované informačné systémy. Táto technológia pomáha ľuďom v IT obore rýchlo identifikovať a vyriešiť mnohé problémy. \cite{power-of-events}
+
 	\ac{CEP} je dôležitou súčasťou vývoja reaktívnych aplikácií a monitorovacích programov. Použitie nachádza v mnohých oblastiach, napríklad pre automatické obchodné systémy, detekcie podvodov, analýzu sentimentu trhu, optimalizáciu dodávateľského reťazca, transporte a logistike alebo systémoch pre rýchlu pomoc. Predpokladá sa tiež nárast jeho využitie v informačných systémoch spolu so zvyšujúcim sa počtom decentralizovaných zdrojov dát ako blogov a rozvojom tagovacích a senzorových technológií.
-	
-	\ac{CEP} stavia na dvoch nutných podmienkach:
+
+	\ac{CEP} stavia na dvoch nutných podmienkach: \cite{web:cep-editorial}
 	\begin{itemize}
 		\item Oddeľuje tvorcov a príjemcov informácií. Tvorcovia nevyžadujú informácie o príjemcoch, rovnako ako príjemci nepotrebujú vedieť kto dáta produkuje.
 		\item CEP systémy okrem predávania informácií medzi tvorcami a príjemcami vo forme udalostí, ale umožňujú detekciu vzťahov medzi udalosťami.
@@ -12,16 +14,38 @@
 	
 	Príkladom takého vzťahu je dočasný vzťah definovaný pomocou korelačných pravidiel (event pattern). Pomocou agregácie a kompozície je možné generovať nové udalosti a z nich ďalej odvodiť ďalšie udalosti. Korelácia udalostí navyše pomáha redukovať množstvo dát a pomáha tak budovať škálovateľné systémy.
 	
-	\ac{CEP} stavia na základe definovanom \ac{SEP} a \ac{ESP}.
+	\ac{CEP} sa podobne ako iné technológie vyvíjal v čase a je postavený na základe definovanom \ac{SEP} a \ac{ESP}.
 	\begin{itemize}
 		\item SEP je najjednoduchším prípadom, kde je udalosť spracovaná izolovane bez ohľadu na ostatné udalosti.
 		\item ESP spracováva prúdy udalostí ako kolekcie, identifikuje typy udalostí použitím kontinuálnych výrazov a selektuje zaujímavé udalosti.
 		\item CEP je rozšírenie ESP o mechanizmy \ac{ECA} umožňujúce vykonávanie definovaných príkazov v závislosti na spracovávanej udalosti vyhovujúcej stanoveným podmienkam.
 	\end{itemize}
 	
+	Pre prácu s komplexnými udalosťami je potrebné najprv pochopiť čo sa pod týmto pojmom skrýva. V ďalšom texte aj pri samotnej práci v administračnom rozhraní sa stretneme s typmi udalostí a samotnými udalosťami. Tieto pojmy sú definované nasledovne \cite{etzion2011event}:
 	
-	From \cite{web:cep-editorial}.
-	http://www.tibco.com/blog/2009/08/21/cep-versus-esp-an-essay-or-maybe-a-rant/
+	\begin{description}
+		\item[Udalosť] je definovaná ako výskyt v danom systéme alebo doméne. Je to niečo čo sa stalo, alebo je predpokladané že sa stalo v danej doméne. Slovo udalosť je tiež používané vo význame programátorského objektu, ktorý reprezentuje výskyt udalosti v počítačovom systéme.
+		
+		\item[Typ udalosti] je špecifikáciou pre skupinu objektov udalostí, ktoré majú rovnaký účel a štruktúru. Každý objekt udalosti je považovaný za inštanciu typu udalosti.
+	\end{description}
+
+	Pred samotným spracovaním udalostí je nutné definovať ich typ, pravidlá spracovania a spracovanie výstupu. Po vykonaní týchto úkonov stačí na vstup procesného engine posielať udalosti daného typu. Model fungovania takéhoto systému vidíme na obrázku \ref{image_cep-model}. Na rovnakom princípe funguje serverová časť programu, ktorou sa bude bližšie zaoberať kapitola \ref{chap:implementacia}.
+	\myFigure{cep-model}{Model spracovania udalostí \cite{web:softwarearchitekturen}}{Model spracovania udalostí}
+	
+	Na rozdiel do databázových systémov sú dotazy na do prúdu udalostí vyhodnocované priebežne, v momente výskytu danej udalosti. Aj keď databázy zvyčajne pracujú s údajmi o udalostiach (napríklad históriou objednávok), dotazy v databázach sú jednorázové a ad-hoc, oproti konečnej množine dát. Naopak dotazy v CEP sú predom definované a množinou dát je nekonečný tok udalostí cez nich prechádzajúci \cite{web:ceptranslated}.
+		
+	Samotné spracovanie udalostí je postavené na logike, ktorú definujú pravidlá spracovania (statementy). Tieto pravidlá si môžeme predstaviť ako filter, cez ktorý prichádzajúce udalosti pretekajú. Ak udalosť filtru vyhovuje, prevedú sa vopred definované akcie a udalosť je odoslaná na výstup.	Tieto pravidlá je možné definovať pomocou jazyka EPL, ktorý je syntaxou veľmi podobný SQL.
+	
+	EPL umožňuje definovať dátové okná, ktoré predstavujú obdobu pohľadov (view) ako ich poznáme z databázových prostredí. CEP sa ale zaoberá prácou s tokmi dát, nie statickým pohľadom na nich prináša EPL možnosť rozšíriť tieto náhľady o definíciu rozsahu skúmaných dát. Príkladom použitia takejto definície je definícia dátového okna, ktoré bude udržiavať špecifický počet prijatých udalostí, prípadne udalosti prijaté v istom časovom rozsahu. Príklad takýchto obmedzení vidíme na obrázku \ref{image_cep-windows}. Bližšie príklady EPL syntaxe nájdeme v kapitole \ref{chap:technologie}.
+
+	\myFigure{cep-windows}{Príklad dátového okna obmedzeného časom a počtom udalostí \cite{web:softwarearchitekturen}}{Príklad dátového okna obmedzeného časom a počtom udalostí}
+	
+	Detekcia udalostí však sama o sebe dostačujúca, systémy riadené udalosťami tiež automaticky reagujú na detekované udalosti podľa predom stanovených pravidiel. Tie zvyčajne pozostávajú z notifikácie (užívateľa alebo ďalšieho systému), jednoduchých akcií (automatický nákup akcií, aktivácia požiarneho systému) alebo interakciou s iným systémom (spustením nového procesu).
+
+	Na trhu existuje viacero komerčných CEP riešení od firiem ako Tibco, Oracle či IBM. Zo zástupcov open-source produktov sú to napríklad JBoss Drools Fusion alebo Esper od firmy EsperTech, na ktorom bude postavená aj táto diplomová práca.
+
+	%From \cite{web:cep-editorial}.
+	%http://www.tibco.com/blog/2009/08/21/cep-versus-esp-an-essay-or-maybe-a-rant/
 
 \section{NoSQL}
 	Priekopníkom vzniku NoSQL databázy boli vedúce internetové spoločnosti ako Google, Facebook, Amazon a LinkedIn - prekonávali tak limitácie konceptu relačných databáz pri použití v moderných webových aplikáciách. Dnes používajú organizácie NoSQL na riešenie problémov, ktoré priniesli štyri trendy:
@@ -39,7 +63,7 @@
 	
 	NoSQL používa rozdielny dátový model ako relačné databázy. Relačný model rozprestrie dáta do viacerých vzájomne prepojených tabuliek obsahujúcich riadky a stĺpce. Pri získavaní informácií z relačnej databázy musia byť údaje z týchto tabuliek spojené. Podobne pri zápise musia byť údaje rozložené do jednotlivých tabuliek.
 
-	Naproti tomu NoSQL dátový model agreguje ukladané dáta do jedného objektu - napríklad dokumentu v prípade objektových databáz. V NoSQL nie je definovaná operácia JOIN, čo vedie k duplikácií informácií vo viacerých tabuľkách. Tento problém však vyvažuje dnes lacný úložný priestor, flexibilita dátového modelu, zlepšený výkon operácií čítania a zápisu a škálovateľnosť úlotohoto systému.
+	Naproti tomu NoSQL dátový model agreguje ukladané dáta do jedného objektu - napríklad dokumentu v prípade objektových databáz. V NoSQL nie je definovaná operácia JOIN, čo vedie k duplikácií informácií vo viacerých tabuľkách. Tento problém však vyvažuje dnes lacný úložný priestor, flexibilita dátového modelu, zlepšený výkon operácií čítania a zápisu a škálovateľnosť tohoto systému.
 	
 	Ďalším veľkým rozdielom je že relačné databázy musia definovať schému tabuľky, naproti NoSQL databázam, ktoré fungujú aj bez definovanej schémy. Úpravy schém tabuľky obsahujúcej údaje je často problematické, čo môže byť v dobe kedy je nutný kontinuálny vývoj aplikácie a neustále pridávanie novej funkcionality nepríjemné. Naproti tomu sú napríklad databázy dokumentov bez schémy, čo umožňuje úpravy jednotlivých položiek bez narušenia ostatnej funkcionality. Príklad tabuľky s dynamickou štruktúrou vidíme na obrázku \ref{image_dynamic_column_family}.
 
@@ -55,14 +79,6 @@
 	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu}{Škálovanie aplikácie vzhľadom na jej cenu}
 	
 	\ac{NoSQL} zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
-	
-	Typy NoSQL databáz:
-	\begin{description}
-		\item[Databázy dokumentov]
-		\item[Grafové databázy]
-		\item[Databázy kľúč-hodnota]
-		\item[Databázy širokých stĺpcov]
-	\end{description}
 	
 	Relačné databázy neboli navrhnuté so zreteľom na požiadavky a nároky s ktorými sa dnešné aplikácie stretávajú. Tiež neumožňujú využiť výhody lacných úložísk dát a výpočtového výkonu.
 	

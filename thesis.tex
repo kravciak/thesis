@@ -75,9 +75,9 @@
 \begin{document}
 
 % ----- Info o práci -----
-\title{Esper Web - úvod do problematiky}
+\title{Esper Web}
 \author{Martin Kravec}
-\date{Január 23, 2015}
+\date{Marec 23, 2015}
 
 %--------------------------------------------------------------
 \frontmatter
@@ -90,7 +90,7 @@ Prehlasujem, že som diplomovú prácu spracoval samostatne, a že som uviedol v
 \emptydoublepage
 
 \chapter*{Poďakovanie}
-Chcem poďakovať všetkým, ktorí ma podporovali a pomáhali mi, najmä svojim rodičom a starým rodičom za trpezlivosť a podporu pri štúdiu a Anke za motiváciu. V neposlednom rade ďakujem vedúcemu mojej práce, Mgr. Zbyňkovi Šlajchrtovi za cenné rady, ktoré mi dal.
+Chcem poďakovať všetkým, ktorí ma podporovali a pomáhali mi, najmä svojim rodičom a starým rodičom za trpezlivosť a podporu pri štúdiu. V neposlednom rade ďakujem vedúcemu mojej práce, Mgr. Zbyňkovi Šlajchrtovi za cenné rady, ktoré mi dal.
 
 \emptydoublepage
 
@@ -99,29 +99,27 @@ Chcem poďakovať všetkým, ktorí ma podporovali a pomáhali mi, najmä svojim
 %\label{abstract}
 
 \chapter*{Abstrakt}
-...
-%Cieľom tejto práce je oboznámenie čitateľov s problematikou vysokej dostupnosti a poskytnutie základného prehľadu o voľne dostupných technológiách, pomocou ktorých sa dá dosiahnuť. Zameriavam sa predovšetkým na riešenie problémov vyplývajúcich z hardwarových chýb systémov. Dokument bude možné použiť na získanie základných vedomostí potrebných pre konfiguráciu vlastného riešenia.
+Táto diplomová práca sa zaoberá problematikou spracovania komplexných udalostí. V teoretickej časti nájdeme vysvetlenie základných pojmov a popis použitých technológií. Čitateľ sa tiež zoznámi so základmi práce v esperi.
 
-%V praktickej časti realizujem vysoko dostupné klastrové riešenie pomocou voľne dostupných technológií a zároveň porovnám výkonnosť rôznych súborových systémov na tejto platforme. Práca môže poslúžiť aj ako návod ako pomocou vlastnej konfigurácie otestovať a čo najvhodnejšie zvoliť súborový systém pre použitie v produkčnom prostredí.
+Praktická časť práce sa zaoberá vytvorením administračného rozhrania, ktoré po napojení na serverovú časť aplikácie umožní použitie základnej funkcionality esper engine aj bez predchádzajúcej znalosti programovania. Súčasťou praktickej časti je postup prípravy systému, inštalácie a spustenia aplikácie, keďže ide o netriviálnu úlohu.
 
 \section*{Kľúčové slová}
-esper, cep, cassandra, nosql, rest, rails, gui \emptydoublepage
+cep, nosql, esper, cassandra, rest, rails, gui \emptydoublepage
 
 \chapter*{Abstract}
-...
-%The goal of this paper is to inform readers about high availability problematics and provide basic overview of free technologies you can use to achieve high availability. I focus mainly on solution of problems caused by hardware failures. Document can by used to gain basic knowledge needed for configuration of your own solution.
+This thesis deals with the complex event processing problem. In theoretical part you can find explanation of basic terms and description of used technologies. Reader also becomes fammiliar with basics of work with esper.
 
-%In practical part I will try to realize high available cluster using free technologies and compare performance of different filesystems on this platform. Document will provide instructions for choosing and testing appropriate filesystem for specific configuration that can be used in production environment.
+Practical part is about building administrative interface, which after connecting to server part of application enables user to use basic functionality of esper engine without previous programming knowledge. Part of this chapter is about system set-up, installation and launching the application as it is not considered to be a trivial task.
 
 \section*{Keywords}
-esper, cep, cassandra, nosql, rest, rails, gui \emptydoublepage
+cep, nosql, esper, cassandra, rest, rails, gui \emptydoublepage
 
 \tableofcontents \emptydoublepage
 
 %--------------------------------------------------------------
 \mainmatter
 
-\include{chapters/0_notes}
+%\include{chapters/0_notes}
 
 \include{chapters/10_uvod}
 \include{chapters/20_pojmy}

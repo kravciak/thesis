@@ -1,7 +1,22 @@
 \chapter*{Záver}
 \addcontentsline{toc}{chapter}{\protect\numberline{}Záver}
 
-kedze esper koncept nie je vseobecne znamy a pri spusteni som narazil na problemy - nazorna instalacia a priklady pouzitia
+V úvode tejto práce boli stanovené tri ciele. Pre ich zdokumentovanie bolo nutné čitateľa najprv uviesť do problematiky spracovania komplexných udalostí a práce s nosql databázami, ktorými sa zaoberajú kapitoly \ref{chap:pojmy} a \ref{chap:technologie}.
 
+Po oboznámení čitateľa s použitými technológiami nasleduje kapitola \ref{chap:implementacia}, v ktorej je popísaný návrh a implementácia konkrétneho riešenia. Práve v tejto časti sú realizované ciele diplomovej práce.
+
+Prvým z nich bolo vytvorenie administračného rozhrania k esper engine. Táto čast bola implementovaná pomocou frameworku Ruby On Rails. Administračné rozhranie pre prístup k esper engine využíva serverovú časť, na ktorú sa napája pomocou restovej api. Toto oddelenie spĺňa podmienku druhého cieľa, a umožňuje vývoj ďalších aplikácií využívajúcich prístup k esper engine. Serverová časť bola implementovaná v jave za pomoci spring frameworku.
+
+Tretím cieľom práce bolo umožnenie preposielania historických udalostí. Táto časť zadania bola tiež splnená, keďže administračné rozhrania obsahuje v detaile statementu a udalosti formulár, umožňujúci presmerovať uložené výsledky na vstup esper engine. Rovnako ako všetky operácie je preposielanie udalostí možné realizovať aj bez administračného rozhrania a to volaním definovanej URL v restovej api.
+
+Databázová časť aplikácie bola rozdelená na dve samostatné časti, jednu SQL databázu, ktorá slúži na uchovávanie konfigurácie serverovej časti aplikácie a druhú NoSQL databázu na ukladanie výsledkov esperu. Administračné rozhranie nevyužíva žiadne úložisko dát, všetky údaje sú dynamicky získavané pomocou restovej api.
+
+Keďže pri implementácii a inštalácia celkového riešenia som narazil na viacero problémov kompatibility či už s java knižnicami, certifikátmi alebo javascript engine a ich riešenie nepovažujem za triviálne je súčasťou práce aj kapitola zaoberajúca sa inštaláciou, spustením a použitím aplikácie.
+
+Zdrojový kód aplikácie je voľne dostupný z úložiska github, čo umožňuje ľubovoľné úpravy a rozšírenia, napríklad v rámci ďalšej diplomovej práce. Možné rozšírenia vidím v pridaní správy premenných, patternov, pomenovaných okien, tabuliek či vylepšení grafického rozhrania.
 
 \emptydoublepage
+
+%TODO GITHUB, json/xml
+%TODO img - use case
+%TODO rozdiel v api export / get exportAll / getAll
