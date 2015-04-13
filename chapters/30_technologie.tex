@@ -15,7 +15,8 @@
 	Pre tento projekt je použitá verzia Esper, ktorú som rozšíril o prístup k základným funkciám pomocou restovej api a persistenciu niektorých nastavení a nájdených výsledkov. Táto verzia je dostupná pod GNU General Public License (GPL) (GPL v2).
 
 	\subsection{Procesný model}
-
+	new/old events
+	
 	\subsection{Typy udalostí}
 	Každá udalosť spracovávaná esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť definované pri štarte aplikácie, alebo programovo počas behu. EPL tiež obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti pomocou EPL. Prehľad základných typov udalostí je v nasledujúcej tabuľke.
 
@@ -62,11 +63,58 @@
 		Pomocou EPL môžeme tiež definovať premenné, ktoré slúžia na vkladanie parametrov do statementu a definovanie schém udalostí. Tými sa zaoberá nasledujúca sekcia.
 		
 		\subsubsection{Syntax}
-		Každý EPL statement musí obsahovať minimálne klauzulu SELECT a FROM.
-
-		SELECT klauzula môže obsahovať náhradný znak * alebo vymenovať požadované vlastnosti udalosti. Tiež definuje typ výslednej udalosti publikovanej statementom. SELECT poskytuje aj nepovinné klauzuly istream (input), irstream (input \& remove) a rstream (remove), ktoré definujú streamy, ktorých udalosti sa majú poslať na UpdateListener a observery statementu. Prednastavené je použitie nastavenia istream.
+		Statementy musia spĺňať pravidlá definované EPL syntaxou. Tá však nie je jednotná a jednotlivé CEP riešenia poskytujú svoje implementácie. V tejto časti si rozoberieme pravidlá používané jazykom EPL esper engine. Výpis \ref{lst:epl-syntax} zobrazuje pravidlá tejto syntaxe.
 		
-		FROM klauzula špecifikuje jeden alebo viac streamov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero streamov. Podporovaný je tiež join so relačnou databázou ako zdrojom dát. To je možné využiť napríklad na prístup k historickým dátam.
+		\begin{lstlisting}[label=lst:epl-syntax,caption=Vzor EPL syntaxe]
+		[annotations]
+		[expression_declarations]
+		[context context_name]
+		[into table table_name]
+		[insert into insert_into_def]
+		select select_list
+		from stream_def [as name] [, stream_def [as name]] [,...]
+		[where search_conditions]
+		[group by grouping_expression_list]
+		[having grouping_search_conditions]
+		[output output_specification]
+		[order by order_by_expression_list]
+		[limit num_rows]
+		\end{lstlisting}
+
+		Ako môžeme vidieť v tomto výpise, každý EPL statement musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly.
+		
+		\begin{description}
+			\item[Select] Klauzula SELECT je povinná v každom EPL statemente. Je v nej možné využiť náhradný znak * alebo vymenovať všetky požadované položky. Ak položka nemá unikátne meno, musí sa použiť predpona s názvom zdroja dát. 
+			
+			V prípade použitia znaku * v JOIN statemente nebude výsledná udalosť obsahovať všetky položky oboch zdrojov. Namiesto toho bude pozostávať z položiek reprezentujúcich objekty daných udalostí pomenované podľa zdrojov.
+			
+			Syntax select klauzuly je znázornená vo výpise \ref{lst:select-syntax}. Môže obsahovať aj nepovinné parametre istream (input), irstream (input \& remove) a rstream (remove), ktoré definujú ktoré udalosti sa majú poslať na UpdateListener a observery statementu. Prednastavené je použitie parametru istream.
+					
+			\begin{lstlisting}[label=lst:select-syntax]
+select [istream | irstream | rstream] [distinct] * | expression_list
+			\end{lstlisting}
+
+			Obsah klauzuly select tiež definuje typ udalostí vyprodukovaných daným statementom.
+			
+			\item[FROM] FROM klauzula špecifikuje jeden alebo viac zdrojov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero zdrojov dát. Syntax from klauzuly \ref{lst:from-syntax}.
+
+			\begin{lstlisting}[label=lst:from-syntax]
+from stream_def [as name] [unidirectional]
+	[retain-union | retain-intersection] 
+[, stream_def [as stream_name]] [, ...]
+			\end{lstlisting}
+			Podporovaný je tiež join s relačnou databázou ako zdrojom dát. To je možné využiť napríklad na prístup k historickým dátam.
+			
+			\item[WHERE] Where klauzula je nepovinná časť statementu, ktorá špecifikuje vyhľadávacie parametre. Môže obsahovať 
+			
+			\item[JOIN] fds
+			\item[OUTPUT] 
+			\item[TIME PERIODS] 
+			\item[VARIABLES] 
+			\item[realcne data] 
+		\end{description}
+	
+	select rstream * from StockTick.win:time(30 sec)
 
 		Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. EPL umožňuje definovať pattern ako samostatný výraz alebo ako súčasť statementu. Pattern sa môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Môžu preto byť použité v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
 
@@ -93,7 +141,32 @@
 		\subsubsection{Objektový model}	
 		Objektový model je sada tried poskytujúcich objektovú reprezentáciu statementu alebo patternu. Tá umožňuje zostrojiť, zmeniť alebo získať údaje z EPL statementov a patternov na vyššom stupni ako pri práci s textovou reprezentáciou. Objektový model pozostáva z objektového grafu, ktorého prvky je jednoducho prístupné. Táto forma tiež umožňuje kontrolu EPL syntaxe pred pridaním statementu alebo patternu do esperu. Objektový model umožňuje plný export do textovej formy a naopak.
 		
-		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné.
+		Statementy vo výpise \ref{lst:epl-nomodel} a \ref{lst:epl-model} sú ekvivalentné. Podobným spôsobom je možné vytvárať statementy, patterny, definovať premenné premenné alebo vytvárať dátové okná.
+		
+		\begin{lstlisting}[label=lst:epl-nomodel,caption=EPL statement bez použitia objektového modelu]
+	select line, avg(age) as avgAge 
+	from com.chipmaker.ReadyEvent(line in (1, 8, 10)).win:time(10) as RE
+	where RE.waverId != null
+	group by line 
+	having avg(age) < 0
+	order by line
+		\end{lstlisting}
+		
+		\begin{lstlisting}[float,label=lst:epl-model,caption=EPL statement s použitím objektového modelu]
+	EPStatementObjectModel model = new EPStatementObjectModel();
+	model.setSelectClause(SelectClause.create()
+		.add("line")
+		.add(Expressions.avg("age"), "avgAge"));
+	Filter filter = Filter.create("com.chipmaker.ReadyEvent", Expressions.in("line", 1, 8, 10));
+	model.setFromClause(FromClause.create(
+		FilterStream.create(filter, "RE").addView("win", "time", 10)));
+	model.setWhereClause(Expressions.isNotNull("RE.waverId"));
+	model.setGroupByClause(GroupByClause.create("line"));
+	model.setHavingClause(Expressions.lt(Expressions.avg("age"), Expressions.constant(0)));
+	model.setOrderByClause(OrderByClause.create("line"));
+		\end{lstlisting}
+	
+		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné. Pomocou objektového modelu je tiež možné skontrolovať syntax statementu pred pridaním do esper engine.
 		
 	\subsection{Api}
 		Esper pre svoje ovládanie neposkytuje grafické rozhranie. Na komunikáciu používa api, ktorá definuje tieto primárne rozhrania:

@@ -11,10 +11,8 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 
 	Vo finálnej verzii som ponechal aj súbory v balíčku sample, ktoré slúžia na testovanie aplikácie. Ich použitím je možné jednorázovo spustiť serverovú časť aplikácie, načítať schémy a definovanými pravidlami vyhodnotiť udalosti uložené v csv súboroch v resources adresári. Takéto jednorázové spustenie uľahčuje hľadanie chýb, prípadne testovanie novej funkcionality aplikácie.
 
+	Súčasťou restovej api sú funkcie pre prístup k výsledkom v dvoch podobách, a to getAll a exportAll. V implementácii týchto funkcií sú dve hlavné rozdiely. Prvý je ten že funkcia getAll vracia aj metadáta obsahujúce napríklad informácie o stránkovaní. Druhou dôležitou odlišnosťou je streamovaný výstup funkcie exportAll, ktorý umožňuje získanie veľkého objemu dát bez nutnosti ich udržiavať v operačnej pamäti servera. Takto môžeme stiahnuť všetky výsledky daného statementu, naproti funkcii getAll, ktorá vracia len časť dát obmedzenú parametrami požiadavku.
 	
-model
-exportall - getall
-
 	\subsection{Konfiguračné súbory}
 		Aplikácie využíva konfiguračné súbory umiestnené v adresári resources, ktoré sú načítané pri spustení. Najdôležitejšími z nich sú konfigurácie spring frameworku a databázy:
 		\begin{description}
@@ -62,7 +60,8 @@ exportall - getall
 		Spustenie aplikácie je implementované v triede Application.java, v ktorej je načítaná konfigurácia. Pomocou rozšírenia spring boot sú použité prednastavené (nekonfigurované) hodnoty podľa prístupu convention-over-configuration. Následne je automaticky spustený aplikačný server tomcat, ktorý je súčasťou distribúcie.
 
 	\subsection{Esper engine}
-		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov.
+		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov. EsperManager tiež implementuje službu ping, ktorá umožní detekovať či je engine spustený.
+		
 		\begin{description}
 			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Oproti POJO reprezentácii umožňuje tento formát vytváranie schém počas behu čo je z pohľadu užívateľa nutnosťou. V prípade potreby by bolo možné použiť udalosti reprezentované pomocou java.util.Map alebo objektovým poľom, avšak to vyžaduje definovanie formátu prenosu a následné spracovanie do požadovaného formátu klientom, čo nie je veľmi intuitívne. Použitie XML reprezentácie klientovi umožní komunikovať priamo s esperom.
 			
@@ -82,7 +81,7 @@ exportall - getall
 
 			Pri pridávaní statementu do esper engine je kontrolovaná unikátnosť mena v rámci daného esper providera. V prípade že existuje statement s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený statement je následne uložený.
 			
-			Pri pridávaní XML schém udalostí je nutné ich konvertovať do typu Document. To zaobstaráva trieda Helpers.java, ktorá sa zároveň stará napríklad o konvertovanie typov udalostí do JSON formátu.
+			Pri pridávaní XML schém udalostí je nutné ich konvertovať do typu Document. To zaobstaráva trieda Helpers.java, ktorá sa zároveň stará napríklad o konvertovanie typov udalostí do JSON formátu. Dôležitou súčasťou tejto triedy je funkcia eventTypeToJSON, ktorá rekurzívne skonvertuje typ udalosti a jej dedičností do JSON objektu vhodného k odoslaniu klientovi.
 			
 		\end{description}
 		
@@ -107,21 +106,22 @@ exportall - getall
 		
 		Maven tiež umožňuje vytvárať v pom.xml súboroch závislosti a odkazovať sa na externé konfigurácie. Táto funkcionalita je v projekte využitá pri spring závislostiach, kde je verzia niektorých komponent definovaná v externom rodičovskom súbore. Rodičom spring závislostí projektu je spring-boot-starter-parent.
 		
-		%Väčšina funkcionality mavenu sa skladá z pluginov, k
-
 \section{ThesisWeb}
 	Web časť projektu slúži ako administračné rozhranie. Je riešené formou webovej aplikácie, ktorej základ je framework Ruby On Rails. Ten umožňuje rýchle vytváranie stránok, kde prevažuje prístup "convention over configuration". Dôležitou súčasťou frameworku sú gemy, ktoré reprezentujú závislosti projektu. Jedným z najpodstatnejších v tomto projekte je gem "her", ktorý zabezpečuje komunikáciu s Api časťou projektu.
+	
+	\myFigure{usecase}{UseCase diagram}{UseCase diagram}
 	
 	Grafická stránka tohoto projektu sa opiera o framework Bootstrap. Ten v základnej konfigurácii poskytuje html komponenty s vylepšeným UI. Tiež opravuje niektoré chyby kompatibility pri zobrazovaní stránok v rôznych prehliadačoch.
 	
 	Web nevyužíva žiadne persistentné úložisko dát. Všetky realizované zmeny sú posielané na restovú api, ktorá zmeny spracuje a uloží. Zobrazované údaje sú tiež získavané zo vzdialeného zdroja.
-		
-	presmerovanie v pripade ze engine je offline
-	napojenie cez konfiguraciu v her
-	usecase
-
-
+	Pre prípad nedostupnosti serverovej časti je a rodičovskom controlleri odchytávaná výnimka Faraday::ConnectionFailed, ktorá klienta presmeruje na chybovú stránku. Po pri znovu načítaní stránky sa na kontrolu dostupnosti používa vzdialené volanie funkcie ping.
 	
+	Jediná zmena v prípade úpravy IP adresy serverovej časti je potrebná v konfiguračnom súbore konfigurácie iniciátora her.rb. V týchto súboroch tiež nájdeme úpravu konfigurácie stránkovanie, umožňujúcu pomocou gemu will\_paginate stránkovať polia.
+
+	Administračné rozhranie sa skladá zo štyroch hlavných častí. Prvými dvoma sú správa schém a statementov, od ktorej sa odvíja správa výsledkov nájdených jednotlivými statementami. Na odosielanie udalostí je využitá súčasť pre komunikáciu s esper engine. Funkcionalitu jednotlivých častí zobrazuje diagram \ref{image_usecase}.
+	
+	Výsledky sú vždy výsledkom vyhľadávania konkrétneho statementu, preto sú v usecase diagrame zobrazená ako podsystém statementov. Dostať sa na stránku s výsledkami je tiež možné len zo stránky detailu jednotlivých statementov.
+
 \section{UseCase}
 	Na predvedenie možností použitia aplikácie som vytvoril 2 jednoduché programy. Prvý Twitter Stream demonštruje možnosť zasielania udalostí na server a Contacts Web predstavuje možnosť alternatívneho použitia esperu. 
 	
@@ -135,6 +135,6 @@ exportall - getall
 	
 	Logika aplikácie pozostáva z obsluhy požiadavkov na vytvorenie nového kontaktu, zmazanie existujúceho a výpis existujúcich kontaktov. Všetky tieto požiadavky sú posielané na server.
 	
-	Možnosť filtrovania údajov pomocou preddefinovaných pravidiel.
-	Deklaratívne programovanie.
+	-Možnosť filtrovania údajov pomocou preddefinovaných pravidiel.
+	-Deklaratívne programovanie.
 	
