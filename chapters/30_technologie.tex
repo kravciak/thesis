@@ -14,11 +14,8 @@
 	
 	Pre tento projekt je použitá verzia Esper, ktorú som rozšíril o prístup k základným funkciám pomocou restovej api a persistenciu niektorých nastavení a nájdených výsledkov. Táto verzia je dostupná pod GNU General Public License (GPL) (GPL v2).
 
-	\subsection{Procesný model}
-	new/old events
-	
 	\subsection{Typy udalostí}
-	Každá udalosť spracovávaná esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť definované pri štarte aplikácie, alebo programovo počas behu. EPL tiež obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti pomocou EPL. Prehľad základných typov udalostí je v nasledujúcej tabuľke.
+	Každá udalosť spracovávaná esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť definované pri štarte aplikácie, alebo programovo počas behu. EPL tiež obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti pomocou EPL. Prehľad základných typov udalostí je v tabuľke \ref{table:event-types}.
 
 	\myTable{
 	\begin{tabular}{ | l | p{10cm} | }
@@ -29,25 +26,53 @@
 		Object[] (pole objektov)	&	Udalosti definované objektovým poľom, kde každá hodnota poľa je vlastnosť udalosti.	\\ \hline
 		org.w3c.dom.Node	&	XML objektový model dokumentu popisujúci štruktúru udalosti.	\\ \hline
 	\end{tabular}
-	}{Základné typy udalostí}{table:event-types}
+	}{Možnosti definície typu udalosti}{table:event-types}
 	
 	Definície typu udalosti sú rozšíriteľné zásuvnými modulmi. Aplikácia môže používať kombináciu týchto typov, nemusí všetky typy definovať jedným spôsobom. Definície typov udalostí je možné reťaziť, kedy typom udalosti môže byť iná komplexná udalosť.
 	
-	Z dôvodu nutnosti pridávania a mazania udalostí počas behu programu nemôže byť v mojej implementácii použitá definícia typu pomocou POJO. A pretože klient musí mať možnosť definovať typ, bola zvolená definícia pomocou XML schémy. Jednoduchý príklad schémy udalosti znázorňuje nasledujúci výpis. 
+	Z dôvodu nutnosti pridávania a mazania udalostí počas behu programu nemôže byť v mojej implementácii použitá definícia typu pomocou POJO. A pretože klient musí mať možnosť definovať typ, bola zvolená definícia pomocou XML schémy. Príklad jednoduchej schémy udalosti znázorňuje výpis \ref{lst:sample-schema}.
 	
-	\begin{lstlisting}[label=lst:sample-schema,caption=Jednoduchý príklad XML schémy udalosti]
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-	<xs:element name="TweetEvent">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="username" type="xs:string"></xs:element>
-				<xs:element name="message" type="xs:string"></xs:element>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-</xs:schema>		
+	\begin{lstlisting}[label=lst:sample-schema,caption=Príklad XML schémy udalosti]
+	<?xml version="1.0" encoding="UTF-8"?>
+	<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+		<xs:element name="StockEvent">
+			<xs:complexType>
+				<xs:sequence>
+			        <xs:element name="time" type="xs:string"></xs:element>
+			        <xs:element name="open" type="xs:float"></xs:element>
+			        <xs:element name="high" type="xs:float"></xs:element>
+			        <xs:element name="low" type="xs:float"></xs:element>
+			        <xs:element name="close" type="xs:float"></xs:element>
+			        <xs:element name="volume" type="xs:float"></xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</xs:schema>	
 	\end{lstlisting}
+	
+	Po definovaní typu udalosti je esper engine schopný prijímať udalosti v XML formáte. Príklad udalosti vyhovujúcej schéme \ref{lst:sample-schema} je vo výpise \ref{lst:sample-event}.
+	\begin{lstlisting}[label=lst:sample-schema,caption=Príklad XML udalosti]
+	<?xml version="1.0"?>
+	<events>
+		<StockXsd>
+			<time>2014-02-03 01:58:00.000</time>
+			<open>1.34850</open>
+			<high>1.34854</high>
+			<low>1.34850</low>
+			<close>1.34853</close>
+			<volume>76.9400</volume>
+		</StockXsd>
+		<StockXsd>
+			<time>2014-02-03 01:59:00.000</time>
+			<open>1.34852</open>
+			<high>1.34853</high>
+			<low>1.34845</low>
+			<close>1.34850</close>
+			<volume>89.5800</volume>
+		</StockXsd>
+	</events>
+	\end{lstlisting}
+	Ako je z výpisu vidieť je možné udalosti zaobaliť do koreňového elementu events. Ten je vhodné použiť v prípade že na esper engine odosielame súbory obsahujúce veľké množstvo udalostí, pretože tým obmedzíme počet HTTP volaní a predídeme možnému zahlteniu serveru. Táto funkcionalita je realizovaná v implementačnej časti aplikácie a nie je súčasťou esper engine.
 
 	Po definovaní typu udalosti sa na ne môžeme odkazovať klauzulou FROM v EPL statementoch. Tie sú bližšie popísané v nasledujúcej sekcii.
 
@@ -81,7 +106,7 @@
 		[limit num_rows]
 		\end{lstlisting}
 
-		Ako môžeme vidieť v tomto výpise, každý EPL statement musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly.
+		Ako môžeme vidieť v tomto výpise, každý EPL statement musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly \cite{web:esper-doc}.
 		
 		\begin{description}
 			\item[Select] Klauzula SELECT je povinná v každom EPL statemente. Je v nej možné využiť náhradný znak * alebo vymenovať všetky požadované položky. Ak položka nemá unikátne meno, musí sa použiť predpona s názvom zdroja dát. 
@@ -89,15 +114,12 @@
 			V prípade použitia znaku * v JOIN statemente nebude výsledná udalosť obsahovať všetky položky oboch zdrojov. Namiesto toho bude pozostávať z položiek reprezentujúcich objekty daných udalostí pomenované podľa zdrojov.
 			
 			Syntax select klauzuly je znázornená vo výpise \ref{lst:select-syntax}. Môže obsahovať aj nepovinné parametre istream (input), irstream (input \& remove) a rstream (remove), ktoré definujú ktoré udalosti sa majú poslať na UpdateListener a observery statementu. Prednastavené je použitie parametru istream.
-					
-			\begin{lstlisting}[label=lst:select-syntax]
+			\begin{lstlisting}[label=lst:select-syntax,belowskip=-30pt]
 select [istream | irstream | rstream] [distinct] * | expression_list
 			\end{lstlisting}
-
 			Obsah klauzuly select tiež definuje typ udalostí vyprodukovaných daným statementom.
 			
 			\item[FROM] FROM klauzula špecifikuje jeden alebo viac zdrojov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero zdrojov dát. Syntax from klauzuly \ref{lst:from-syntax}.
-
 			\begin{lstlisting}[label=lst:from-syntax]
 from stream_def [as name] [unidirectional]
 	[retain-union | retain-intersection] 
@@ -105,30 +127,52 @@ from stream_def [as name] [unidirectional]
 			\end{lstlisting}
 			Podporovaný je tiež join s relačnou databázou ako zdrojom dát. To je možné využiť napríklad na prístup k historickým dátam.
 			
-			\item[WHERE] Where klauzula je nepovinná časť statementu, ktorá špecifikuje vyhľadávacie parametre. Môže obsahovať 
+			\item[WHERE] Where klauzula je nepovinná časť statementu, ktorá špecifikuje vyhľadávacie parametre. Zvyčajne obsahuje výrazy pozostávajúce z porovnávacích operátorov =, < , > , >=, <=, !=, <>, exists, is null a ich kombinácie pomocou kľúčových slov AND a OR.
+			\begin{lstlisting}[label=lst:where-syntax]
+where exists (
+	select orderId from Settlement.win:time(1 min) 
+		where settlement.orderId = order.orderId
+)
+			\end{lstlisting}
+			Klauzula where môže obsahovať tiež vnorené výrazy, ako je to znázornená vo výpise \ref{lst:where-syntax}.
 			
-			\item[JOIN] fds
-			\item[OUTPUT] 
-			\item[TIME PERIODS] 
-			\item[VARIABLES] 
-			\item[realcne data] 
-		\end{description}
+			\item[JOIN] Klauzula FROM môže obsahovať viacero zdrojov dát. V tom prípade sú dátové zdroje spojené pomocou JOIN. Predvolene je použitý inner join, ktorý produkuje udalosti len v prípade výskytu vyhovujúcej udalosti vo všetkých zdrojoch. V prípade použitia outer join sa chýbajúce udalosti nahradia hodnotou null.
 	
-	select rstream * from StockTick.win:time(30 sec)
-
-		Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. EPL umožňuje definovať pattern ako samostatný výraz alebo ako súčasť statementu. Pattern sa môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Môžu preto byť použité v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
-
+			K dispozícii sú tiež varianty left outer join, right outer join a full outer join. Výpis \ref{lst:join-syntax} znázorňuje pravidlá syntaxe pri použití join.
+			\begin{lstlisting}[label=lst:join-syntax]
+...from stream_def [as name] 
+((left|right|full outer) | inner) join stream_def 
+[on property = property [and property = property ...] ]
+[ ((left|right|full outer) | inner) join stream_def [on ...]]...
+			\end{lstlisting}
+			Každý z prúdov dát definovaný pomocou join klauzuly obsahuje vstupný a výstupný stream. Join tak môže byť realizovaný pri prijatí udalosti v ktoromkoľvek z týchto prúdov. Join je teda viacsmerový, prípadne dvojsmerný pri použití dvoch prúdov dát.
+			EPL definuje kľúčové slovo unidirectional, ktoré umožňuje obmedziť identifikovať jediný prúd dát poskytujúci udalosti ktoré spustia join. Všetky ostatné prúdy sa stanú pasívnymi. Keď je prijatá udalosť pasívnym prúdom dát, negeneruje join udalosti.
+	
+			\item[OUTPUT] Output klauzula umožňuje kontrolovať rýchlosť ktorou sú produkované udalosti. Zvyčajne sa používa spolu s určením časového údaju. Tým môže byť napríklad výstup každých n sekúnd, n udalostí alebo v daný čas dňa. Časy výstupu je možné definovať tiež vo formáte cronu. Jeden zo spôsobov zápisu zobrazuje výpis \ref{lst:output-syntax}.
+			\begin{lstlisting}[label=lst:output-syntax]
+output [after suppression_def] 
+[[all | first | last | snapshot] every output_rate [seconds | events]]
+			\end{lstlisting}
+			V tomto výpise vidíme aj možnosť definovania toho čo sa má vyprodukovať. Je možné si vybrať produkovanie všetkých udalostí, prvej, poslednej alebo snímky. Snímka sa používa spolu s agregačnými funkciami a produkuje jedinú udalosť s hodnotou agregačnej funkcie.
+			
+		\end{description}
+		
+		EPL jazyk tiež umožňuje definovať patterny. Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. Je možné ich definovať ako samostatný výraz alebo ako súčasť statementu. Môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Vďaka tomu ich je možné použiť v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
+		
 		V nasledujúcich výpisoch sú príklady statementov, zobrazujúcich príklady syntaxe popisovanej v predchádzajúcom texte.
-				
 		\begin{lstlisting}[label=lst:epl-simple,caption=Jednoduchý EPL statement]
 		select * from TweetEvent.win:time(60 sec) where message='happy'
 		\end{lstlisting}
 		
+		\begin{lstlisting}[label=lst:output-example,caption=EPL statement s výstupom každých 60 sekúnd]
+		select sum(price) from OrderEvent.win:time(30 min) output snapshot every 60 seconds
+		\end{lstlisting}
+
 		\begin{lstlisting}[label=lst:epl-join,caption=Jednoduchý EPL statements použitím join]
 		select * from TickEvent.std:unique(symbol) as t, NewsEvent.std:unique(symbol) as n
 		where t.symbol = n.symbol
 		\end{lstlisting}
-		
+
 		\begin{lstlisting}[label=lst:epl-pattern,caption=EPL statement s použitím patternu]
 		select a.custId, sum(a.price + b.price)
 		from pattern [every a=ServiceOrder -> 
@@ -203,18 +247,98 @@ from stream_def [as name] [unidirectional]
 
 \section{Cassandra}
 	http://planetcassandra.org/what-is-apache-cassandra/
+	http://docs.datastax.com/en/cassandra/2.1/cassandra/gettingStartedCassandraIntro.html
+	\myFigure{intro_cassandra}{xxx}{xxx}
 	
 	Cassandra je databázový projekt, ktorý pôvodne vznikol vo firme Facebook. Neskôr bol zverejnený ako open-source a v roku 2009 bol prijatý do Apache inkubátora. V roku 2010 získal top prioritu a je naďalej vyvíjaný a dostupný pod Apache 2.0 licenciou.
 	
 	Databáza je distribuovaná databáza, ktorá umožňuje spracovanie a uchovávanie veľkého množstva dát rozložených na veľkom počte menej výkonných serverov. Táto architektúra zároveň poskytuje vysokú dostupnosť dát pri zabezpečení proti strate dát pri výpadku niektorého zo serverov. Cassandra je navrhnutá na použitie veľkého počtu počítačov (v ráde stoviek) podľa možností rozložených v rôznych častiach sveta.
-	
-	Aj keď v mnohom pripomína Cassandra relačnú databázu, nepodporuje plne relačný model. Namiesto toho poskytuje klientom jednoduchý dátový model, ktorý je možné dynamicky upravovať.
 	
 	Cassandra bola navrhnutá pre beh na cenovo dostupnom hardware a podporuje rýchly zápis veľkého množstva dát pri zachovaní efektívnosti prístupu k nim. Týmto pomáha znižovať firemné náklady na hardware.
 	
 	Vďaka týmto vlastnostiam je cassandra využívaná množstvom známych firiem, medzi ktoré patrí napríklad CERN, eBay, GitHub, Netflix, Twitter alebo Cisco. Veľké produkčné nasadenia obsahujú stovky TB dát v klastroch obsahujúcich stovky serverov. Pri porovnaní výkonnosti s ostatnými NoSQL databázami  Cassandra získava výborné výkonnostné výsledky aj vďaka svojej jednoduchej architektúre, porovnanie s alternatívami vidíme na obrázku \ref{image_cassandra-performance}
 	
 	\myFigure{cassandra-performance}{Porovnanie výkonnosti cassandry s alternatívnymi NoSQL databázami}{Výkonnosť Cassandra databázy}
+	
+	Cassandra je dostupná z dvoch zdrojov, prvým z nich stránka projektu Apache cassandra. Tá je základnou verziou a obsahuje databázový engine a cqlsh nástroj slúžiaci ako vývojový shell. Pre jeho spustenie je nutné mať nainštalované interpretátor jazyka python.
+	
+	Druhou je nadstavba tretej strany DataStax cassandra, ktorá odlišuje komerčnú a nekomerčnú verziu. V nekomerčnej verzii nájdeme rovnako ako v Apache balíku databázový engine a cqlsh. Navyše na svojich stránkach DataStax poskytuje zdarma rozšírenia, ktoré zjednodušujú prácu s databázou, a to:
+	
+	\begin{description}
+		\item[OpsCenter] je grafický nástroj na správu databázy. Poskytuje prehľadné rozhranie pre administrátorov a vývojárov v ktorom je možné vidieť jednotlivé časti klastru. Umožňuje monitorovať stav, aktuálnu zátaž, pridávať a odoberať servery do konfigurácie klastra, nastaviť zálohovanie či generovať štatistiky. Pomocou neho je možné prehľadne spravovať klastre zložené zo stoviek serverov.
+
+		\item[DevCenter] Pre úpravu štruktúry a údajov databázy slúži nástroj DevCenter. Grafické rozhranie umožňuje po pripojení na databázový engine vytvárať a spúšťať dotazy v CQL jazyku. Pri vytváraní dotazov je automaticky kontrolovaná syntax a sú zvýraznené chyby s popisom. 
+		Obsahuje tiež interaktívne pomôcky na vytvorenie keyspace alebo tabuliek, export výsledkov alebo ukladanie dotazov.
+		Tento nástroj sa dá zjednodušene vnímať ako grafická verzia cqlsh.
+
+		\item[Java driver] Pre použitie databáze v programe písanom v jave je potrebný driver, ktorý je možné stiahnuť práve na stránkach DataStax. Nájdeme tu tiež drivery pre ďalšie vývojové platformy.
+	\end{description}
+	
+	Aj keď v mnohom pripomína Cassandra relačnú databázu, nepodporuje plne relačný model. Namiesto toho poskytuje klientom jednoduchý dátový model, ktorý je možné dynamicky upravovať. Nasledujúci text rozoberá niektoré základné odlišnosti cassandry a relačných databáz.
+	\subsection{Keyspace}
+	Keyspace je možné prirovnať k schéme relačnej databázy. Slúži ako kontajner pre dáta, ktoré zdieľajú určité vlastnosti. Pri vytvorení keyspace je nutné určiť spôsob replikácie a počet kópií dát. Tieto kópie slúžia na zachovanie dátovej integrity v prípade výpadku niektorého zo serverov.
+	
+	Po vytvorení keyspace je možné v ňom vytvárať tabuľky, ktoré už obsahujú samotné dáta. Tabuľka patrí do keyspace podobne ako v relačnom pojatí je tabuľka obsiahnutá v databáze.
+
+	\subsection{Primárny kľúč}
+	Podobne ako v relačnej databáze musí mať každý riadok unikátny identifikátor - primárny kľúč. Ten môže byť tvorený jediným údajom, alebo môže byť zložený z viacerých stĺpcov. Naproti relačnej databáze má primárny kľúč aj dodatočný význam.
+	
+	\begin{lstlisting}[label=lst:cql-pk,caption=Tvorenie primárneho kľúča v CQL]
+	create table thesis (
+		key_one text,
+		key_two int,
+		key_three int,
+		data text,
+		PRIMARY KEY(key_one, key_two, key_three)
+	);
+	\end{lstlisting}
+	
+	Vo výpise \ref{lst:cql-pk} je zobrazené názorné vytvorenie tabuľky so zloženým primárnym kľúčom. Tento kľúč má dve zložky:
+	\begin{description}
+		\item[Partition key] určuje na ktorých uzloch sa uložia dáta. Je tiež zodpovedný za distribúciu naprieč jednotlivé uzly. V príklade je to key\_one.
+		\item[Clustering key] určuje zoskupovanie dát, čo je proces, ktorý usporadúva dáta v rámci daného úseku. V príklade je použitý zložený kľúč pozostávajúci z key\_two a key\_three.
+	\end{description}
+	Keďže cassandra je distribuovaná databáza, tieto kľúče slúžia k vyhľadaniu miesta, kde sú uložená vyhľadávané záznamy. A práve toto vyhľadávanie je veľmi ovplyvnené architektúrou databázy.
+	
+	Práve tu vzniká jedna z najväčších odlišností od relačných databáz, ktorých užívatelia sú zvyknutí filtrovať údaje podľa ľubovoľného stĺpca tabuľky. Vyhľadávanie v klauzule WHERE je možné len podľa stĺpcov z ktorých sa primárny kľúč skladá a to v poradí v ktorom sú definované. Vo výpise \ref{lst:cql-pk-use} vidíme možnosti filtrovania v dotazoch do tabuľky definovanej výpisom \ref{lst:cql-pk}.
+	
+	\begin{lstlisting}[label=lst:cql-pk-use,caption=Príklad vyhľadávanie v tabuľke thesis]
+	Príklad validných dotazov:
+		select * from thesis where key_one='kluc' and key_two=11
+		select * from thesis where key_one='kluc' and key_two=11 and key_three=13
+		
+	Príklad nevalidných dotazov:
+		select * from thesis where key_two=11
+		select * from thesis where key_one='kluc' and key_three=11
+	\end{lstlisting}
+	
+	Kvôli tomuto obmedzeniu je nutné prispôsobovať návrh tabuliek dotazom, ktoré ich budú využívať. To nutne vedie k duplicitám dát vo viacerých tabuľkách. Toto je ďalšia dôležitá odlišnosť a jeden z problémov v zmene myslenia pri prechode zo sveta relačných databáz, kde je správnym prístupom normalizácia dát. Pre dnešné dátové úložiská však nepredstavuje taký problém množstvo dát ako rýchlosť prístupu k nim. Preto sú duplicitné dáta prijateľným kompromisom v porovnaní s výhodami ktoré NoSQL databázy prinášajú.
+
+	\subsection{Dátové typy}
+	Ďalším z rozdielov oproti bežným relačným databázam sú dátové typy, ktoré je možné využívať. Nasledujúci zoznam zhŕňa tie, s ktorými sa v relačných databázach bežne nestretneme.
+	\begin{description}
+		\item[Kolekcie] Použitím dátového typu kolekcie môžeme definovať map, set a list. Pri definícii je nutné uviesť dátový typ, ktorý bude daná kolekcia obsahovať. Kolekcie sú vhodné na ukladanie relatívne malého množstva dát, napríklad telefónnych čísel daného užívateľa alebo popisov výrobku. 
+
+		\item[TimeUUID] UUID je používaný na predchádzanie kolíziám. Jeho rozšírenie TimeUUID obsahuje navyše časovú značku, čo je možné využiť v aplikáciách na vytvorenie jedinečného časového identifikátora.
+		
+		Na výpočet TimeUUID je použitá MAC adresa, časová značka a sekvenčné číslo. Z vygenerovaného TimeUUID je možné spätne získať časovú značku, takže funguje ako časový identifikátor, ktorý je zároveň jedinečný.
+		
+		\item[Tuple] umožňuje udržiavať stanovený počet vopred definovaných typov dát v jednom dátovom poli. Príkladom použitia tohoto dátového typu je vo výpise \ref{lst:tuple}
+
+		\begin{lstlisting}[label=lst:tuple,caption=Príklad použitia dátového typu tuple]
+		CREATE TABLE collect_things (
+			k int PRIMARY KEY,
+			v <tuple<int, text, float>>
+		);
+		
+		INSERT INTO collect_things (k, v) VALUES(0, (3, 'bar', 2.1));
+		\end{lstlisting}
+	\end{description}
+	
+	\subsection{Offset}
+	Klauzuly limit a offset sú bežne používane v spojení so stránkovaním výsledkov vyhľadávania. Kvôli svojej distribuovanej architektúre však cassandra neimplementuje klauzulu offset. Pri stránkovaní teda nejde jednoducho preskočiť na konkrétnu stranu. Implementácia teda zvyčajne spočíva v zobrazení výsledkov vo vzťahu ku konkrétnemu záznamu.
+
+	Tieto rozdiely sú pri prechode z relačných databáz prekvapením, návrh databáz je totiž z veľkej časti obmedzujúci. Tieto obmedzenia vyplývajú predovšetkým z architektúry dátového úložiska databázy, avšak práve táto architektúra ponúka aj mnoho výhod. Preto je použitie NoSQL databázy nutné dôkladne zvážiť a prispôsobiť potrebám konkrétnej aplikácie.
 	
 \section{Frameworky}
 	Pre uľahčenie vývoja projektov je dnes bežné použitie frameworku. Rozsahom malé aplikácie často vyžadujú použitie funkcionality (prihlasovanie, odosielanie mailov, práca s databázou, zjednotenie grafického zobrazenia pre rôzne platformy, správu závislostí), ktorej implementácia je zdĺhavá a v málo prípadoch lepšia ako pri opätovnom použitý riešenia na to stavaného. Pri vývoji jednotlivých častí tohoto projektu boli použité voľne dostupné frameworky, ktorých bližším popisom sa zaoberá táto sekcia.

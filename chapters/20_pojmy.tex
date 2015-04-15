@@ -65,9 +65,6 @@
 
 	Naproti tomu NoSQL dátový model agreguje ukladané dáta do jedného objektu - napríklad dokumentu v prípade objektových databáz. V NoSQL nie je definovaná operácia JOIN, čo vedie k duplikácií informácií vo viacerých tabuľkách. Tento problém však vyvažuje dnes lacný úložný priestor, flexibilita dátového modelu, zlepšený výkon operácií čítania a zápisu a škálovateľnosť tohoto systému.
 	
-	Ďalším veľkým rozdielom je že relačné databázy musia definovať schému tabuľky, naproti NoSQL databázam, ktoré fungujú aj bez definovanej schémy. Úpravy schém tabuľky obsahujúcej údaje je často problematické, čo môže byť v dobe kedy je nutný kontinuálny vývoj aplikácie a neustále pridávanie novej funkcionality nepríjemné. Naproti tomu sú napríklad databázy dokumentov bez schémy, čo umožňuje úpravy jednotlivých položiek bez narušenia ostatnej funkcionality. Príklad tabuľky s dynamickou štruktúrou vidíme na obrázku \ref{image_dynamic_column_family}.
-
-	\myFigure{dynamic_column_family}{Dynamická štruktúra tabuľky databázy Cassandra}{Dynamická štruktúra tabuľky}
 	
 	Pre vyriešenie problémov s rastúcim počtom užívateľov a údajov je nutné aplikácie škálovať - a to horizontálne alebo vertikálne.
 	\begin{itemize}
@@ -81,11 +78,6 @@
 	\ac{NoSQL} zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
 	
 	Relačné databázy neboli navrhnuté so zreteľom na požiadavky a nároky s ktorými sa dnešné aplikácie stretávajú. Tiež neumožňujú využiť výhody lacných úložísk dát a výpočtového výkonu.
-	
-\section{Deklaratívne programovanie}
-	\cite{dekprog}
-	
-	
 	
 %	http://www.mongodb.com/nosql-explained
 %	http://www.couchbase.com/nosql-resources/what-is-no-sql

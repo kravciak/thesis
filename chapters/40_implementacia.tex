@@ -37,6 +37,27 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		\subsubsection{Databáza udalostí}
 		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná.
 		\myFigure{db-model-2}{Model databázy udalostí}{Model databázy udalostí}
+		% UUID, rozdiel v cassandra DAO
+		
+		\begin{lstlisting}[label=lst:xxx,caption=yyy]
+	CREATE KEYSPACE thesis WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+	create table statement_results(
+		time_id timeuuid,
+		statement_id int,
+		event text,
+		primary key (statement_id, time_id))
+	with clustering order by (time_id desc);
+		\end{lstlisting}
+		
+		
+		
+		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.
+		
+		%Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.
+		%Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.
+		
+		Keďže cassandra umožňuje vyhľadávanie záznamov 
 	
 	\subsection{Spring framework}
 		Ako základ serverovej časti aplikácie som použil Spring framework. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
