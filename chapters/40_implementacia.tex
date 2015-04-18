@@ -35,11 +35,12 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Pri ukončení aplikácie je nutné sa od databázy odpojiť aby boli zmeny dočasne uložené v pamäti presunuté na disk. Toto odpojenie zaobstaráva spúšťací súbor aplikácie, volaním príkazu "SHUTDOWN". Odpojenie je nutné vykonať aj pri nastavení automatického ukončenia relácie v parametroch pripojenia k databáze.
 			
 		\subsubsection{Databáza udalostí}
-		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná.
+		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
 		\myFigure{db-model-2}{Model databázy udalostí}{Model databázy udalostí}
-		% UUID, rozdiel v cassandra DAO
-		
-		\begin{lstlisting}[label=lst:xxx,caption=yyy]
+
+		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu. Stĺpec event obsahuje samotnú udalosť v JSON alebo XML formáte a statement\_id identifikátor statementu, ktorý danú udalosť vyprodukoval.
+	
+		\begin{lstlisting}[label=lst:create-table,caption=Vytvorenie keyspace a tabuľky databázy udalostí]
 	CREATE KEYSPACE thesis WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 
 	create table statement_results(
@@ -50,15 +51,45 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 	with clustering order by (time_id desc);
 		\end{lstlisting}
 		
+		Vo výpise \ref{lst:create-table} je zobrazený spôsob vytvorenia tabuľky databázy udalostí. Keyspace bolo vytvorené na testovacie účely, preto bol replikačný faktor nastavený na 1 - teda bez zálohy.
 		
+		Dôležitým prvkom je primárny kľúč. Ten je zložený z dvoch častí, kľúča partície a zoskupovacieho kľúča. Takéto zloženie primárneho kľúča je potrebné kvôli možnosti vyhľadávania v tabuľke. Každý výsledok patrí nejakému statementu, preto pri pristupovaní k danému výsledku musí byť špecifikovaný identifikátor daného statementu. Zoskupovací kľúč bol použitý preto, aby bolo možné vyhľadať konkrétny výsledok, pretože pre použitie v klauzule WHERE sú prípustné len polia definované v primárnom kľúči a aj to v danom poradí.
 		
-		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.
+		Vďaka takto definovanému primárnemu kľúču tabuľka umožňuje dotazy vo výpise \ref{lst:select-example}, ktoré sú použité v aplikácii.
+		\begin{lstlisting}[label=lst:select-example,caption=Príklad statementov vyhovujúcich definovanému primárnemu kľúču]
+	Vybrať jeden výsledok
+	select * from thesis where statement_id = ? and time_id = ?
+			
+	Vybrať všetky výsledky s obmedzením počtu
+	select * from thesis where statement_id = ? and time_id <= ? limit ?
+			
+	Vybrať všetky výsledky s obmedzením počtu v opačnom poradí
+	select * from thesis where statement_id = ? and time_id >= ?
+		order by time_id asc limit ?
+		\end{lstlisting}
 		
-		%Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.
-		%Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu.
+		Ďalším rozdielom oproti relačnej databáze je spôsob implementácie stránkovania výsledkov, pretože v implementácii cassandry nenájdeme klauzulu OFFSET. Stránkovanie teda pozostáva z možnosti zobraziť prvú a poslednú stranu a posúvať sa z aktuálneho zobrazenia na ďalšie alebo predošlé výsledky. Táto funkcionalita bola riešená nasledovne: \cite{pagination}
+		\begin{description}
+			\item[Prvá stránka] zobrazuje údaje jednoducho získané usporiadaním výsledkov podľa časovej značky vytvorenia. Tento čas je obsiahnutý v identifikátore time\_id.
+			\item[Predchádzajúca stránka] žiadosť o zobrazenie predchádzajúcej stránky je vždy odosielaná spolu s identifikátorom začiatku tejto stránky. Takto server načíta výsledky, ktoré začínajú daným identifikátorom.
+			\item[Nasledujúca stránka] podobne ako pri zobrazení predchádzajúcej stránky aj nasledujúca stránka vyžaduje identifikátor začiatku požadovaných údajov.
+			\item[Posledná stránka] údaje pre poslednú stránku sú získavané podobne ako pre prvú, avšak záznamy sú usporiadané v opačnom poradí.
+		\end{description}
 		
-		Keďže cassandra umožňuje vyhľadávanie záznamov 
-	
+		Aplikácia pri požiadavku o zobrazenie výsledkov vždy načíta 2 údaje navyše - zmení parameter klauzuly limit. Taktiež funkcia očakáva identifikátor začiatku (alebo konca) stránky, ktorá sa bude načítavať.
+		\begin{description}
+			\item[Nasledujúca stránka] Prijatý identifikátor je použitý ako informácia o pozícii predchádzajúcej stránky. Údaj načítaný navyše slúži ako identifikátor nasledujúcej stránky. Ak tento údaj neexistuje, značí to že bude zobrazená posledná stránka.
+				
+			\item[Predchádzajúca stránka] Predchádzajúca stránka je dostupná pomocou údajov načítaných navyše. Tie tiež slúžia na zistenie existencie predchádzajúcej stránky. Pre informáciu o nasledujúcej stránke sa použije prijatý identifikátor.
+		\end{description}
+		
+		Tento postup je pre názornosť vysvetlený na obrázku \ref{cassandra-pagination}. Údaje o nasledujúcej a predchádzajúcej stránke sú odosielané klientovi spolu s výsledkami. Funkcia pre export neprodukuje metadáta o stránkovaní. 
+		\myFigure{cassandra-pagination}{Model stránkovania bez použitia klauzuly OFFSET \cite{pagination}}{Model stránkovania bez použitia klauzuly OFFSET}
+		
+		Pre zobrazenie výsledkov je nutné definovať offset vo forme TimeUUID. Ako alternatívu je možné použiť kľúčové slová first a last, ktoré sa premietnu do minimálneho a maximálneho možného TimeUUID.
+
+		Pri funkcii na preposlanie historických udalostí je možné dáta obmedziť časovými značkami. Pre ich porovnanie s údajmi v databáze bolo nutné použiť funkcie CQL maxTimeuuid a minTimeuuid, ktoré slúžia na porovnávanie časových značiek s TimeUUID identifikátorom.
+		
 	\subsection{Spring framework}
 		Ako základ serverovej časti aplikácie som použil Spring framework. Jeho hlavnou úlohou je injektovanie závislostí vo väčšine tried, no využil som aj rozšírenia pre databázu, webový prístup a pribalený webový server tomcat.
 		Spring Framework poskytuje v aplikácii podporu pre dependency injection, správu transakcií a prístup k dátam pomocou jdbc. Serverová časť aplikácie využíva nasledujúce knižnice:
@@ -69,7 +100,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 			\item[spring-boot-starter-web:] Táto závislosť umožňuje použitie pribaleného tomcat serveru. Ten sa spustí pri štarte aplikácie a sprístupní restovú api.
 		\end{description}
 		
-		Súčasťou spring frameworku je webové rozšírenie umožňujúce tvorbu restových služieb. V tejto implementácii som ich rozdelil do štyroch zdrojových súborov podľa oblastí, ktoré obsluhujú. Prvé dva SchemaController a StatementsController poskytujú prístup k správe schém a statementov, ResultController umožňuje prácu s výsledkami statementov a EsperController sa stará o spracovanie prichádzajúcich udalostí. Každá trieda je anotovaná pomocou @RestController a každá metóda definuje unikátnu cestu a HTTP metódu, pomocou ktorej sa vzdialene volá. Za zmienku tiež stojí závislosť ResultController na StatementsController, kde cesta k volaniu jednotlivých metód je vnorená. Výpis \ref{lst:rest-api-path} zobrazuje cesty ku controllerom, pri ktorých si môžeme všimnúť že akceptujú vstup vo forme JSON. V nasledujúcich kapitolách budú tiež detailne špecifikované prístupové cesty k jednotlivým REST metódam. 
+		Súčasťou spring frameworku je webové rozšírenie umožňujúce tvorbu restových služieb. V tejto implementácii som ich rozdelil do štyroch zdrojových súborov podľa oblastí, ktoré obsluhujú. Prvé dva SchemaController a StatementsController poskytujú prístup k správe schém a statementov, ResultController umožňuje prácu s výsledkami statementov a EsperController sa stará o spracovanie prichádzajúcich udalostí. Každá trieda je anotovaná pomocou @RestController a každá metóda definuje unikátnu cestu a HTTP metódu, pomocou ktorej sa vzdialene volá. Za zmienku tiež stojí závislosť ResultController na StatementsController, kde cesta k volaniu jednotlivých metód je vnorená. Výpis \ref{lst:rest-api-path} zobrazuje cesty ku controllerom, pri ktorých si môžeme všimnúť že akceptujú vstup vo forme JSON. V nasledujúcich kapitolách budú tiež detailne špecifikované prístupové cesty k jednotlivým REST metódam.
 		
 		\begin{lstlisting}[label=lst:rest-api-path,caption=Definícia ciest REST API]
 	@RequestMapping(value = "esper", produces = "application/json")

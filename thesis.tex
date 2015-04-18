@@ -1,13 +1,18 @@
 % statement = vyraz/dotaz/..
-% UUID, rozdiel v cassandra DAO
-% vytvorenie cassandra tabulky a priklad vyhladania - preco takyto primary key
+% rest api vracia metadata (strankovanie, schema...)
+% std:lastevent, win:length...
+% odstranit duplicitny priklad schemy
+% insert into clause
+% obrazok z nosql do cassandry
+% názorné priklady - 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
+
+%= UUID, rozdiel v cassandra DAO
+%= vytvorenie cassandra tabulky a priklad vyhladania - preco takyto primary key
+%= cassandra join, order, count
 %= komplexna schema
 %= priklad udalosti
 %= klauzuly select from ...
 %= priklad objektoveho modelu
-% obrazok z nosql do cassandry
-% deklarativne programovanie
-% názorné priklady - 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
 
 
 %\documentclass[12pt, a4paper]{book}
@@ -67,10 +72,12 @@
 	{ú}{{\'u}}1
 	{ľ}{{\v{l}}}1
 	{š}{{\v{s}}}1
+	{č}{{\v{c}}}1
 	{ť}{{\v{t}}}1
 %	comment=[l]{\#},
 %  commentstyle=\color{blue}
 }
+\lstset{morekeywords={select, where, order, by, limit, and, or, from, asc, desc}}
 \renewcommand\lstlistingname{Výpis}
 	
 % ----- Zoznam skratiek -----

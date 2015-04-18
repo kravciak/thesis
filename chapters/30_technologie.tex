@@ -154,8 +154,14 @@ output [after suppression_def]
 [[all | first | last | snapshot] every output_rate [seconds | events]]
 			\end{lstlisting}
 			V tomto výpise vidíme aj možnosť definovania toho čo sa má vyprodukovať. Je možné si vybrať produkovanie všetkých udalostí, prvej, poslednej alebo snímky. Snímka sa používa spolu s agregačnými funkciami a produkuje jedinú udalosť s hodnotou agregačnej funkcie.
-			
+
+			\item[INSERT INTO] 
 		\end{description}
+
+		\begin{description}
+			\item[view] VIEWS - win:length, win:time, std:unique, std:lastevent
+		\end{description}
+
 		
 		EPL jazyk tiež umožňuje definovať patterny. Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. Je možné ich definovať ako samostatný výraz alebo ako súčasť statementu. Môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Vďaka tomu ich je možné použiť v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
 		
@@ -276,7 +282,11 @@ output [after suppression_def]
 	
 	Aj keď v mnohom pripomína Cassandra relačnú databázu, nepodporuje plne relačný model. Namiesto toho poskytuje klientom jednoduchý dátový model, ktorý je možné dynamicky upravovať. Nasledujúci text rozoberá niektoré základné odlišnosti cassandry a relačných databáz.
 	\subsection{Keyspace}
-	Keyspace je možné prirovnať k schéme relačnej databázy. Slúži ako kontajner pre dáta, ktoré zdieľajú určité vlastnosti. Pri vytvorení keyspace je nutné určiť spôsob replikácie a počet kópií dát. Tieto kópie slúžia na zachovanie dátovej integrity v prípade výpadku niektorého zo serverov.
+	Keyspace je možné prirovnať k schéme relačnej databázy. Slúži ako kontajner pre dáta, ktoré zdieľajú určité vlastnosti. Pri vytvorení keyspace je nutné určiť spôsob replikácie a počet kópií dát. Tieto kópie slúžia na zachovanie dátovej integrity v prípade výpadku niektorého zo serverov. Syntax pre vytvorenie nového keyspace je zobrazená vo výpise \ref{lst:create-keyspace}.
+
+	\begin{lstlisting}[label=lst:create-keyspace,caption=Syntax pre vytvorenie nového keyspace]
+	CREATE KEYSPACE <identifier> WITH <properties>
+	\end{lstlisting}
 	
 	Po vytvorení keyspace je možné v ňom vytvárať tabuľky, ktoré už obsahujú samotné dáta. Tabuľka patrí do keyspace podobne ako v relačnom pojatí je tabuľka obsiahnutá v databáze.
 
@@ -295,21 +305,21 @@ output [after suppression_def]
 	
 	Vo výpise \ref{lst:cql-pk} je zobrazené názorné vytvorenie tabuľky so zloženým primárnym kľúčom. Tento kľúč má dve zložky:
 	\begin{description}
-		\item[Partition key] určuje na ktorých uzloch sa uložia dáta. Je tiež zodpovedný za distribúciu naprieč jednotlivé uzly. V príklade je to key\_one.
-		\item[Clustering key] určuje zoskupovanie dát, čo je proces, ktorý usporadúva dáta v rámci daného úseku. V príklade je použitý zložený kľúč pozostávajúci z key\_two a key\_three.
+		\item[Kľúč partície] (Partition key) určuje na ktorých uzloch sa uložia dáta. Je tiež zodpovedný za distribúciu naprieč jednotlivé uzly. V príklade je to key\_one.
+		\item[Zoskupovací kľúč] (Clustering key) určuje zoskupovanie dát, čo je proces, ktorý usporadúva dáta v rámci daného úseku. V príklade je použitý zložený kľúč pozostávajúci z key\_two a key\_three.
 	\end{description}
 	Keďže cassandra je distribuovaná databáza, tieto kľúče slúžia k vyhľadaniu miesta, kde sú uložená vyhľadávané záznamy. A práve toto vyhľadávanie je veľmi ovplyvnené architektúrou databázy.
 	
 	Práve tu vzniká jedna z najväčších odlišností od relačných databáz, ktorých užívatelia sú zvyknutí filtrovať údaje podľa ľubovoľného stĺpca tabuľky. Vyhľadávanie v klauzule WHERE je možné len podľa stĺpcov z ktorých sa primárny kľúč skladá a to v poradí v ktorom sú definované. Vo výpise \ref{lst:cql-pk-use} vidíme možnosti filtrovania v dotazoch do tabuľky definovanej výpisom \ref{lst:cql-pk}.
 	
 	\begin{lstlisting}[label=lst:cql-pk-use,caption=Príklad vyhľadávanie v tabuľke thesis]
-	Príklad validných dotazov:
-		select * from thesis where key_one='kluc' and key_two=11
-		select * from thesis where key_one='kluc' and key_two=11 and key_three=13
+Príklad validných dotazov:
+	select * from thesis where key_one='kluc' and key_two=11
+	select * from thesis where key_one='kluc' and key_two=11 and key_three=13
 		
-	Príklad nevalidných dotazov:
-		select * from thesis where key_two=11
-		select * from thesis where key_one='kluc' and key_three=11
+Príklad nevalidných dotazov:
+	select * from thesis where key_two=11
+	select * from thesis where key_one='kluc' and key_three=11
 	\end{lstlisting}
 	
 	Kvôli tomuto obmedzeniu je nutné prispôsobovať návrh tabuliek dotazom, ktoré ich budú využívať. To nutne vedie k duplicitám dát vo viacerých tabuľkách. Toto je ďalšia dôležitá odlišnosť a jeden z problémov v zmene myslenia pri prechode zo sveta relačných databáz, kde je správnym prístupom normalizácia dát. Pre dnešné dátové úložiská však nepredstavuje taký problém množstvo dát ako rýchlosť prístupu k nim. Preto sú duplicitné dáta prijateľným kompromisom v porovnaní s výhodami ktoré NoSQL databázy prinášajú.
@@ -334,10 +344,16 @@ output [after suppression_def]
 		INSERT INTO collect_things (k, v) VALUES(0, (3, 'bar', 2.1));
 		\end{lstlisting}
 	\end{description}
-	
-	\subsection{Offset}
-	Klauzuly limit a offset sú bežne používane v spojení so stránkovaním výsledkov vyhľadávania. Kvôli svojej distribuovanej architektúre však cassandra neimplementuje klauzulu offset. Pri stránkovaní teda nejde jednoducho preskočiť na konkrétnu stranu. Implementácia teda zvyčajne spočíva v zobrazení výsledkov vo vzťahu ku konkrétnemu záznamu.
 
+	\subsection{Offset, Join, Order, Count}
+	Klauzuly limit a offset sú bežne používane v spojení so stránkovaním výsledkov vyhľadávania. Kvôli svojej distribuovanej architektúre však cassandra neimplementuje klauzulu offset. Pri stránkovaní teda nejde jednoducho preskočiť na konkrétnu stranu. Implementácia teda zvyčajne spočíva v zobrazení výsledkov vo vzťahu ku konkrétnemu záznamu.
+	
+	Klauzula join je nahradená ústupom od normalizácie. Údaje sú uchovávané v tabuľkách duplicitne a ich štruktúra je prispôsobená požiadavkám na operácie, ktoré s nimi budú vykonávané. Potrebné join sa teda musia plánovať už pri návrhu tabuľky, prípadne majú za následok vznik nových tabuliek.
+	
+	Klauzulu order by tiež nie je možné použiť ľubovoľne na každom definovanom stĺpci. V prípade že tabuľka definuje zoskupovací stĺpec, je možné ho použiť pre zoradenie výsledkov. V opačnom prípade je možné použiť len stĺpce definované v zoskupovacom kľúči.
+	
+	Klauzula count je implementovaná rozdielne ako v relačných databázach. Operácia pre zápis v databáze cassandra prebieha bez nutnosti čítania už existujúcich záznamov. To zvyšuje rýchlosť zápisu, avšak databáza neudržiava informáciu o aktuálnom počte záznamov. Operácia count preto musí pri zavolaní spočítať existujúce záznamy, čo časovo náročná operácia. Preto sa táto klauzula zvyčajne používa spolu s klauzulou limit, ktorá zamedzí zbytočnému zahlteniu databázy \cite{cascount}. \\
+	
 	Tieto rozdiely sú pri prechode z relačných databáz prekvapením, návrh databáz je totiž z veľkej časti obmedzujúci. Tieto obmedzenia vyplývajú predovšetkým z architektúry dátového úložiska databázy, avšak práve táto architektúra ponúka aj mnoho výhod. Preto je použitie NoSQL databázy nutné dôkladne zvážiť a prispôsobiť potrebám konkrétnej aplikácie.
 	
 \section{Frameworky}
