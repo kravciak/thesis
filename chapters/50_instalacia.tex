@@ -97,7 +97,7 @@
 	\begin{lstlisting}
 	git clone https://github.com/kravciak/thesis-diploma-code.git
 	\end{lstlisting}
-	Kompletný projekt obsahuje 4 samostatné komponenty. Každá z nich sa spúšťa samostatne, avšak všetky sú závislé na Api, a pred použitím je nutné nakonfigurovať schémy a statementy - na čo slúži komponenta Web. Postup spustenia je preto nasledovný:
+	Kompletný projekt obsahuje 4 samostatné komponenty. Každá z nich sa spúšťa samostatne, avšak všetky sú závislé na Api, a pred použitím je nutné nakonfigurovať schémy a príkazy - na čo slúži komponenta Web. Postup spustenia je preto nasledovný:
 	
 \subsubsection{Api}
 	Predtým než je spustená Api je nutné spustiť cassandra databázu. Tá je spustiteľná z bin priečinka inštalácie súborom cassandra.bat. Pre spustenie vyžaduje administrátorské oprávnenia. Cassandru je tiež možné nainštalovať ako service pridaním parametra "install". Pri správnom spustení sa na konzole zobrazí text:
@@ -147,12 +147,14 @@
 	Výpis prvých 100 schém
 	http://localhost:8080/schemas?offset=0&limit=100
 	
-	Výpis prvých 100 statementov
+	Výpis prvých 100 príkazov
 	http://localhost:8080/statements?offset=0&limit=100
 	
 	Zobrazenie výsledkov
 	http://localhost:8080/statements/53/results
 	\end{lstlisting}
+	
+	Niektoré z volaní vracajú súčasne s dátami aj metadáta poskytujúce dodatočné informácie, napríklad o stránkovaní, schéme udalostí či počte výsledkov. Tieto informácie sú spracované na strane grafického rozhrania a zjednodušujú užívateľovi prácu so systémom.
 	
 	Každá metóda má definovaný spôsob prístupu, teda jedinečnú kombináciu URL a metódy volania (GET, POST, DELETE). Tabuľka \ref{table:rest-urls} poskytuje kompletný prehľad mapovania http metódy a url na funkciu, ktorá obsluhuje dané volanie.	Funkcie sú rozdelené do štyroch hlavných skupín podľa oblasti, ktorú obsluhujú. Takisto ich mapovanie zodpovedá konkrétnej oblasti.
 	
@@ -197,35 +199,35 @@
 	%TODO Streamovanie je realizované pomocou Faraday::UploadIO komponentu aplikácie.
 
 	\subsection{ThesisWeb}
-	Hlavná obrazovka zobrazuje tri oblasti esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém, správu statementov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym statementom.
+	Hlavná obrazovka zobrazuje tri oblasti esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém a príkazov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym príkazom.
 	\myFigure{gui-menu}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
 	
-	Pod týmto menu sa nachádza navigačný panel s informáciou o ceste k práve zobrazovanej stránke. Po jeho pravej strane sú ovládacie tlačidlá na pridávanie, mazanie, prípadne export elementov na stránke. Súčasťou navigačného panelu je na stránke schém a statementov vyhľadávanie, ktoré umožňuje filtrovať pomocou mena schémy alebo statementu.
+	Pod týmto menu sa nachádza navigačný panel s informáciou o ceste k práve zobrazovanej stránke. Po jeho pravej strane sú ovládacie tlačidlá na pridávanie, mazanie, prípadne export elementov na stránke. Súčasťou navigačného panelu je na stránke schém a príkazov vyhľadávanie, ktoré umožňuje filtrovať pomocou mena schémy alebo príkazu.
 	
 	
 	Pod navigačným menu sa nachádza samotný obsah stránky. Nasledujúci text popisuje každú zo štyroch hlavných sekcií.
 	\begin{description}
-		\item[Schémy:] Na hlavnej obrazovke je možné vidieť zoznam schém a pri niektorých z nich číslo. Toto číslo reprezentuje počet statementov závislých na konkrétnej schéme. Pro rozkliknutí schémy sa zobrazí jej detail. Na ľavej strane sú zobrazené dodatočné informácie vrátane zoznamu statementov závislých na danej schéme. Na pravej strane obrazovky je konkrétna XML schéma. Pomocou ovládacích tlačidiel je možné túto schému exportovať alebo zmazať v prípade že neobsahuje žiaden na nej závislý statement.
+		\item[Schémy:] Na hlavnej obrazovke je možné vidieť zoznam schém a pri niektorých z nich číslo. Toto číslo reprezentuje počet príkazov závislých na konkrétnej schéme. Pro rozkliknutí schémy sa zobrazí jej detail. Na ľavej strane sú zobrazené dodatočné informácie vrátane zoznamu príkazov závislých na danej schéme. Na pravej strane obrazovky je konkrétna XML schéma. Pomocou ovládacích tlačidiel je možné túto schému exportovať alebo zmazať v prípade že neobsahuje žiaden na nej závislý príkaz.
 
 		Pri pridávaní je nutné vyplniť meno schémy, koreňový element umožňujúci esper engine jedinečne identifikovať schému (zhodný s koreňovým elementu definície schémy) a XML definíciu schémy.
 
-		\item[Statementy:] Podobne ako v prípade schém nájdeme na hlavnej obrazovke zoznam statementov a pri každom z nich počet udalostí, ktoré mu vyhovujú. Po rozkliknutí sa zobrazí detail statementu. Na tejto stránke je zaujímavá z popisu statementu na ľavej strane URL adresa pomocou ktorej sú výsledky dostupné priamo zo serverovej API a odkaz pre zobrazenie výsledkov.
-		Na pravej strane je zobrazená schéma statementu s menami polí ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
-		Ovládací panel statementu umožňuje spustiť, pozastaviť alebo zmazať daný statement. Pozastavené statementy nevyhľadávajú nové udalosti
+		\item[Statementy:] Podobne ako v prípade schém nájdeme na hlavnej obrazovke zoznam príkazov a pri každom z nich počet udalostí, ktoré mu vyhovujú. Po rozkliknutí sa zobrazí detail príkazu. Na tejto stránke je zaujímavá z popisu príkazu na ľavej strane URL adresa pomocou ktorej sú výsledky dostupné priamo zo serverovej API a odkaz pre zobrazenie výsledkov.
+		Na pravej strane je zobrazená schéma príkazu s menami polí ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
+		Ovládací panel príkazu umožňuje spustiť, pozastaviť alebo zmazať daný príkaz. Pozastavené príkazy nevyhľadávajú nové udalosti
 		\myFigure{gui-replay-form}{Formulár preposielania historických udalostí na esper engine}{Formulár preposielania historických udalostí}
 		
-		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať statement v esper engine. V prípade že už existuje statement s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky statementu držané v databáze. Posledné textové pole obsahuje text vytváraného statementu. Novo vytvorený statement je predvolene v spustenom stave.
+		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať príkaz v esper engine. V prípade že už existuje príkaz s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky príkazu držané v databáze. Posledné textové pole obsahuje text vytváraného príkazu. Novo vytvorený príkaz je predvolene v spustenom stave.
 		
 		\item[Streamer:] Pre posielanie nových udalostí existuje viacero spôsobov, jedným z nich je odoslanie udalostí pomocou administračného rozhrania na tejto stránke. V hornej časti je URL, ktorú je možné použiť na odosielanie udalostí priamo na API serverovej časti. Štruktúra odosielanej udalosti je bližšie popísaná v použití serverovej časti aplikácie a esper dokumentácii.
 		Pre odoslanie udalostí je možné použiť formulár alebo udalosti načítať zo súboru. Obe možnosti sa dajú použiť súčasne. Pri načítaní zo súboru sú odosielané udalosti streamované, čo umožňuje posielať veľké objemy dát.
 
-		V ovládacích prvkoch stránky nájdeme tlačidlo pre odoslanie vzorky dát. Tieto sú načítané zo súboru a vyhovujú prednastaveným schémam a statementom. Ich použitie uľahčuje pochopenie fungovania aplikácie.
+		V ovládacích prvkoch stránky nájdeme tlačidlo pre odoslanie vzorky dát. Tieto sú načítané zo súboru a vyhovujú prednastaveným schémam a príkazom. Ich použitie uľahčuje pochopenie fungovania aplikácie.
 		
-		\item[Výsledky] Pre zobrazenie výsledkov musíme najprv vybrať statement, ktorého výsledky chceme vidieť. Na stránku výsledkov je možné sa dostať z detailu statementu kliknutím na odkaz s počtom výsledkov alebo na poslednú položku z menu.
+		\item[Výsledky] Pre zobrazenie výsledkov musíme najprv vybrať príkaz, ktorého výsledky chceme vidieť. Na stránku výsledkov je možné sa dostať z detailu príkazu kliknutím na odkaz s počtom výsledkov alebo na poslednú položku z menu.
 		Na základnej stránke je tabuľka so zoznamom výsledkov. Tieto je možné stránkovať, avšak z dôvodu použitia NoSQL databázy nie je možné preskočiť na konkrétnu stránku. Je to zapríčinené tým, že použitá databáza nepozná klauzulu OFFSET a k výsledkom je tak možné pristupovať len špecifikáciou ich primárneho kľúča, alebo vzťahu k inému primárnemu kľúču.
-		Po rozkliknutí konkrétneho výsledku sa na ľavej strane zobrazí jeho detailný popis, v ktorom je možné vidieť napríklad statement ktorému výsledok patrí alebo čas za ktorý expiruje. Pod týmito metadátami je daný výsledok zobrazený v JSON formáte.
+		Po rozkliknutí konkrétneho výsledku sa na ľavej strane zobrazí jeho detailný popis, v ktorom je možné vidieť napríklad príkaz ktorému výsledok patrí alebo čas za ktorý expiruje. Pod týmito metadátami je daný výsledok zobrazený v JSON formáte.
 		
-		Podobne ako na stránke statementu, kde je možné preposlať všetky výsledky je možné preposlať jeden konkrétny výsledok pomocou panelu v pravej časti tejto stránky.
+		Podobne ako na stránke príkazu, kde je možné preposlať všetky výsledky je možné preposlať jeden konkrétny výsledok pomocou panelu v pravej časti tejto stránky.
 
 		Vďaka ovládacím prvkom je možné exportovať alebo zmazať všetky výsledky na hlavnej stránke, alebo konkrétny výsledok pri zobrazení jeho detailu. V navigačnom paneli je zobrazené aj UUID výsledku.
 	\end{description}
@@ -234,35 +236,3 @@
 	
 	\myFigure{gui-schema}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
 	
-	\begin{lstlisting}[label=lst:rest-api,caption=Príklad volaní REST API]
-	<?xml version="1.0" encoding="UTF-8"?>
-	<events>
-	    <StockXsd>
-		    <time>2014-02-03 01:58:00.000</time>
-		    <open>1.34850</open>
-		    <high>1.34854</high>
-		    <low>1.34850</low>
-		    <close>1.34853</close>
-		    <volume>76.9400</volume>
-	    </StockXsd>
-	</events>
-	\end{lstlisting}
-	
-	\begin{lstlisting}[label=lst:rest-api,caption=Príklad volaní REST API]
-	<?xml version="1.0" encoding="UTF-8"?>
-	<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-	<xs:element name="StockEvent">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="time" type="xs:string"></xs:element>
-				<xs:element name="open" type="xs:float"></xs:element>
-				<xs:element name="high" type="xs:float"></xs:element>
-				<xs:element name="low" type="xs:float"></xs:element>
-				<xs:element name="close" type="xs:float"></xs:element>
-				<xs:element name="volume" type="xs:float"></xs:element>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	</xs:schema>
-
-	\end{lstlisting}

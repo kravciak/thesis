@@ -1,11 +1,13 @@
-% statement = vyraz/dotaz/..
-% rest api vracia metadata (strankovanie, schema...)
-% std:lastevent, win:length...
-% odstranit duplicitny priklad schemy
-% insert into clause
-% obrazok z nosql do cassandry
-% názorné priklady - 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
+% statement = vyraz, pattern - vzor, observer
 
+% názorné priklady - 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
+% odstranit duplicitny priklad schemy
+% obrazok z nosql do cassandry
+% obrazok z esper do views?
+
+%= rest api vracia metadata (strankovanie, schema...)
+%= insert into clause
+%= std:lastevent, win:length...
 %= UUID, rozdiel v cassandra DAO
 %= vytvorenie cassandra tabulky a priklad vyhladania - preco takyto primary key
 %= cassandra join, order, count
@@ -77,7 +79,7 @@
 %	comment=[l]{\#},
 %  commentstyle=\color{blue}
 }
-\lstset{morekeywords={select, where, order, by, limit, and, or, from, asc, desc}}
+\lstset{morekeywords={select, where, order, by, limit, and, or, from, asc, desc, having, output, group, as}}
 \renewcommand\lstlistingname{Výpis}
 	
 % ----- Zoznam skratiek -----
@@ -118,17 +120,17 @@ Chcem poďakovať všetkým, ktorí ma podporovali a pomáhali mi, najmä svojim
 %\label{abstract}
 
 \chapter*{Abstrakt}
-Táto diplomová práca sa zaoberá problematikou spracovania komplexných udalostí. V teoretickej časti nájdeme vysvetlenie základných pojmov a popis použitých technológií. Čitateľ sa tiež zoznámi so základmi práce v esperi.
+Táto diplomová práca sa zaoberá problematikou spracovania komplexných udalostí. V teoretickej časti nájdeme vysvetlenie základných pojmov a popis použitých technológií. Čitateľ sa tiež zoznámi so základmi práce v Esperi.
 
-Praktická časť práce sa zaoberá vytvorením administračného rozhrania, ktoré po napojení na serverovú časť aplikácie umožní použitie základnej funkcionality esper engine aj bez predchádzajúcej znalosti programovania. Súčasťou praktickej časti je postup prípravy systému, inštalácie a spustenia aplikácie, keďže ide o netriviálnu úlohu.
+Praktická časť práce sa zaoberá vytvorením administračného rozhrania, ktoré po napojení na serverovú časť aplikácie umožní použitie základnej funkcionality Esper engine aj bez predchádzajúcej znalosti programovania. Súčasťou praktickej časti je postup prípravy systému, inštalácie a spustenia aplikácie, keďže ide o netriviálnu úlohu.
 
 \section*{Kľúčové slová}
 cep, nosql, esper, cassandra, rest, rails, gui \emptydoublepage
 
 \chapter*{Abstract}
-This thesis deals with the complex event processing problem. In theoretical part you can find explanation of basic terms and description of used technologies. Reader also becomes fammiliar with basics of work with esper.
+This thesis deals with the complex event processing problem. In theoretical part you can find explanation of basic terms and description of used technologies. Reader also becomes fammiliar with basics of work with Esper.
 
-Practical part is about building administrative interface, which after connecting to server part of application enables user to use basic functionality of esper engine without previous programming knowledge. Part of this chapter is about system set-up, installation and launching the application as it is not considered to be a trivial task.
+Practical part is about building administrative interface, which after connecting to server part of application enables user to use basic functionality of Esper engine without previous programming knowledge. Part of this chapter is about system set-up, installation and launching the application as it is not considered to be a trivial task.
 
 \section*{Keywords}
 cep, nosql, esper, cassandra, rest, rails, gui \emptydoublepage

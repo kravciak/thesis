@@ -4,7 +4,7 @@
 \section{Esper}
 	Esper je komponenta, ktorá umožňuje spracovanie komplexných udalostí \ac{CEP}. Umožňuje vývoj aplikácií spracovávajúcich veľké množstvo udalostí - v reálnom čase ako aj historických. Tieto udalosti je možné filtrovať a analyzovať podľa potreby a reagovať v reálnom čase na predom definované stavy.  Esper je dostupný v troch verziách:
 	\begin{description}
-		\item[Esper] je dostupné ako open source s možnosťou komerčnej podpory. Táto verzia obsahuje základ potrebný pre použitie esperu, užívateľ však musí jednotlivé statementy, schémy a nastavenia realizovať programovo. Je preto náročný na použitie pre ľudí, ktorí nevedia programovať. Riešenie je vhodné pre firmy, ktoré buď nevyužijú platenú verziu alebo majú špecifické požiadavky na výsledný produkt a sú schopné túto verziu podľa svojich potrieb upraviť.
+		\item[Esper] je dostupné ako open source s možnosťou komerčnej podpory. Táto verzia obsahuje základ potrebný pre použitie esperu, užívateľ však musí jednotlivé príkazy, schémy a nastavenia realizovať programovo. Je preto náročný na použitie pre ľudí, ktorí nevedia programovať. Riešenie je vhodné pre firmy, ktoré buď nevyužijú platenú verziu alebo majú špecifické požiadavky na výsledný produkt a sú schopné túto verziu podľa svojich potrieb upraviť.
 		
 		\item[Esper HA] je riešenie umožňujúce vysokú dostupnosť Esperu. Zabezpečuje že stav je po vypnutí alebo havárii obnoviteľný. Statementy, schémy a iné nastavenia si EsperHA pri reštarte uchováva, čo je výhoda oproti predchádzajúcej verzii - kde je nutné tieto úkony riešiť programovo. Táto verzia je vhodná pre projekty závislé na vysokej dostupnosti esperu a subjekty, pre ktoré je kritická neustála kontrola prichádzajúcich udalostí.
 		EsperHA je spoplatnený, dostupná je trial len verzia, pre ktorej použitie je nutné identifikovať sa ako spoločnosť. Cena nie je na webových stránkach dostupná.
@@ -74,18 +74,16 @@
 	\end{lstlisting}
 	Ako je z výpisu vidieť je možné udalosti zaobaliť do koreňového elementu events. Ten je vhodné použiť v prípade že na esper engine odosielame súbory obsahujúce veľké množstvo udalostí, pretože tým obmedzíme počet HTTP volaní a predídeme možnému zahlteniu serveru. Táto funkcionalita je realizovaná v implementačnej časti aplikácie a nie je súčasťou esper engine.
 
-	Po definovaní typu udalosti sa na ne môžeme odkazovať klauzulou FROM v EPL statementoch. Tie sú bližšie popísané v nasledujúcej sekcii.
+	Po definovaní typu udalosti sa na ne môžeme odkazovať klauzulou FROM v EPL príkazoch. Tie sú bližšie popísané v nasledujúcej sekcii.
 
 	\subsection{Event Processing Language}
-		\ac{EPL} je jazyk umožňujúci definovanie statementov a patternov v CEP. Syntaxou je podobný SQL. Obsahuje klauzuly SELECT, FROM, WHERE, GROUP BY, HAVING a ORDER BY. Namiesto tabuliek však pracuje so streamami, kde riadok tabuľky nahrádza prichádzajúca udalosť. Streamy udalostí je možné spájať pomocou joinov, filtrovať a agregovať.
+		\ac{EPL} je jazyk umožňujúci definovanie príkazov a patternov v CEP. Syntaxou je podobný SQL. Obsahuje klauzuly SELECT, FROM, WHERE, GROUP BY, HAVING a ORDER BY. Namiesto tabuliek však pracuje so streamami, kde riadok tabuľky nahrádza prichádzajúca udalosť. Streamy udalostí je možné spájať pomocou joinov, filtrovať a agregovať.
 		
-		Klauzula INSERT INTO je použiteľná na presmerovanie udalostí na iný stream pre dodatočné spracovanie. Klauzula UPDATE slúži na úpravu vlastností udalosti a je aplikovaná pred spracovaním statementu. 
+		Klauzula INSERT INTO je použiteľná na presmerovanie udalostí na iný stream pre dodatočné spracovanie. Klauzula UPDATE slúži na úpravu vlastností udalosti a je aplikovaná pred spracovaním príkazu. 
 		
-		EPL statementy môžu obsahovať definíciu náhľadov (view). Tieto majú viacero funkcií, ako okná náhľadu na stream udalostí, tvorenie štatistík v vlastností udalosti alebo zoskupovanie udalostí. Náhľady môžu byť reťazené. Zabudované náhľady sú napríklad win:length - aplikuje statement na definovaný počet udalostí, win:time - aplikuje statement na udalosti obmedzené časovo alebo std:lastevent - ktorý obsahuje poslednú prijatú udalosť.
+		EPL definuje koncept pomenovaných okien (named windows), ktoré slúžia ako štruktúra uchovávajúca udalosti. Je možné do nej vkladať nové udalosti a mazať staré. Výhodou tejto štruktúry je možnosť jej použitia viacerými príkazmi, pretože je globálna, teda zdieľaná v rozsahu daného service providera.	
 		
-		EPL definuje koncept pomenovaných okien (named windows), ktoré slúžia ako štruktúra uchovávajúca udalosti. Je možné do nej vkladať nové udalosti a mazať staré. Výhodou tejto štruktúry je možnosť jej použitia viacerými statementami, pretože je globálna, teda zdieľaná v rozsahu daného service providera.	
-		
-		Pomocou EPL môžeme tiež definovať premenné, ktoré slúžia na vkladanie parametrov do statementu a definovanie schém udalostí. Tými sa zaoberá nasledujúca sekcia.
+		Pomocou EPL môžeme tiež definovať premenné, ktoré slúžia na vkladanie parametrov do príkazu a definovanie schém udalostí. Tými sa zaoberá nasledujúca sekcia.
 		
 		\subsubsection{Syntax}
 		Statementy musia spĺňať pravidlá definované EPL syntaxou. Tá však nie je jednotná a jednotlivé CEP riešenia poskytujú svoje implementácie. V tejto časti si rozoberieme pravidlá používané jazykom EPL esper engine. Výpis \ref{lst:epl-syntax} zobrazuje pravidlá tejto syntaxe.
@@ -106,18 +104,18 @@
 		[limit num_rows]
 		\end{lstlisting}
 
-		Ako môžeme vidieť v tomto výpise, každý EPL statement musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly \cite{web:esper-doc}.
+		Ako môžeme vidieť v tomto výpise, každý EPL príkaz musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly \cite{web:esper-doc}.
 		
 		\begin{description}
-			\item[Select] Klauzula SELECT je povinná v každom EPL statemente. Je v nej možné využiť náhradný znak * alebo vymenovať všetky požadované položky. Ak položka nemá unikátne meno, musí sa použiť predpona s názvom zdroja dát. 
+			\item[Select] Klauzula SELECT je povinná v každom EPL príkaze. Je v nej možné využiť náhradný znak * alebo vymenovať všetky požadované položky. Ak položka nemá unikátne meno, musí sa použiť predpona s názvom zdroja dát. 
 			
-			V prípade použitia znaku * v JOIN statemente nebude výsledná udalosť obsahovať všetky položky oboch zdrojov. Namiesto toho bude pozostávať z položiek reprezentujúcich objekty daných udalostí pomenované podľa zdrojov.
+			V prípade použitia znaku * v JOIN príkaze nebude výsledná udalosť obsahovať všetky položky oboch zdrojov. Namiesto toho bude pozostávať z položiek reprezentujúcich objekty daných udalostí pomenované podľa zdrojov.
 			
-			Syntax select klauzuly je znázornená vo výpise \ref{lst:select-syntax}. Môže obsahovať aj nepovinné parametre istream (input), irstream (input \& remove) a rstream (remove), ktoré definujú ktoré udalosti sa majú poslať na UpdateListener a observery statementu. Prednastavené je použitie parametru istream.
+			Syntax select klauzuly je znázornená vo výpise \ref{lst:select-syntax}. Môže obsahovať aj nepovinné parametre istream (input), irstream (input \& remove) a rstream (remove), ktoré definujú na ktoré udalosti príkaz reaguje. Prednastavené je použitie parametru istream.
 			\begin{lstlisting}[label=lst:select-syntax,belowskip=-30pt]
 select [istream | irstream | rstream] [distinct] * | expression_list
 			\end{lstlisting}
-			Obsah klauzuly select tiež definuje typ udalostí vyprodukovaných daným statementom.
+			Obsah klauzuly select tiež definuje typ udalostí vyprodukovaných daným príkazom.
 			
 			\item[FROM] FROM klauzula špecifikuje jeden alebo viac zdrojov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero zdrojov dát. Syntax from klauzuly \ref{lst:from-syntax}.
 			\begin{lstlisting}[label=lst:from-syntax]
@@ -127,7 +125,7 @@ from stream_def [as name] [unidirectional]
 			\end{lstlisting}
 			Podporovaný je tiež join s relačnou databázou ako zdrojom dát. To je možné využiť napríklad na prístup k historickým dátam.
 			
-			\item[WHERE] Where klauzula je nepovinná časť statementu, ktorá špecifikuje vyhľadávacie parametre. Zvyčajne obsahuje výrazy pozostávajúce z porovnávacích operátorov =, < , > , >=, <=, !=, <>, exists, is null a ich kombinácie pomocou kľúčových slov AND a OR.
+			\item[WHERE] Where klauzula je nepovinná časť príkazu, ktorá špecifikuje vyhľadávacie parametre. Zvyčajne obsahuje výrazy pozostávajúce z porovnávacích operátorov =, < , > , >=, <=, !=, <>, exists, is null a ich kombinácie pomocou kľúčových slov AND a OR.
 			\begin{lstlisting}[label=lst:where-syntax]
 where exists (
 	select orderId from Settlement.win:time(1 min) 
@@ -155,31 +153,54 @@ output [after suppression_def]
 			\end{lstlisting}
 			V tomto výpise vidíme aj možnosť definovania toho čo sa má vyprodukovať. Je možné si vybrať produkovanie všetkých udalostí, prvej, poslednej alebo snímky. Snímka sa používa spolu s agregačnými funkciami a produkuje jedinú udalosť s hodnotou agregačnej funkcie.
 
-			\item[INSERT INTO] 
+			\item[INSERT INTO] Túto klauzulu je možné použiť pre vloženie výsledkov príkazu do pomenovaného okna alebo tabuľky. Tiež umožňuje presmerovať tieto výsledky ako vstupný tok pre iný príkaz. Syntax pre použitie klauzuly insert into je zobrazená vo výpise \ref{lst:insertinto-syntax}. Príklad použitia je dostupný v nasledujúcom texte.
+			\begin{lstlisting}[label=lst:insertinto-syntax]
+insert [istream | irstream | rstream] into event_stream_name  [ (property_name [, property_name] ) ]
+			\end{lstlisting}
+			
 		\end{description}
 
+		EPL príkazy môžu obsahovať definíciu náhľadov (view). Tieto majú viacero funkcií, ako okná náhľadu na stream udalostí, tvorenie štatistík v vlastností udalosti alebo zoskupovanie udalostí. Náhľady môžu byť reťazené.
+
+		Esper rozdeľuje náhľady do menných priestorov. V nasledujúcom zhrnutí sú predstavené základné náhľady \cite{web:esper-doc}.
+		
 		\begin{description}
-			\item[view] VIEWS - win:length, win:time, std:unique, std:lastevent
-		\end{description}
+			\item[Náhľady do dátových okien] definujú kĺzavé dátové okná a nájdeme v mennom priestore win.
+				\subitem win:length - náhľad rozširuje okno o definovaný počet udalostí do minulosti. Nové udalosti vytláčajú tie, ktoré sa do okna už nezmestia, čo vytvára štruktúru obdobnú konceptu fifo.
+				\subitem win:length\_batch - náhľad funguje podobne ako win:length, avšak udalosti odstraňuje nárazovo pri zaplnení okna o definovanej veľkosti.
+				\subitem win:time - náhľad rozširuje dátové okno o minulé udalosti obmedzené časovou značkou.
+				\subitem win:keepall - na rozdiel od predchádzajúcich náhľadov, ktoré udalosti nevyhovujúce podmienke z dátového okna odstránia, tento náhľad udržuje\ všetky prijaté udalosti. Keďže sú všetky udalosti udržiavané v pamäti je nutné dať si pozor aby náhľad nezabral všetku dostupnú operačnú pamäť.
+				\subitem win:firstlength - je podobný win:length v tom že obmedzuje počet udalostí. Naproti nemu však v dátovom okne udržiava len prvých n udalostí.
+				\subitem win:firsttime - je ekvivalentný s win:firstlength, avšak udalosti nie sú obmedzené počtom, ale časom.
 
+			\item[Štandardné náhľady] Ostatné bežne používané náhľady sú dostupné s predponou std.
+				\subitem std:unique - tento náhľad uchováva len najaktuálnejšiu udalosť v prípade prijatia duplicitnej udalosti.
+				\subitem std:size - náhľad poskytuje prístup k premennej size, ktorá obsahuje počet udalostí prijatých daným príkazom. Náhľad je vytvára novú udalosť len v prípade zmeny premennej size. 
+				\subitem std:firstevent - náhľad udržiava len prvú prijatú udalosť. Všetky udalosti prijaté po nej sú ignorované. Náhľad sa takto správa ako win:length o veľkosti 1.
+
+			\item[Štatistické náhľady] Štatistické náhľady pokrýva menný priestor stat.
+				\subitem stat:uni - umožňuje pristupovať k štatistickým hodnotám, napríklad priemeru, smerodajnej odchýlky, súčtu či rozptylu.
+				\subitem stat:correl - počíta korelačnú hodnotu. Funkcia vyžaduje minimálne dva parametra, ktorých korelačnú hodnotu počíta.
+				\subitem stat:weighted\_avg - ako názov napovedá, náhľad umožňuje vypočítať vážený priemer. Podobne ako stat:correl vyžaduje aspoň dva parametra, prvý udáva údaj z ktorého sa počíta priemer a druhý jeho váhu.
+		\end{description}
 		
-		EPL jazyk tiež umožňuje definovať patterny. Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. Je možné ich definovať ako samostatný výraz alebo ako súčasť statementu. Môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Vďaka tomu ich je možné použiť v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
+		EPL jazyk tiež umožňuje definovať patterny. Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. Je možné ich definovať ako samostatný výraz alebo ako súčasť príkazu. Môže vyskytovať kdekoľvek v klauzule FROM, vrátane join. Vďaka tomu ich je možné použiť v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
 		
-		V nasledujúcich výpisoch sú príklady statementov, zobrazujúcich príklady syntaxe popisovanej v predchádzajúcom texte.
-		\begin{lstlisting}[label=lst:epl-simple,caption=Jednoduchý EPL statement]
+		V nasledujúcich výpisoch sú príklady príkazov, zobrazujúcich príklady syntaxe popisovanej v predchádzajúcom texte.
+		\begin{lstlisting}[label=lst:epl-simple,caption=Jednoduchý EPL príkaz]
 		select * from TweetEvent.win:time(60 sec) where message='happy'
 		\end{lstlisting}
 		
-		\begin{lstlisting}[label=lst:output-example,caption=EPL statement s výstupom každých 60 sekúnd]
+		\begin{lstlisting}[label=lst:output-example,caption=EPL príkaz s výstupom každých 60 sekúnd]
 		select sum(price) from OrderEvent.win:time(30 min) output snapshot every 60 seconds
 		\end{lstlisting}
 
-		\begin{lstlisting}[label=lst:epl-join,caption=Jednoduchý EPL statements použitím join]
+		\begin{lstlisting}[label=lst:epl-join,caption=Jednoduchý EPL príkaz použitím join]
 		select * from TickEvent.std:unique(symbol) as t, NewsEvent.std:unique(symbol) as n
 		where t.symbol = n.symbol
 		\end{lstlisting}
 
-		\begin{lstlisting}[label=lst:epl-pattern,caption=EPL statement s použitím patternu]
+		\begin{lstlisting}[label=lst:epl-pattern,caption=EPL príkaz s použitím patternu]
 		select a.custId, sum(a.price + b.price)
 		from pattern [every a=ServiceOrder -> 
 			b=ProductOrder(custId = a.custId) where timer:within(1 min)].win:time(2 hour) 
@@ -187,13 +208,33 @@ output [after suppression_def]
 		group by a.custId
 		having sum(a.price + b.price) > 100
 		\end{lstlisting}
+		
+		\begin{lstlisting}[label=lst:insert-into,caption=Príklad použitia klauzuly INSERT INTO]
+		insert into CombinedEvent
+		select A.customerId as custId, A.timestamp - B.timestamp as latency
+		from EventA.win:time(30 min) A, EventB.win:time(30 min) B
+		where A.txnId = B.txnId
+		\end{lstlisting}
+		
+		\begin{lstlisting}[label=lst:views,caption=Príklady použitia dátových náhľadov]
+Počíta priemernú cenu akcie z udalostí prijatých v posledných 30 sekundách
+select sum(price) from StockTickEvent(symbol='GE').win:time(30 sec)
+
+Počíta počet udalostí StockTickEvent prijatých počas poslednej minúty
+select size from StockTickEvent.win:time(1 min).std:size()
+
+Počíta smerodajnú odchýlku z posledných 10 prijatých udalostí
+select stddev from StockTickEvent.win:length(10).stat:uni(price)
+		\end{lstlisting}
+		
+		
 				
 		\subsubsection{Objektový model}	
-		Objektový model je sada tried poskytujúcich objektovú reprezentáciu statementu alebo patternu. Tá umožňuje zostrojiť, zmeniť alebo získať údaje z EPL statementov a patternov na vyššom stupni ako pri práci s textovou reprezentáciou. Objektový model pozostáva z objektového grafu, ktorého prvky je jednoducho prístupné. Táto forma tiež umožňuje kontrolu EPL syntaxe pred pridaním statementu alebo patternu do esperu. Objektový model umožňuje plný export do textovej formy a naopak.
+		Objektový model je sada tried poskytujúcich objektovú reprezentáciu príkazu alebo patternu. Tá umožňuje zostrojiť, zmeniť alebo získať údaje z EPL príkazov a patternov na vyššom stupni ako pri práci s textovou reprezentáciou. Objektový model pozostáva z objektového grafu, ktorého prvky je jednoducho prístupné. Táto forma tiež umožňuje kontrolu EPL syntaxe pred pridaním príkazu alebo patternu do esperu. Objektový model umožňuje plný export do textovej formy a naopak.
 		
-		Statementy vo výpise \ref{lst:epl-nomodel} a \ref{lst:epl-model} sú ekvivalentné. Podobným spôsobom je možné vytvárať statementy, patterny, definovať premenné premenné alebo vytvárať dátové okná.
+		Statementy vo výpise \ref{lst:epl-nomodel} a \ref{lst:epl-model} sú ekvivalentné. Podobným spôsobom je možné vytvárať príkazy, patterny, definovať premenné premenné alebo vytvárať dátové okná.
 		
-		\begin{lstlisting}[label=lst:epl-nomodel,caption=EPL statement bez použitia objektového modelu]
+		\begin{lstlisting}[label=lst:epl-nomodel,caption=EPL príkaz bez použitia objektového modelu]
 	select line, avg(age) as avgAge 
 	from com.chipmaker.ReadyEvent(line in (1, 8, 10)).win:time(10) as RE
 	where RE.waverId != null
@@ -202,7 +243,7 @@ output [after suppression_def]
 	order by line
 		\end{lstlisting}
 		
-		\begin{lstlisting}[float,label=lst:epl-model,caption=EPL statement s použitím objektového modelu]
+		\begin{lstlisting}[float,label=lst:epl-model,caption=EPL príkaz s použitím objektového modelu]
 	EPStatementObjectModel model = new EPStatementObjectModel();
 	model.setSelectClause(SelectClause.create()
 		.add("line")
@@ -216,13 +257,13 @@ output [after suppression_def]
 	model.setOrderByClause(OrderByClause.create("line"));
 		\end{lstlisting}
 	
-		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné. Pomocou objektového modelu je tiež možné skontrolovať syntax statementu pred pridaním do esper engine.
+		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné. Pomocou objektového modelu je tiež možné skontrolovať syntax príkazu pred pridaním do esper engine.
 		
 	\subsection{Api}
 		Esper pre svoje ovládanie neposkytuje grafické rozhranie. Na komunikáciu používa api, ktorá definuje tieto primárne rozhrania:
 		\begin{itemize}
 			\item Rozhranie udalostí a ich typov
-			\item Administrátorské rozhranie na vytváranie a správu EPL statementov a patternov a definovanie konfigurácie esperu
+			\item Administrátorské rozhranie na vytváranie a správu EPL príkazov a patternov a definovanie konfigurácie esperu
 			\item Runtime rozhranie, ktoré slúži na posielanie udalostí do esperu, definovanie premenných a spúšťanie on-demand výrazov.
 		\end{itemize}
 		
@@ -230,17 +271,17 @@ output [after suppression_def]
 		EPServiceProvider reprezentuje konkrétnu inštanciu esperu. Každá takáto inštancia je nezávislá od ostatných a má svoje vlastné administrátorské a runtime rozhranie. Pri prístupe umožňuje rozhranie voľbu "getDefaultProvider" bez parametrov, ktorá vráti predvolenú inštanciu, alebo "getProvider" s textovým parametrom URI identifikujúcim konkrétnu inštanciu. Tá je vytvorená ak ešte neexistuje. Opakované volania s rovnakým URI vracajú stále rovnakú inštanciu.
 		
 		\subsubsection{EP Administrator}
-		EPAdministrator umožňuje registrovanie EPL statementov, patternov alebo ich objektovej reprezentácie do esperu a to metódami createPattern, createStatement a create pre objektový model. Tieto funkcie poskytujú voliteľné parametre umožňujúce definovať meno statementu a užívateľský objekt, ktorý je v tejto aplikácii využitý na ukladanie dodatočných informácií o statemente - napríklad definovanie TTL pri ukladaní výsledkov do databázy.
+		EPAdministrator umožňuje registrovanie EPL príkazov, patternov alebo ich objektovej reprezentácie do esperu a to metódami createPattern, createStatement a create pre objektový model. Tieto funkcie poskytujú voliteľné parametre umožňujúce definovať meno príkazu a užívateľský objekt, ktorý je v tejto aplikácii využitý na ukladanie dodatočných informácií o príkaze - napríklad definovanie TTL pri ukladaní výsledkov do databázy.
 		
-		Po registrácii nového EPL výrazu rozhranie vracia inštanciu vytvoreného EPStatement, pomocou ktorej môžeme ovládať už vytvorený statement alebo pristupovať k výsledkom. V tejto aplikácii je z ovládacích funkcií implementovaná stop() a start(), ktoré definujú, či je statement aktívny.
+		Po registrácii nového EPL výrazu rozhranie vracia inštanciu vytvoreného EPStatement, pomocou ktorej môžeme ovládať už vytvorený príkaz alebo pristupovať k výsledkom. V tejto aplikácii je z ovládacích funkcií implementovaná stop() a start(), ktoré definujú, či je príkaz aktívny.
 		
-		Esper poskytuje tri možnosti ako pristupovať k výsledkom konkrétneho statementu. Tieto je možné rôzne kombinovať. Možnosti sú predstavené v nasledujúcom výpise:
+		Esper poskytuje tri možnosti ako pristupovať k výsledkom konkrétneho príkazu. Tieto je možné rôzne kombinovať. Možnosti sú predstavené v nasledujúcom výpise:
 		\begin{description}
-			\item[Listener] V prvom prípade aplikácia poskytuje implementáciu rozhraní UpdateListener alebo StatementAwareUpdateListener vytváranému statementu. Takýto listener bude následne notifikovaný pri výskyte novej udalosti a metóde update bude predaná inštancia EventBean, ktorá obsahuje výsledok statementu.
-			\item[Subscriber] Týmto spôsobom esper posiela výsledky na definovaný subscriber. Je to najrýchlejšia možnosť, pretože esper predáva typované výsledky priamo do objektov aplikácie, nemusí teba zostavovať inštancie EventBean ako v predošlom prípade. Nevýhodou je že statement môže mať registrovaný maximálne jeden subscriber, naproti predošlému spôsobu, kde umožňoval definovať viacero listenerov.
-			\item[Pull Api] Týmto spôsobom aplikácia pristupuje k výsledkom on-demand spôsobom, kde si jednorázovo žiadosťou o výsledky daného statementu získa zoznam EventBean prístupný pomocou iterátora. Toto je využiteľné v prípade kedy aplikácia nevyžaduje nepretržité predávanie nových výsledkov v real-time.
+			\item[Listener] V prvom prípade aplikácia poskytuje implementáciu rozhraní UpdateListener alebo StatementAwareUpdateListener vytváranému príkazu. Takýto listener bude následne notifikovaný pri výskyte novej udalosti a metóde update bude predaná inštancia EventBean, ktorá obsahuje výsledok príkazu.
+			\item[Subscriber] Týmto spôsobom esper posiela výsledky na definovaný subscriber. Je to najrýchlejšia možnosť, pretože esper predáva typované výsledky priamo do objektov aplikácie, nemusí teba zostavovať inštancie EventBean ako v predošlom prípade. Nevýhodou je že príkaz môže mať registrovaný maximálne jeden subscriber, naproti predošlému spôsobu, kde umožňoval definovať viacero listenerov.
+			\item[Pull Api] Týmto spôsobom aplikácia pristupuje k výsledkom on-demand spôsobom, kde si jednorázovo žiadosťou o výsledky daného príkazu získa zoznam EventBean prístupný pomocou iterátora. Toto je využiteľné v prípade kedy aplikácia nevyžaduje nepretržité predávanie nových výsledkov v real-time.
 		\end{description}
-		V tomto projekte bol použitý prvý spôsob listenera. Aplikácia v tomto prípade použije implementáciu rozhrania StatementAwareUpdateListener, ktorá je registrovaná pro vytváraní nového statementu metódou addListener. Vďaka použitiu rozhrania StatementAwareUpdateListener a nie UpdateListener získava aplikácia prístup k statementu, ktorý konkrétnu udalosť vyprodukoval, pre všetky statementy môže byť preto definovaný jediný spoločný listener.
+		V tomto projekte bol použitý prvý spôsob listenera. Aplikácia v tomto prípade použije implementáciu rozhrania StatementAwareUpdateListener, ktorá je registrovaná pro vytváraní nového príkazu metódou addListener. Vďaka použitiu rozhrania StatementAwareUpdateListener a nie UpdateListener získava aplikácia prístup k príkazu, ktorý konkrétnu udalosť vyprodukoval, pre všetky príkazy môže byť preto definovaný jediný spoločný listener.
 		
 		Esper podporuje tiež spracovanie udalostí, ktoré nevyhoveli žiadnemu statemenentu. Tieto výsledky získame registrovaním implementácie rozhrania UnmatchedListener. 
 		
@@ -253,8 +294,8 @@ output [after suppression_def]
 
 \section{Cassandra}
 	http://planetcassandra.org/what-is-apache-cassandra/
-	http://docs.datastax.com/en/cassandra/2.1/cassandra/gettingStartedCassandraIntro.html
-	\myFigure{intro_cassandra}{xxx}{xxx}
+	\myFigure{intro_cassandra}{xxx \cite{img:scaling}}{xxx}
+	\myFigure{keyspace-colfamily}{xxx \cite{img:colfamily}}{xxx}
 	
 	Cassandra je databázový projekt, ktorý pôvodne vznikol vo firme Facebook. Neskôr bol zverejnený ako open-source a v roku 2009 bol prijatý do Apache inkubátora. V roku 2010 získal top prioritu a je naďalej vyvíjaný a dostupný pod Apache 2.0 licenciou.
 	
@@ -336,12 +377,12 @@ Príklad nevalidných dotazov:
 		\item[Tuple] umožňuje udržiavať stanovený počet vopred definovaných typov dát v jednom dátovom poli. Príkladom použitia tohoto dátového typu je vo výpise \ref{lst:tuple}
 
 		\begin{lstlisting}[label=lst:tuple,caption=Príklad použitia dátového typu tuple]
-		CREATE TABLE collect_things (
-			k int PRIMARY KEY,
-			v <tuple<int, text, float>>
-		);
-		
-		INSERT INTO collect_things (k, v) VALUES(0, (3, 'bar', 2.1));
+CREATE TABLE collect_things (
+	k int PRIMARY KEY,
+	v <tuple<int, text, float>>
+);
+
+INSERT INTO collect_things (k, v) VALUES(0, (3, 'bar', 2.1));
 		\end{lstlisting}
 	\end{description}
 

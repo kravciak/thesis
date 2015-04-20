@@ -11,7 +11,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 
 	Vo finálnej verzii som ponechal aj súbory v balíčku sample, ktoré slúžia na testovanie aplikácie. Ich použitím je možné jednorázovo spustiť serverovú časť aplikácie, načítať schémy a definovanými pravidlami vyhodnotiť udalosti uložené v csv súboroch v resources adresári. Takéto jednorázové spustenie uľahčuje hľadanie chýb, prípadne testovanie novej funkcionality aplikácie.
 
-	Súčasťou restovej api sú funkcie pre prístup k výsledkom v dvoch podobách, a to getAll a exportAll. V implementácii týchto funkcií sú dve hlavné rozdiely. Prvý je ten že funkcia getAll vracia aj metadáta obsahujúce napríklad informácie o stránkovaní. Druhou dôležitou odlišnosťou je streamovaný výstup funkcie exportAll, ktorý umožňuje získanie veľkého objemu dát bez nutnosti ich udržiavať v operačnej pamäti servera. Takto môžeme stiahnuť všetky výsledky daného statementu, naproti funkcii getAll, ktorá vracia len časť dát obmedzenú parametrami požiadavku.
+	Súčasťou restovej api sú funkcie pre prístup k výsledkom v dvoch podobách, a to getAll a exportAll. V implementácii týchto funkcií sú dve hlavné rozdiely. Prvý je ten že funkcia getAll vracia aj metadáta obsahujúce napríklad informácie o stránkovaní. Druhou dôležitou odlišnosťou je streamovaný výstup funkcie exportAll, ktorý umožňuje získanie veľkého objemu dát bez nutnosti ich udržiavať v operačnej pamäti servera. Takto môžeme stiahnuť všetky výsledky daného príkazu, naproti funkcii getAll, ktorá vracia len časť dát obmedzenú parametrami požiadavku.
 	
 	\subsection{Konfiguračné súbory}
 		Aplikácie využíva konfiguračné súbory umiestnené v adresári resources, ktoré sú načítané pri spustení. Najdôležitejšími z nich sú konfigurácie spring frameworku a databázy:
@@ -24,21 +24,21 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 	\subsection{Databáza}
 		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom. Je to tak kvôli predpokladu že esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
 		
-		Prístup k databázam zabezpečujú triedy v balíčku DAO, ktoré sú pre použitie injektované do ostatných objektov aplikácie. Balíček obsahuje tri triedy, dva z nich slúžia na správu schém a statementov a využívajú konfiguráciu načítanú zo súboru database.properties. Tretia trieda slúži na prácu s výsledkami statementov o jej konfiguráciu sa stará trieda Constants.java. Implementácia triedy obsluhujúcej výsledky je riešená trochu odlišne, kde sú všetky dotazy špecifikované na začiatku a v konštruktore inicializované do objektu PreparedStatement. Je to takto z dôvodu optimalizácie rýchlosti zápisu.			
+		Prístup k databázam zabezpečujú triedy v balíčku DAO, ktoré sú pre použitie injektované do ostatných objektov aplikácie. Balíček obsahuje tri triedy, dva z nich slúžia na správu schém a príkazov a využívajú konfiguráciu načítanú zo súboru database.properties. Tretia trieda slúži na prácu s výsledkami príkazov o jej konfiguráciu sa stará trieda Constants.java. Implementácia triedy obsluhujúcej výsledky je riešená trochu odlišne, kde sú všetky dotazy špecifikované na začiatku a v konštruktore inicializované do objektu PreparedStatement. Je to takto z dôvodu optimalizácie rýchlosti zápisu.			
 	
 		\subsubsection{Databáza konfigurácie}
 		Ako databázu pre ukladanie stavu esperu a jednotlivých konfiguračných položiek som použil \ac{HSQLDB}. Táto databáza je napísaná v jave a pre ukladanie tabuliek ponúka pamäťový aj diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu. Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a zmeniť položku dataSource.
 		
-		Databáza obsahuje tabuľku schém a statementov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na obrázku \ref{image_db-model-1}.
+		Databáza obsahuje tabuľku schém a príkazov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na obrázku \ref{image_db-model-1}.
 		\myFigure{db-model-1}{Model databázy konfigurácie}{Model databázy konfigurácie}
 		
 		Pri ukončení aplikácie je nutné sa od databázy odpojiť aby boli zmeny dočasne uložené v pamäti presunuté na disk. Toto odpojenie zaobstaráva spúšťací súbor aplikácie, volaním príkazu "SHUTDOWN". Odpojenie je nutné vykonať aj pri nastavení automatického ukončenia relácie v parametroch pripojenia k databáze.
 			
 		\subsubsection{Databáza udalostí}
-		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných statementov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
+		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných príkazov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
 		\myFigure{db-model-2}{Model databázy udalostí}{Model databázy udalostí}
 
-		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu. Stĺpec event obsahuje samotnú udalosť v JSON alebo XML formáte a statement\_id identifikátor statementu, ktorý danú udalosť vyprodukoval.
+		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu. Stĺpec event obsahuje samotnú udalosť v JSON alebo XML formáte a statement\_id identifikátor príkazu, ktorý danú udalosť vyprodukoval.
 	
 		\begin{lstlisting}[label=lst:create-table,caption=Vytvorenie keyspace a tabuľky databázy udalostí]
 	CREATE KEYSPACE thesis WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
@@ -53,10 +53,10 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		
 		Vo výpise \ref{lst:create-table} je zobrazený spôsob vytvorenia tabuľky databázy udalostí. Keyspace bolo vytvorené na testovacie účely, preto bol replikačný faktor nastavený na 1 - teda bez zálohy.
 		
-		Dôležitým prvkom je primárny kľúč. Ten je zložený z dvoch častí, kľúča partície a zoskupovacieho kľúča. Takéto zloženie primárneho kľúča je potrebné kvôli možnosti vyhľadávania v tabuľke. Každý výsledok patrí nejakému statementu, preto pri pristupovaní k danému výsledku musí byť špecifikovaný identifikátor daného statementu. Zoskupovací kľúč bol použitý preto, aby bolo možné vyhľadať konkrétny výsledok, pretože pre použitie v klauzule WHERE sú prípustné len polia definované v primárnom kľúči a aj to v danom poradí.
+		Dôležitým prvkom je primárny kľúč. Ten je zložený z dvoch častí, kľúča partície a zoskupovacieho kľúča. Takéto zloženie primárneho kľúča je potrebné kvôli možnosti vyhľadávania v tabuľke. Každý výsledok patrí nejakému príkazu, preto pri pristupovaní k danému výsledku musí byť špecifikovaný identifikátor daného príkazu. Zoskupovací kľúč bol použitý preto, aby bolo možné vyhľadať konkrétny výsledok, pretože pre použitie v klauzule WHERE sú prípustné len polia definované v primárnom kľúči a aj to v danom poradí.
 		
 		Vďaka takto definovanému primárnemu kľúču tabuľka umožňuje dotazy vo výpise \ref{lst:select-example}, ktoré sú použité v aplikácii.
-		\begin{lstlisting}[label=lst:select-example,caption=Príklad statementov vyhovujúcich definovanému primárnemu kľúču]
+		\begin{lstlisting}[label=lst:select-example,caption=Príklad príkazov vyhovujúcich definovanému primárnemu kľúču]
 	Vybrať jeden výsledok
 	select * from thesis where statement_id = ? and time_id = ?
 			
@@ -100,7 +100,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 			\item[spring-boot-starter-web:] Táto závislosť umožňuje použitie pribaleného tomcat serveru. Ten sa spustí pri štarte aplikácie a sprístupní restovú api.
 		\end{description}
 		
-		Súčasťou spring frameworku je webové rozšírenie umožňujúce tvorbu restových služieb. V tejto implementácii som ich rozdelil do štyroch zdrojových súborov podľa oblastí, ktoré obsluhujú. Prvé dva SchemaController a StatementsController poskytujú prístup k správe schém a statementov, ResultController umožňuje prácu s výsledkami statementov a EsperController sa stará o spracovanie prichádzajúcich udalostí. Každá trieda je anotovaná pomocou @RestController a každá metóda definuje unikátnu cestu a HTTP metódu, pomocou ktorej sa vzdialene volá. Za zmienku tiež stojí závislosť ResultController na StatementsController, kde cesta k volaniu jednotlivých metód je vnorená. Výpis \ref{lst:rest-api-path} zobrazuje cesty ku controllerom, pri ktorých si môžeme všimnúť že akceptujú vstup vo forme JSON. V nasledujúcich kapitolách budú tiež detailne špecifikované prístupové cesty k jednotlivým REST metódam.
+		Súčasťou spring frameworku je webové rozšírenie umožňujúce tvorbu restových služieb. V tejto implementácii som ich rozdelil do štyroch zdrojových súborov podľa oblastí, ktoré obsluhujú. Prvé dva SchemaController a StatementsController poskytujú prístup k správe schém a príkazov, ResultController umožňuje prácu s výsledkami príkazov a EsperController sa stará o spracovanie prichádzajúcich udalostí. Každá trieda je anotovaná pomocou @RestController a každá metóda definuje unikátnu cestu a HTTP metódu, pomocou ktorej sa vzdialene volá. Za zmienku tiež stojí závislosť ResultController na StatementsController, kde cesta k volaniu jednotlivých metód je vnorená. Výpis \ref{lst:rest-api-path} zobrazuje cesty ku controllerom, pri ktorých si môžeme všimnúť že akceptujú vstup vo forme JSON. V nasledujúcich kapitolách budú tiež detailne špecifikované prístupové cesty k jednotlivým REST metódam.
 		
 		\begin{lstlisting}[label=lst:rest-api-path,caption=Definícia ciest REST API]
 	@RequestMapping(value = "esper", produces = "application/json")
@@ -112,7 +112,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Spustenie aplikácie je implementované v triede Application.java, v ktorej je načítaná konfigurácia. Pomocou rozšírenia spring boot sú použité prednastavené (nekonfigurované) hodnoty podľa prístupu convention-over-configuration. Následne je automaticky spustený aplikačný server tomcat, ktorý je súčasťou distribúcie.
 
 	\subsection{Esper engine}
-		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a statementov. EsperManager tiež implementuje službu ping, ktorá umožní detekovať či je engine spustený.
+		Esper je v aplikácii implementovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a príkazov. EsperManager tiež implementuje službu ping, ktorá umožní detekovať či je engine spustený.
 		
 		\begin{description}
 			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Oproti POJO reprezentácii umožňuje tento formát vytváranie schém počas behu čo je z pohľadu užívateľa nutnosťou. V prípade potreby by bolo možné použiť udalosti reprezentované pomocou java.util.Map alebo objektovým poľom, avšak to vyžaduje definovanie formátu prenosu a následné spracovanie do požadovaného formátu klientom, čo nie je veľmi intuitívne. Použitie XML reprezentácie klientovi umožní komunikovať priamo s esperom.
@@ -123,25 +123,25 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 				\item Ako stream udalostí, kde je koreňový element nazvaný "events" a obaľuje jednotlivé udalosti definované v predošlom bode. Koreňový element je v tomto prípade ignorovaný.
 			\end{itemize}
 			
-			\item[Statementy] pridávané do esper engine môžu obsahovať len meno a epl výraz. Preto je ku každému statementu priradený aj užívateľský objekt - statementBean s dodatočnými informáciami:
+			\item[Statementy] pridávané do esper engine môžu obsahovať len meno a epl výraz. Preto je každému príkazu priradený aj užívateľský objekt - statementBean s dodatočnými informáciami:
 			\begin{itemize}
-				\item ID ktoré unikátne identifikuje statement v rámci celej aplikácie, nie len daného esper provideru
+				\item ID ktoré unikátne identifikuje príkaz v rámci celej aplikácie, nie len daného esper provideru
 				\item TTL hovoriaci ako dlho má byť nájdená udalosť perzistentná.
-				\item STATE udávajúci či je konkrétny statement spustený alebo zastavený
+				\item STATE udávajúci či je konkrétny príkaz spustený alebo zastavený
 			\end{itemize}
 				
 
-			Pri pridávaní statementu do esper engine je kontrolovaná unikátnosť mena v rámci daného esper providera. V prípade že existuje statement s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený statement je následne uložený.
+			Pri pridávaní príkazu do esper engine je kontrolovaná unikátnosť mena v rámci daného esper providera. V prípade že existuje príkaz s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený príkaz je následne uložený.
 			
 			Pri pridávaní XML schém udalostí je nutné ich konvertovať do typu Document. To zaobstaráva trieda Helpers.java, ktorá sa zároveň stará napríklad o konvertovanie typov udalostí do JSON formátu. Dôležitou súčasťou tejto triedy je funkcia eventTypeToJSON, ktorá rekurzívne skonvertuje typ udalosti a jej dedičností do JSON objektu vhodného k odoslaniu klientovi.
 			
 		\end{description}
 		
-		Aplikácia definuje jeden globálny listener, ktorý je priradený všetkým statementom. Ten v prípade výskytu udalosti vyhovujúcej niektorému z definovaných statementov uloží udalosť vo forme obsahu json objektu do databázy.
+		Aplikácia definuje jeden globálny listener, ktorý je priradený všetkým príkazom. Ten v prípade výskytu udalosti vyhovujúcej niektorému z definovaných príkazov uloží udalosť vo forme obsahu json objektu do databázy.
 		
 		Esper umožňuje export výsledkov pomocou JSONRenderer a XMLRenderer, avšak tieto triedy produkujú formátovaný výstup, čo je v serverovej časti aplikácie neželané. Preto je konverzia realizovaná upravenými verziami týchto tried, ktoré nepridávajú formátovacie znaky a produkujú validné XML a JSON dokumenty. Predvolene je použitý upravený JSONRenderer.
 		
-		Pri ukladaní týchto týchto výsledkov do databázy je nastavený TTL, ktorý bol definovaný pri vytvorení statementu. Ak TTL pri vytvorení statementu nebolo definované použije sa predvolené nastavenie, kde sú výsledky persistentné až kým ich užívateľ manuálne neodstráni.
+		Pri ukladaní týchto týchto výsledkov do databázy je nastavený TTL, ktorý bol definovaný pri vytvorení príkazu. Ak TTL pri vytvorení príkazu nebolo definované použije sa predvolené nastavenie, kde sú výsledky persistentné až kým ich užívateľ manuálne neodstráni.
 
 	\subsection{Maven}
 		Zostavenie projektu je jednou z nevyhnutných súčastí tvorby java aplikácií. Na uľahčenie tohoto procesu je možné použiť viacero nástrojov, ktorých hlavnými predstaviteľmi sú maven, gradle a ant. Api komponent tejto aplikácie je zostavený pomocou nástroja maven. 
@@ -170,9 +170,9 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 	
 	Jediná zmena v prípade úpravy IP adresy serverovej časti je potrebná v konfiguračnom súbore konfigurácie iniciátora her.rb. V týchto súboroch tiež nájdeme úpravu konfigurácie stránkovanie, umožňujúcu pomocou gemu will\_paginate stránkovať polia.
 
-	Administračné rozhranie sa skladá zo štyroch hlavných častí. Prvými dvoma sú správa schém a statementov, od ktorej sa odvíja správa výsledkov nájdených jednotlivými statementami. Na odosielanie udalostí je využitá súčasť pre komunikáciu s esper engine. Funkcionalitu jednotlivých častí zobrazuje diagram \ref{image_usecase}.
+	Administračné rozhranie sa skladá zo štyroch hlavných častí. Prvými dvoma sú správa schém a príkazov, od ktorej sa odvíja správa výsledkov nájdených jednotlivými príkazmi. Na odosielanie udalostí je využitá súčasť pre komunikáciu s esper engine. Funkcionalitu jednotlivých častí zobrazuje diagram \ref{image_usecase}.
 	
-	Výsledky sú vždy výsledkom vyhľadávania konkrétneho statementu, preto sú v usecase diagrame zobrazená ako podsystém statementov. Dostať sa na stránku s výsledkami je tiež možné len zo stránky detailu jednotlivých statementov.
+	Výsledky sú vždy výsledkom vyhľadávania konkrétneho príkazu, preto sú v usecase diagrame zobrazená ako podsystém príkazov. Dostať sa na stránku s výsledkami je tiež možné len zo stránky detailu jednotlivých príkazov.
 
 \section{UseCase}
 	Na predvedenie možností použitia aplikácie som vytvoril 2 jednoduché programy. Prvý Twitter Stream demonštruje možnosť zasielania udalostí na server a Contacts Web predstavuje možnosť alternatívneho použitia esperu. 
