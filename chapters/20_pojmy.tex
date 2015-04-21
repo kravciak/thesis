@@ -4,7 +4,7 @@
 \section{CEP}
 	\ac{CEP} je definovaný ako sada nástrojov a techník na analýzu a kontrolu komplexného sledu vzájomne prepojených udalostí, na ktorých sú postavené moderné distribuované informačné systémy. Táto technológia pomáha ľuďom v IT obore rýchlo identifikovať a vyriešiť mnohé problémy. \cite{power-of-events}
 
-	\ac{CEP} je dôležitou súčasťou vývoja reaktívnych aplikácií a monitorovacích programov. Použitie nachádza v mnohých oblastiach, napríklad pre automatické obchodné systémy, detekcie podvodov, analýzu sentimentu trhu, optimalizáciu dodávateľského reťazca, transporte a logistike alebo systémoch pre rýchlu pomoc. Predpokladá sa tiež nárast jeho využitie v informačných systémoch spolu so zvyšujúcim sa počtom decentralizovaných zdrojov dát ako blogov a rozvojom tagovacích a senzorových technológií.
+	\ac{CEP} je dôležitou súčasťou vývoja reaktívnych aplikácií a monitorovacích programov. Použitie nachádza v mnohých oblastiach, napríklad pre automatické obchodné systémy, detekcie podvodov, analýzu sentimentu trhu, optimalizáciu dodávateľského reťazca, transporte a logistike alebo systémoch pre rýchlu zdravotnú pomoc. Predpokladá sa tiež nárast jeho využitia v informačných systémoch spolu so zvyšujúcim sa počtom decentralizovaných zdrojov dát, napríklad blogov, a rozvojom tagovacích a senzorových technológií.
 
 	\ac{CEP} stavia na dvoch nutných podmienkach: \cite{web:cep-editorial}
 	\begin{itemize}
@@ -12,9 +12,10 @@
 		\item CEP systémy okrem predávania informácií medzi tvorcami a príjemcami vo forme udalostí, ale umožňujú detekciu vzťahov medzi udalosťami.
 	\end{itemize}
 	
-	Príkladom takého vzťahu je dočasný vzťah definovaný pomocou korelačných pravidiel (event pattern). Pomocou agregácie a kompozície je možné generovať nové udalosti a z nich ďalej odvodiť ďalšie udalosti. Korelácia udalostí navyše pomáha redukovať množstvo dát a pomáha tak budovať škálovateľné systémy.
+	Príkladom takého vzťahu je dočasný vzťah definovaný pomocou korelačných pravidiel. Pomocou agregácie a kompozície je možné generovať nové udalosti a z nich zase odvodiť ďalšie udalosti. 
+	% Korelácia udalostí navyše pomáha redukovať množstvo dát a pomáha tak budovať škálovateľné systémy.
 	
-	\ac{CEP} sa podobne ako iné technológie vyvíjal v čase a je postavený na základe definovanom \ac{SEP} a \ac{ESP}.
+	\ac{CEP} sa podobne ako iné technológie vyvíjal v čase a je postavený na základe definovanom \ac{SEP} a \ac{ESP} \cite{cepsep}.
 	\begin{itemize}
 		\item SEP je najjednoduchším prípadom, kde je udalosť spracovaná izolovane bez ohľadu na ostatné udalosti.
 		\item ESP spracováva prúdy udalostí ako kolekcie, identifikuje typy udalostí použitím kontinuálnych výrazov a selektuje zaujímavé udalosti.
@@ -29,36 +30,29 @@
 		\item[Typ udalosti] je špecifikáciou pre skupinu objektov udalostí, ktoré majú rovnaký účel a štruktúru. Každý objekt udalosti je považovaný za inštanciu typu udalosti.
 	\end{description}
 
-	Pred samotným spracovaním udalostí je nutné definovať ich typ, pravidlá spracovania a spracovanie výstupu. Po vykonaní týchto úkonov stačí na vstup procesného engine posielať udalosti daného typu. Model fungovania takéhoto systému vidíme na obrázku \ref{image_cep-model}. Na rovnakom princípe funguje serverová časť programu, ktorou sa bude bližšie zaoberať kapitola \ref{chap:implementacia}.
+	Pred samotným spracovaním udalostí je nutné definovať ich typ, príkazy spracovania a akcie, ktoré budú vykonané v prípade výskytu udalosti. Po splnení týchto úkonov stačí na vstup procesného engine posielať udalosti daného typu. Model fungovania takéhoto systému vidíme na obrázku \ref{image_cep-model}. Na rovnakom princípe funguje serverová časť programu, ktorou sa bude bližšie zaoberať kapitola \ref{chap:implementacia}.
 	\myFigure{cep-model}{Model spracovania udalostí \cite{web:softwarearchitekturen}}{Model spracovania udalostí}
 	
 	Na rozdiel do databázových systémov sú dotazy na do prúdu udalostí vyhodnocované priebežne, v momente výskytu danej udalosti. Aj keď databázy zvyčajne pracujú s údajmi o udalostiach (napríklad históriou objednávok), dotazy v databázach sú jednorázové a ad-hoc, oproti konečnej množine dát. Naopak dotazy v CEP sú predom definované a množinou dát je nekonečný tok udalostí cez nich prechádzajúci \cite{web:ceptranslated}.
 		
-	Samotné spracovanie udalostí je postavené na logike, ktorú definujú pravidlá spracovania (príkazy). Tieto pravidlá si môžeme predstaviť ako filter, cez ktorý prichádzajúce udalosti pretekajú. Ak udalosť filtru vyhovuje, prevedú sa vopred definované akcie a udalosť je odoslaná na výstup.	Tieto pravidlá je možné definovať pomocou jazyka EPL, ktorý je syntaxou veľmi podobný SQL.
+	Samotné spracovanie udalostí je postavené na logike, ktorú definujú pravidlá spracovania (príkazy). Tieto pravidlá si môžeme predstaviť ako filter, cez ktorý prichádzajúce udalosti pretekajú. Ak udalosť filtru vyhovuje, prevedú sa vopred definované akcie. Príkazy je možné definovať pomocou jazyka EPL, ktorý je syntaxou veľmi podobný SQL.
 	
-	EPL umožňuje definovať dátové okná, ktoré predstavujú obdobu pohľadov (view) ako ich poznáme z databázových prostredí. CEP sa ale zaoberá prácou s tokmi dát, nie statickým pohľadom na nich prináša EPL možnosť rozšíriť tieto náhľady o definíciu rozsahu skúmaných dát. Príkladom použitia takejto definície je definícia dátového okna, ktoré bude udržiavať špecifický počet prijatých udalostí, prípadne udalosti prijaté v istom časovom rozsahu. Príklad takýchto obmedzení vidíme na obrázku \ref{image_cep-windows}. Bližšie príklady EPL syntaxe nájdeme v kapitole \ref{chap:technologie}.
-
-	\myFigure{cep-windows}{Príklad dátového okna obmedzeného časom a počtom udalostí \cite{web:softwarearchitekturen}}{Príklad dátového okna obmedzeného časom a počtom udalostí}
-	
-	Detekcia udalostí však sama o sebe dostačujúca, systémy riadené udalosťami tiež automaticky reagujú na detekované udalosti podľa predom stanovených pravidiel. Tie zvyčajne pozostávajú z notifikácie (užívateľa alebo ďalšieho systému), jednoduchých akcií (automatický nákup akcií, aktivácia požiarneho systému) alebo interakciou s iným systémom (spustením nového procesu).
+	Systémy riadené udalosťami môžu automaticky reagovať na detekované udalosti podľa predom stanovených pravidiel. Tie zvyčajne pozostávajú z notifikácie (užívateľa alebo ďalšieho systému), jednoduchých akcií (automatický nákup akcií, aktivácia požiarneho systému) alebo interakciou s iným systémom (spustením nového procesu).
 
 	Na trhu existuje viacero komerčných CEP riešení od firiem ako Tibco, Oracle či IBM. Zo zástupcov open-source produktov sú to napríklad JBoss Drools Fusion alebo Esper od firmy EsperTech, na ktorom bude postavená aj táto diplomová práca.
 
-	%From \cite{web:cep-editorial}.
-	%http://www.tibco.com/blog/2009/08/21/cep-versus-esp-an-essay-or-maybe-a-rant/
-
 \section{NoSQL}
-	Priekopníkom vzniku NoSQL databázy boli vedúce internetové spoločnosti ako Google, Facebook, Amazon a LinkedIn - prekonávali tak limitácie konceptu relačných databáz pri použití v moderných webových aplikáciách. Dnes používajú organizácie NoSQL na riešenie problémov, ktoré priniesli štyri trendy:
+	Priekopníkom vzniku NoSQL databázy boli vedúce internetové spoločnosti ako Google, Facebook, Amazon a LinkedIn - prekonávali tak limitácie konceptu relačných databáz pri použití v moderných webových aplikáciách. Dnes používajú organizácie NoSQL na riešenie problémov, ktoré priniesli štyri trendy: \cite{nosql}
 	\begin{description}
-		\item[Big Users] Pred pár rokmi bolo 1000 užívateľov konkrétnej aplikácie veľa, 10 000 užívateľov v extrémnych prípadoch. Dnes sú pripojených k internetu 2 bilióny ľudí, ktorí strávia online okolo 35 biliónov hodín mesačne. Pre webové aplikácie teda nie je výnimočné mať milióny rôznych užívateľov denne.
+		\item[Big Users] Pred pár rokmi bolo 1000 užívateľov konkrétnej aplikácie veľa, 10 000 užívateľov bol extrémy prípad. Dnes sú pripojení k internetu 2 bilióny ľudí, ktorí strávia online približne 35 biliónov hodín mesačne. Pre webové aplikácie teda nie je výnimočné mať milióny rôznych užívateľov denne.
 		
-		\item[Big Data] Obrovský nárast používania internetu vyúsťuje v nárast údajov, ktoré užívatelia a aplikácie produkujú. Podľa odhadu bola v roku 2013 veľkosť uložených údajov 4,4 zetabajtov s predpokladom exponenciálneho rastu. Do roku 2020 sa predpokladá desať násobný nárast \cite{web:idc-bigdata}. Užívateľské informácie, geografické dáta, sociálne grafy, údaje vyprodukované užívateľmi a aplikáciami a senzorové dáta sú príkladom nekonečných generátorov dát.
+		\item[Big Data] Obrovský nárast používania internetu vyúsťuje v nárast údajov, ktoré užívatelia a aplikácie produkujú. Podľa odhadu bola v roku 2013 veľkosť uložených údajov 4,4 zetabajtov. Do roku 2020 sa navyše predpokladá desať násobný nárast. \cite{web:idc-bigdata}. Užívateľské informácie, geografické dáta, sociálne grafy, údaje vyprodukované užívateľmi a aplikáciami a senzorové dáta sú príkladom nekonečných generátorov dát.
 		
-		\item[Internet of Things] je trend, ktorý je definovaný stále rastúcim množstvom prepojených zariadení - ktoré generujú dáta. Dnes je k internetu pripojených okolo 20 biliónov zariadení, vrátane telefónov, tabletov, zariadení v nemocniciach, autách či skladoch. Tieto zariadenia získavajú údaje o svojom okolí, pohybe alebo počasí z ich 50 biliónov senzorov.
+		\item[Internet of Things] je trend, ktorý je definovaný stále rastúcim množstvom prepojených zariadení - ktoré generujú dáta. Dnes je k internetu pripojených okolo 20 biliónov zariadení, vrátane telefónov, tabletov, zariadení v nemocniciach, autách či skladoch. Tieto zariadenia získavajú údaje o svojom okolí, pohybe alebo počasí z ich 50 biliónov senzorov. \cite{nosql}
 		Napríklad telemetrické údaje, ktoré sú čiastočne štruktúrované a kontinuálne a pre SQL databázy s pevne definovanou schémou a štrukturovaným spôsobom ukladania dát predstavujú problém.
 		
-		\item[Cloud Computing] Množstvo aplikácií je dnes postavených na cloud infraštruktúre a využíva trojvrstvovú architektúru. V tej je k aplikáciám pristupované cez internet pomocou mobilnej aplikácie internetového prehliadača. Load balancery zodpovedajú za rozloženie záťaže a smerujú prichádzajúce požiadavky na jednotlivé servery, ktoré obsluhujú logiku aplikácie. Pri rastúcej záťaži nie je problémom pridať do konfigurácie load balancera ďalší server a takto rozložiť záťaž.
-		Problém nastáva v databázovej vrstve. Relačné databázy boli zvyčajne pôvodným riešením, avšak ich použitie je čoraz viac problematické pretože databáza je centralizovaná a škálovateľná vertikálne, nie horizontálne. To predstavuje nevýhodu pre aplikácie rastúce dynamicky. NoSQL databázy sú distribuované a škálovateľné horizontálne, čo umožňuje podobne ako pri load balanceroch jednoducho pridať ďalší server a rozložiť záťaž.
+		\item[Cloud Computing] Množstvo aplikácií je dnes postavených na cloud infraštruktúre a využíva trojvrstvovú architektúru. V tej je k aplikáciám pristupované cez internet pomocou mobilnej aplikácie či internetového prehliadača. Load balancery zodpovedajú za rozloženie záťaže a smerujú prichádzajúce požiadavky na jednotlivé servery, ktoré obsluhujú logiku aplikácie. Pri rastúcej záťaži nie je problémom pridať do konfigurácie load balancera ďalší server a takto rozložiť záťaž.
+		Problém nastáva v databázovej vrstve. Relačné databázy boli zvyčajne pôvodným riešením, avšak ich použitie je čoraz viac problematické pretože databáza je centralizovaná a škálovateľná vertikálne, nie horizontálne. To predstavuje nevýhodu pre dynamicky rastúce aplikácie. NoSQL databázy sú distribuované a škálovateľné horizontálne, čo umožňuje podobne ako pri load balanceroch jednoducho pridať ďalší server a rozložiť záťaž.
 	\end{description}
 	
 	NoSQL používa rozdielny dátový model ako relačné databázy. Relačný model rozprestrie dáta do viacerých vzájomne prepojených tabuliek obsahujúcich riadky a stĺpce. Pri získavaní informácií z relačnej databázy musia byť údaje z týchto tabuliek spojené. Podobne pri zápise musia byť údaje rozložené do jednotlivých tabuliek.
@@ -71,11 +65,11 @@
 		\item Vertikálne škálovanie predstavuje centralizovaný prístup založený na vylepšovaní konfigurácie serverov, prípadne ich nahradení výkonnejšími servermi.
 		\item Horizontálne škálovanie predstavuje distribuovaný prístup, kde sú do konfigurácie pridané ďalšie servery, ktoré umožňujú rozloženie záťaže.
 	\end{itemize}
-	Pred príchodom NoSQL bolo obvyklé vertikálne škálovanie. Pri raste množstva dát boli potrebné výkonnejšie servery s väčšou RAM, výkonnejšími procesormi a väčším diskovým priestorom. Cena a komplikovanosť takýchto serverov však neúmerne stúpa so zvyšujúcimi sa požiadavkami, ako je možné vidieť na obrázku \ref{image_scale-up-out}. Po istej úrovni už nie je možné konfiguráciu serveru vylepšiť, je nutné zaobstarať ďalší a rozloženie zaťaženia databázy riešiť na aplikačnej úrovni, čo je veľmi náročná úloha pre programátorov a správcov databázy. 
+	Pred príchodom NoSQL bolo obvyklé vertikálne škálovanie. Pri raste množstva dát boli potrebné výkonnejšie servery s väčšou RAM, výkonnejšími procesormi a väčším diskovým priestorom. Cena a komplikovanosť takýchto serverov však neúmerne stúpa so zvyšujúcimi sa požiadavkami, ako je možné vidieť na obrázku \ref{image_scale-up-out}. Po istej úrovni už nie je možné konfiguráciu serveru vylepšiť, je nutné zaobstarať ďalší a rozloženie zaťaženia databázy riešiť na aplikačnej úrovni, čo je veľmi náročná úloha pre programátorov aj správcov databázy. 
 	
 	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu}{Škálovanie aplikácie vzhľadom na jej cenu}
 	
-	\ac{NoSQL} zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
+	NoSQL zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
 	
 	Relačné databázy neboli navrhnuté so zreteľom na požiadavky a nároky s ktorými sa dnešné aplikácie stretávajú. Tiež neumožňujú využiť výhody lacných úložísk dát a výpočtového výkonu.
 	

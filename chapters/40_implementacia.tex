@@ -23,6 +23,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 	
 	\subsection{Databáza}
 		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom. Je to tak kvôli predpokladu že esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
+		Správa konfigurácia na druhú stranu nezaťažuje databázový server, preto bolo pre ňu použité jednoduchšie riešenie.
 		
 		Prístup k databázam zabezpečujú triedy v balíčku DAO, ktoré sú pre použitie injektované do ostatných objektov aplikácie. Balíček obsahuje tri triedy, dva z nich slúžia na správu schém a príkazov a využívajú konfiguráciu načítanú zo súboru database.properties. Tretia trieda slúži na prácu s výsledkami príkazov o jej konfiguráciu sa stará trieda Constants.java. Implementácia triedy obsluhujúcej výsledky je riešená trochu odlišne, kde sú všetky dotazy špecifikované na začiatku a v konštruktore inicializované do objektu PreparedStatement. Je to takto z dôvodu optimalizácie rýchlosti zápisu.			
 	
@@ -62,10 +63,6 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 			
 	Vybrať všetky výsledky s obmedzením počtu
 	select * from thesis where statement_id = ? and time_id <= ? limit ?
-			
-	Vybrať všetky výsledky s obmedzením počtu v opačnom poradí
-	select * from thesis where statement_id = ? and time_id >= ?
-		order by time_id asc limit ?
 		\end{lstlisting}
 		
 		Ďalším rozdielom oproti relačnej databáze je spôsob implementácie stránkovania výsledkov, pretože v implementácii cassandry nenájdeme klauzulu OFFSET. Stránkovanie teda pozostáva z možnosti zobraziť prvú a poslednú stranu a posúvať sa z aktuálneho zobrazenia na ďalšie alebo predošlé výsledky. Táto funkcionalita bola riešená nasledovne: \cite{pagination}
@@ -78,9 +75,9 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		
 		Aplikácia pri požiadavku o zobrazenie výsledkov vždy načíta 2 údaje navyše - zmení parameter klauzuly limit. Taktiež funkcia očakáva identifikátor začiatku (alebo konca) stránky, ktorá sa bude načítavať.
 		\begin{description}
-			\item[Nasledujúca stránka] Prijatý identifikátor je použitý ako informácia o pozícii predchádzajúcej stránky. Údaj načítaný navyše slúži ako identifikátor nasledujúcej stránky. Ak tento údaj neexistuje, značí to že bude zobrazená posledná stránka.
+			\item[Posun ďalej] Prijatý identifikátor je použitý ako informácia o pozícii predchádzajúcej stránky. Údaj načítaný navyše slúži ako identifikátor nasledujúcej stránky. Ak tento údaj neexistuje, značí to že bude zobrazená posledná stránka.
 				
-			\item[Predchádzajúca stránka] Predchádzajúca stránka je dostupná pomocou údajov načítaných navyše. Tie tiež slúžia na zistenie existencie predchádzajúcej stránky. Pre informáciu o nasledujúcej stránke sa použije prijatý identifikátor.
+			\item[Posun späť] Predchádzajúca stránka je dostupná pomocou údajov načítaných navyše. Tie tiež slúžia na zistenie existencie predchádzajúcej stránky. Pre informáciu o nasledujúcej stránke sa použije prijatý identifikátor.
 		\end{description}
 		
 		Tento postup je pre názornosť vysvetlený na obrázku \ref{cassandra-pagination}. Údaje o nasledujúcej a predchádzajúcej stránke sú odosielané klientovi spolu s výsledkami. Funkcia pre export neprodukuje metadáta o stránkovaní. 
