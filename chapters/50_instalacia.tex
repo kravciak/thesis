@@ -1,5 +1,5 @@
 \chapter{Inštalácia \& Použitie}
-	Táto kapitola sa bude zaoberať názorným postupom, ktorý je potrebný k spusteniu aplikácie. Postup zahŕňa kroky od prípravy systému, inštaláciu aplikácie až po popis administračného rozhrania a názorné príklady použitia.
+	Táto kapitola sa bude zaoberať názorným postupom, ktorý je potrebný k spusteniu aplikácie. Postup zahŕňa kroky od prípravy systému, inštalácie aplikácie až po popis administračného rozhrania a názorné príklady použitia.
 	
 	\myTable{
 		\begin{tabular}{ | l | r | r | }
@@ -19,7 +19,7 @@
 	Aplikácia je k dispozícii vo forme zdrojových kódov. Pred použitím ju preto musíme skompilovať, nastaviť databázu a premenné prostredia a stiahnuť závislé knižnice. Táto sekcia sa zaoberá prípravou systému a prostredia ku spusteniu aplikácie.
 
 \subsubsection{Operačný systém}
-	Ako operačný systém bol použitý Windows 8 Professional N 64-bit. Táto verzia je pre študentov FIS dostupná prostredníctvom projektu DreamSpark - software spoločnosti Microsoft licencovaného pre akademické inštitúcie. Windows 8 bol nainštalovaný s predvolenými nastaveniami. Vzhľadom na minimálne požiadavky databázového systému Cassandra 2GB RAM by bolo vhodné použiť systém s minimálne 4GB RAM.
+	Ako operačný systém bol použitý Windows 8 Professional N 64-bit. Táto verzia je pre študentov FIS dostupná prostredníctvom projektu DreamSpark - software spoločnosti Microsoft licencovaného pre akademické inštitúcie. Windows 8 bol nainštalovaný s predvolenými nastaveniami. Vzhľadom na minimálne požiadavky databázového systému Cassandra 2GB RAM je vhodné použiť systém s minimálne 4GB RAM.
 
 \subsubsection{Java}	% http://download.oracle.com/otn-pub/java/jdk/8u31-b13/jdk-8u31-windows-x64.exe
 	Ako programovací jazyk serverovej časti aplikácie bola použitá java. Demonštračná kompilácia využíva aktuálnu verziu jdk1.8.0\_31. Je samozrejme možné použitie iných verzií, avšak knižnica esper správne pracuje len s niektorými z nich. Konkrétne nastáva problém pri pridaní schémy definovanej XML dokumentom do esper konfigurácie, kde vzniká výnimka:
@@ -61,11 +61,10 @@
 	PATH = %PATH%;C:\Apache\apache-cassandra-2.1.2\bin
 	\end{lstlisting}
 	
-	%TODO:CQL
-	Zo stránok projektu je CQL
+	%TODO:CQL Zo stránok projektu je CQL
 
 \subsubsection{RubyOnRails}	% http://railsinstaller.org/ 3.1.0
-	Inštalácia frameworku RubyOnRails na windows platforme ja náročnejšia, pretože obsahuje viacero komponent, preto použijeme program RailsInstaller. Ten v použitej verzii obsahuje nasledujúce komponenty použité v projekte:
+	Inštalácia frameworku RubyOnRails na windows platforme ja náročnejšia, pretože obsahuje viacero komponentov, preto použijeme program RailsInstaller. Ten v použitej verzii obsahuje nasledujúce komponenty použité v projekte:
 	\begin{itemize}
 		\item Ruby 2.1.5 - interpretátor jazyka Ruby
 		\item Rails 4.1 - webový framework pre administračné rozhranie
@@ -97,22 +96,22 @@
 	\begin{lstlisting}
 	git clone https://github.com/kravciak/thesis-diploma-code.git
 	\end{lstlisting}
-	Kompletný projekt obsahuje 4 samostatné komponenty. Každá z nich sa spúšťa samostatne, avšak všetky sú závislé na Api, a pred použitím je nutné nakonfigurovať schémy a príkazy - na čo slúži komponenta Web. Postup spustenia je preto nasledovný:
+	Kompletný projekt obsahuje 4 samostatné komponenty. Každá z nich sa spúšťa samostatne, avšak všetky sú závislé na Api a pred použitím je nutné nakonfigurovať schémy a príkazy - na čo slúži komponenta Web. Postup spustenia je preto nasledovný:
 	
 \subsubsection{Api}
-	Predtým než je spustená Api je nutné spustiť cassandra databázu. Tá je spustiteľná z bin priečinka inštalácie súborom cassandra.bat. Pre spustenie vyžaduje administrátorské oprávnenia. Cassandru je tiež možné nainštalovať ako service pridaním parametra "install". Pri správnom spustení sa na konzole zobrazí text:
+	Predtým než je spustená Api je nutné spustiť cassandra databázu. Tá je spustiteľná z bin priečinka inštalácie súborom cassandra.bat. Pre spustenie vyžaduje administrátorské oprávnenia. Cassandru je tiež možné nainštalovať ako service pridaním parametra ``install''. Pri správnom spustení sa na konzole zobrazí text:
 	\begin{lstlisting}
 	Starting listening for CQL clients on localhost/127.0.0.1:9042...
 	Binding thrift service to localhost/127.0.0.1:9160
 	Listening for thrift clients...
 	\end{lstlisting}
 	
-	Api nájdeme v priečinku ThesisApi. Je závislá na viacerých knižniciach, ktoré sú automaticky stiahnuté nástrojom Maven pri zostavovaní. Po úspešnom zostavení aplikáciu spustíme.
+	Api nájdeme v priečinku ThesisApi. Je závislá na viacerých knižniciach, ktoré sú automaticky stiahnuté nástrojom Maven pri zostavovaní. Po úspešnom zostavení aplikáciu spustíme. Zmienené kroky dosiahneme použitím dvoch príkazov:
 	\begin{lstlisting}
 	mvn install
 	mvn exec:java
 	\end{lstlisting}
-	Pri úspešnom spustení sa Api napojí na cassandru, spustí webový server apache a načíta konfiguráciu z databázy.
+	Pri úspešnom spustení Api inicializuje spojenie s databázou výsledkov, spustí webový server Apache a načíta schémy a príkazy z databázy konfigurácie.
 	
 \subsubsection{Web}
 	Administračné rozhranie sa nachádza v priečinku ThesisWeb. Podobne ako Api aj Web je závislý na viacerých gemoch. Tie sú stiahnuteľné pomocou bundleru, ktorého inštalácia je popísaná v predchádzajúcej sekcii. Po stiahnutí závislostí môžeme web spustiť.
@@ -199,7 +198,7 @@
 	%TODO Streamovanie je realizované pomocou Faraday::UploadIO komponentu aplikácie.
 
 	\subsection{ThesisWeb}
-	Hlavná obrazovka zobrazuje tri oblasti esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém a príkazov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym príkazom.
+	Hlavná obrazovka zobrazuje tri oblasti esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém a príkazov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_gui-menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym príkazom.
 	\myFigure{gui-menu}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
 	
 	Pod týmto menu sa nachádza navigačný panel s informáciou o ceste k práve zobrazovanej stránke. Po jeho pravej strane sú ovládacie tlačidlá na pridávanie, mazanie, prípadne export elementov na stránke. Súčasťou navigačného panelu je na stránke schém a príkazov vyhľadávanie, ktoré umožňuje filtrovať pomocou mena schémy alebo príkazu.
@@ -209,11 +208,11 @@
 	\begin{description}
 		\item[Schémy:] Na hlavnej obrazovke je možné vidieť zoznam schém a pri niektorých z nich číslo. Toto číslo reprezentuje počet príkazov závislých na konkrétnej schéme. Pro rozkliknutí schémy sa zobrazí jej detail. Na ľavej strane sú zobrazené dodatočné informácie vrátane zoznamu príkazov závislých na danej schéme. Na pravej strane obrazovky je konkrétna XML schéma. Pomocou ovládacích tlačidiel je možné túto schému exportovať alebo zmazať v prípade že neobsahuje žiaden na nej závislý príkaz.
 
-		Pri pridávaní je nutné vyplniť meno schémy, koreňový element umožňujúci esper engine jedinečne identifikovať schému (zhodný s koreňovým elementu definície schémy) a XML definíciu schémy.
+		Pri vytváraní novej schémy je nutné vyplniť jej meno, koreňový element umožňujúci esper engine jedinečne identifikovať schému (zhodný s koreňovým elementu definície schémy) a XML definíciu schémy.
 
-		\item[Statementy:] Podobne ako v prípade schém nájdeme na hlavnej obrazovke zoznam príkazov a pri každom z nich počet udalostí, ktoré mu vyhovujú. Po rozkliknutí sa zobrazí detail príkazu. Na tejto stránke je zaujímavá z popisu príkazu na ľavej strane URL adresa pomocou ktorej sú výsledky dostupné priamo zo serverovej API a odkaz pre zobrazenie výsledkov.
-		Na pravej strane je zobrazená schéma príkazu s menami polí ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
-		Ovládací panel príkazu umožňuje spustiť, pozastaviť alebo zmazať daný príkaz. Pozastavené príkazy nevyhľadávajú nové udalosti
+		\item[Príkazy:] Podobne ako v prípade schém nájdeme na hlavnej obrazovke zoznam príkazov a pri každom z nich počet udalostí, ktoré mu vyhovujú. Po rozkliknutí sa zobrazí detail príkazu. Na tejto stránke je zaujímavá v popise príkazu na ľavej strane URL adresa, pomocou ktorej sú výsledky dostupné priamo zo serverovej API a odkaz pre zobrazenie výsledkov.
+		Na pravej strane je zobrazená schéma príkazu s menami polí a ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
+		Ovládací panel príkazu umožňuje spustiť, pozastaviť alebo zmazať daný príkaz. Pozastavené príkazy nevyhľadávajú nové udalosti.
 		\myFigure{gui-replay-form}{Formulár preposielania historických udalostí na esper engine}{Formulár preposielania historických udalostí}
 		
 		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať príkaz v esper engine. V prípade že už existuje príkaz s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky príkazu držané v databáze. Posledné textové pole obsahuje text vytváraného príkazu. Novo vytvorený príkaz je predvolene v spustenom stave.
@@ -227,7 +226,7 @@
 		Na základnej stránke je tabuľka so zoznamom výsledkov. Tieto je možné stránkovať, avšak z dôvodu použitia NoSQL databázy nie je možné preskočiť na konkrétnu stránku. Je to zapríčinené tým, že použitá databáza nepozná klauzulu OFFSET a k výsledkom je tak možné pristupovať len špecifikáciou ich primárneho kľúča, alebo vzťahu k inému primárnemu kľúču.
 		Po rozkliknutí konkrétneho výsledku sa na ľavej strane zobrazí jeho detailný popis, v ktorom je možné vidieť napríklad príkaz ktorému výsledok patrí alebo čas za ktorý expiruje. Pod týmito metadátami je daný výsledok zobrazený v JSON formáte.
 		
-		Podobne ako na stránke príkazu, kde je možné preposlať všetky výsledky je možné preposlať jeden konkrétny výsledok pomocou panelu v pravej časti tejto stránky.
+		Podobne ako na stránke príkazu, kde je možné preposlať všetky výsledky je možné preposlať jeden konkrétny výsledok pomocou panelu v pravej časti stránky detailu výsledku.
 
 		Vďaka ovládacím prvkom je možné exportovať alebo zmazať všetky výsledky na hlavnej stránke, alebo konkrétny výsledok pri zobrazení jeho detailu. V navigačnom paneli je zobrazené aj UUID výsledku.
 	\end{description}
