@@ -1,7 +1,7 @@
 \chapter{Návrh a Implementácia}
 \label{chap:implementacia}
 
-Táto kapitola popisuje implementačné detaily projektu. Kompletný projekt obsahuje štyri časti, serverovú api, jej administračné rozhranie a dva príklady použitia. Administračné rozhranie ako aj oba príklady použitia sú závislé na serverovej časti, na ktorej restové rozhranie sa pripájajú. Serverová api je nezávislá, jedinou prerekvizitou je databáza cassandra, ktorá musí byť spustená ako prvá. Závislosti komponentov aplikácie zobrazuje diagram \ref{image_components}.
+Táto kapitola popisuje implementačné detaily projektu. Kompletný projekt obsahuje štyri časti, serverovú api, jej administračné rozhranie a dva príklady použitia. Administračné rozhranie ako aj oba príklady použitia sú závislé na serverovej časti, na ktorej restové rozhranie sa pripájajú. Serverová api je nezávislá, jedinou prerekvizitou je databáza Cassandra, ktorá musí byť spustená ako prvá. Závislosti komponentov aplikácie zobrazuje diagram \ref{image_components}.
 \myFigure{components}{Diagram komponentov aplikácie}{Diagram komponentov aplikácie}
 
 Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresároch. Projekt navyše obsahuje adresár so vzorovými schémami a udalosťami.
@@ -22,21 +22,23 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Ďalej v tomto adresári nájdeme vzorové schémy udalostí a samotné udalosti použité pre testovanie alebo konfiguráciu logovania.
 	
 	\subsection{Databáza}
-		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené esperom. Je to tak kvôli predpokladu že esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
+		Aplikácia využíva dve databázy, jednu na ukladanie konfiguračných dát a druhú na udalosti nájdené Esperom. Je to tak kvôli predpokladu že Esper bude produkovať veľké množstvo dát, preto je vhodné použitie databázy optimalizovanej pre zápis.
 		Správa konfigurácia na druhú stranu nezaťažuje databázový server, preto bolo pre ňu použité jednoduchšie riešenie.
 		
 		Prístup k databázam zabezpečujú triedy v balíčku DAO, ktoré sú pre použitie injektované do ostatných objektov aplikácie. Balíček obsahuje tri triedy, dva z nich slúžia na správu schém a príkazov a využívajú konfiguráciu načítanú zo súboru database.properties. Tretia trieda slúži na prácu s výsledkami príkazov o jej konfiguráciu sa stará trieda Constants.java. Implementácia triedy obsluhujúcej výsledky je riešená trochu odlišne, kde sú všetky dotazy špecifikované na začiatku a v konštruktore inicializované do objektu PreparedStatement. Je to takto z dôvodu optimalizácie rýchlosti zápisu.			
+		
+		Pred použitím aplikácie je nutné databázy vytvoriť a špecifikovať cestu k databáze konfigurácie v nastaveniach aplikácie. Tieto kroky sú bližšie popísané v kapitole \ref{chap:instalacia}.
 	
 		\subsubsection{Databáza konfigurácie}
-		Ako databázu pre ukladanie stavu esperu a jednotlivých konfiguračných položiek som použil \ac{HSQLDB}. Táto databáza je napísaná v jave a pre ukladanie tabuliek ponúka pamäťový aj diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu. Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a zmeniť položku dataSource.
+		Ako databázu pre ukladanie stavu Esperu a jednotlivých konfiguračných položiek som použil \ac{HSQLDB}. Táto databáza je napísaná v jave a pre ukladanie tabuliek ponúka pamäťový aj diskový mód. Použil som ju, pretože je jednoduchá, nenáročná na systém a je možné ju stiahnuť ako jednu zo závislostí aplikácie pomocou mavenu. Databáza je jednoducho nahraditeľná iným riešením, keďže k nej je pristupované pomocou jdbc. Pre zmenu je potrebné upraviť konfiguračný súbor application-config.xml a zmeniť položku dataSource.
 		
 		Databáza obsahuje tabuľku schém a príkazov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na obrázku \ref{image_db-model-1}.
 		\myFigure{db-model-1}{Model databázy konfigurácie}{Model databázy konfigurácie}
 		
 		Pri ukončení aplikácie je nutné sa od databázy odpojiť aby boli zmeny dočasne uložené v pamäti presunuté na disk. Toto odpojenie zaobstaráva spúšťací súbor aplikácie, volaním príkazu "SHUTDOWN". Odpojenie je nutné vykonať aj pri nastavení automatického ukončenia relácie v parametroch pripojenia k databáze.
-			
+		
 		\subsubsection{Databáza udalostí}
-		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných príkazov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
+		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných príkazov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí Esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
 		\myFigure{db-model-2}{Model databázy udalostí}{Model databázy udalostí}
 
 		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu. Stĺpec event obsahuje samotnú udalosť v JSON alebo XML formáte a statement\_id identifikátor príkazu, ktorý danú udalosť vyprodukoval.
@@ -80,8 +82,8 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 			\item[Posun späť] Predchádzajúca stránka je dostupná pomocou údajov načítaných navyše. Tie tiež slúžia na zistenie existencie predchádzajúcej stránky. Pre informáciu o nasledujúcej stránke sa použije prijatý identifikátor.
 		\end{description}
 		
-		Tento postup je pre názornosť vysvetlený na obrázku \ref{image_cassandra-pagination}. Údaje o nasledujúcej a predchádzajúcej stránke sú odosielané klientovi spolu s výsledkami. Funkcia pre export neprodukuje metadáta o stránkovaní. 
-		\myFigure{cassandra-pagination}{Model stránkovania bez použitia klauzuly OFFSET \cite{pagination}}{Model stránkovania bez použitia klauzuly OFFSET}
+		Tento postup je pre názornosť vysvetlený na obrázku \ref{image_Cassandra-pagination}. Údaje o nasledujúcej a predchádzajúcej stránke sú odosielané klientovi spolu s výsledkami. Funkcia pre export neprodukuje metadáta o stránkovaní. 
+		\myFigure{Cassandra-pagination}{Model stránkovania bez použitia klauzuly OFFSET \cite{pagination}}{Model stránkovania bez použitia klauzuly OFFSET}
 		
 		Pre zobrazenie výsledkov je nutné definovať offset vo forme TimeUUID. Ako alternatívu je možné použiť kľúčové slová first a last, ktoré sa premietnu do minimálneho a maximálneho možného TimeUUID.
 
@@ -100,7 +102,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Súčasťou spring frameworku je webové rozšírenie umožňujúce tvorbu restových služieb. V tejto implementácii som tieto služby rozdelil do štyroch zdrojových súborov podľa oblastí, ktoré obsluhujú. Prvé dva SchemaController a StatementsController poskytujú prístup k správe schém a príkazov, ResultController umožňuje prácu s výsledkami príkazov a EsperController sa stará o spracovanie prichádzajúcich udalostí. Každá trieda je anotovaná pomocou @RestController a každá metóda definuje unikátnu cestu a HTTP metódu, pomocou ktorej sa vzdialene volá. Za zmienku tiež stojí závislosť ResultController na StatementsController, kde cesta k volaniu jednotlivých metód je vnorená. Výpis \ref{lst:rest-api-path} zobrazuje cesty ku controllerom, pri ktorých si môžeme všimnúť že akceptujú vstup vo forme JSON. V nasledujúcich kapitolách budú tiež detailne špecifikované prístupové cesty k jednotlivým REST metódam.
 		
 		\begin{lstlisting}[label=lst:rest-api-path,caption=Definícia ciest REST API]
-	@RequestMapping(value = "esper", produces = "application/json")
+	@RequestMapping(value = "Esper", produces = "application/json")
 	@RequestMapping(value = "schemas", produces = "application/json")
 	@RequestMapping(value = "statements", produces = "application/json")
 	@RequestMapping(value = "/statements/{statement_id}/results", produces = "application/json")
@@ -109,26 +111,26 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Spustenie aplikácie je implementované v triede Application.java, v ktorej je načítaná konfigurácia. Pomocou rozšírenia spring boot sú použité prednastavené (nekonfigurované) hodnoty podľa prístupu convention-over-configuration. Následne je automaticky spustený aplikačný server tomcat, ktorý je súčasťou distribúcie.
 
 	\subsection{Esper engine}
-		Esper je v aplikácii obsluhovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje esper. Najdôležitejšou úlohou tejto triedy je správa schém a príkazov. EsperManager tiež implementuje službu ping, ktorá umožní detekovať či je engine spustený.
+		Esper je v aplikácii obsluhovaný triedou EsperManager, ktorá poskytuje prístup ku konfiguračným nástrojom a sprístupňuje handler prichádzajúcich udalostí. Pri spustení aplikácie načítava konfiguračné údaje z databázy a inicializuje Esper. Najdôležitejšou úlohou tejto triedy je správa schém a príkazov. EsperManager tiež implementuje službu ping, ktorá umožní detekovať či je engine spustený.
 		
 		\begin{description}
-			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Oproti POJO reprezentácii umožňuje tento formát vytváranie schém počas behu čo je z pohľadu užívateľa nutnosťou. V prípade potreby by bolo možné použiť udalosti reprezentované pomocou java.util.Map alebo objektovým poľom, avšak to vyžaduje definovanie formátu prenosu a následné spracovanie do požadovaného formátu klientom, čo nie je veľmi intuitívne. Použitie XML reprezentácie klientovi umožní komunikovať priamo s esperom.
+			\item[Schémy] sú reprezentované XML (org.w3c.dom.Node) dokumentom. Oproti POJO reprezentácii umožňuje tento formát vytváranie schém počas behu čo je z pohľadu užívateľa nutnosťou. V prípade potreby by bolo možné použiť udalosti reprezentované pomocou java.util.Map alebo objektovým poľom, avšak to vyžaduje definovanie formátu prenosu a následné spracovanie do požadovaného formátu klientom, čo nie je veľmi intuitívne. Použitie XML reprezentácie klientovi umožní komunikovať priamo s Esperom.
 			
-			\item[Udalosti] ktoré engine spracováva musia byť v XML formáte. Toto obmedzenie je zapríčinené XML reprezentáciou schém. Ako zdroje udalostí týmto eliminujeme adaptéry CSV a HTTP z esperio knižnice. Na prijímanie XML udalostí slúži rest služba, ktorá spracováva vstupný stream dvoma spôsobmi:
+			\item[Udalosti] ktoré engine spracováva musia byť v XML formáte. Toto obmedzenie je zapríčinené XML reprezentáciou schém. Ako zdroje udalostí týmto eliminujeme adaptéry CSV a HTTP z Esperio knižnice. Na prijímanie XML udalostí slúži rest služba, ktorá spracováva vstupný stream dvoma spôsobmi:
 			\begin{itemize}
 				\item Ako jednotlivé udalosti, kde koreňový element udalosti reprezentuje názov schémy reprezentujúcej udalosť.
 				\item Ako stream udalostí, kde je koreňový element nazvaný ``events'' a obaľuje jednotlivé udalosti definované v predošlom bode. Koreňový element je v tomto prípade ignorovaný.
 			\end{itemize}
 			
-			\item[Príkazy] pridávané do esper engine môžu obsahovať len meno a epl výraz. Preto je každému príkazu priradený aj užívateľský objekt - statementBean s dodatočnými informáciami:
+			\item[Príkazy] pridávané do Esper engine môžu obsahovať len meno a epl výraz. Preto je každému príkazu priradený aj užívateľský objekt - statementBean s dodatočnými informáciami:
 			\begin{itemize}
-				\item ID ktoré unikátne identifikuje príkaz v rámci celej aplikácie, nie len daného esper provideru
+				\item ID ktoré unikátne identifikuje príkaz v rámci celej aplikácie, nie len daného Esper provideru
 				\item TTL hovoriaci ako dlho má byť nájdená udalosť perzistentná.
 				\item STATE udávajúci či je konkrétny príkaz spustený alebo zastavený
 			\end{itemize}
 				
 
-			Pri pridávaní príkazu do esper engine je kontrolovaná unikátnosť mena v rámci daného esper providera. V prípade že existuje príkaz s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený príkaz je následne uložený.
+			Pri pridávaní príkazu do Esper engine je kontrolovaná unikátnosť mena v rámci daného Esper providera. V prípade že existuje príkaz s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený príkaz je následne uložený.
 			
 			Pri pridávaní XML schém udalostí je nutné ich konvertovať do typu Document. To zaobstaráva trieda Helpers.java, ktorá sa zároveň stará napríklad o konvertovanie typov udalostí do JSON formátu. Dôležitou súčasťou tejto triedy je funkcia eventTypeToJSON, ktorá rekurzívne skonvertuje typ udalosti a jej dedičností do JSON objektu vhodného k odoslaniu klientovi.
 			
@@ -167,12 +169,12 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 	
 	Jediná zmena v prípade úpravy IP adresy serverovej časti je potrebná v konfiguračnom súbore iniciátora her.rb. V týchto súboroch tiež nájdeme úpravu konfigurácie stránkovanie, umožňujúcu pomocou gemu will\_paginate stránkovať polia.
 
-	Administračné rozhranie sa skladá zo štyroch hlavných častí. Prvými dvoma sú správa schém a príkazov, od ktorej sa odvíja správa výsledkov nájdených jednotlivými príkazmi. Na odosielanie udalostí je využitá súčasť pre komunikáciu s esper engine. Funkcionalitu jednotlivých častí zobrazuje diagram \ref{image_usecase}.
+	Administračné rozhranie sa skladá zo štyroch hlavných častí. Prvými dvoma sú správa schém a príkazov, od ktorej sa odvíja správa výsledkov nájdených jednotlivými príkazmi. Na odosielanie udalostí je využitá súčasť pre komunikáciu s Esper engine. Funkcionalitu jednotlivých častí zobrazuje diagram \ref{image_usecase}. Je z neho tiež vidieť, že aplikácia nerozlišuje role užívateľa.	
 	
 	Výsledky sú vždy výsledkom vyhľadávania konkrétneho príkazu, preto sú v usecase diagrame zobrazená ako podsystém príkazov. Dostať sa na stránku s výsledkami je tiež možné len zo stránky detailu jednotlivých príkazov.
 
 \section{UseCase}
-	Na predvedenie možností použitia aplikácie som vytvoril 2 jednoduché programy. Prvý Twitter Stream demonštruje možnosť zasielania udalostí na server a Contacts Web predstavuje možnosť alternatívneho použitia esperu. 
+	Na predvedenie možností použitia aplikácie som vytvoril 2 jednoduché programy. Prvý Twitter Stream demonštruje možnosť zasielania udalostí na server a Contacts Web predstavuje možnosť alternatívneho použitia Esperu. 
 	
 	\subsection{Twitter Stream}
 	Twitter Stream predstavuje možnosť zasielanie streamu udalostí na REST rozhranie serveru. Skript je napísaný v Ruby a demonštruje ako sa je možné pomocou necelých 30 riadkov kódu napojiť na Twitter Api a presmerovať vzorku tweetov na server. Prijatý tweet je vo forme objektu, ktorý je nutné pred preposlaním formátovať do XML dokumentu. Skript pred spustením odošle na server požiadavku pre registrovanie schémy tweetu, ktorá sa nachádza v samostatnom súbore.
@@ -185,5 +187,39 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 	Logika aplikácie pozostáva z obsluhy požiadavkov na vytvorenie nového kontaktu, zmazanie existujúceho a výpis existujúcich kontaktov. Všetky tieto požiadavky sú posielané na server.
 	
 	%TODO Možnosť filtrovania údajov pomocou preddefinovaných pravidiel.
-	-Deklaratívne programovanie.
+	%TODO -Deklaratívne programovanie.
 	
+\section{Možnosti rozšírenia}	
+	Keďže nástroj Esper je aktívne vyvíjaný a obsahuje rozsiahlu funkcionalitu nebolo možné v rámci tejto diplomovej práce pokryť všetky jeho oblasti. V tejto časti zhrniem niektoré z oblastí vhodné k dodatočnej implementácii. Diplomová práva je voľne dostupná z úložiska github, vďaka čomu si môže túto aplikáciu upraviť ktokoľvek podľa svojich požiadavok. Časti aplikácie vhodné k dodatočnej implementácii sú nasledovné:
+
+	\begin{description}
+		\item[Užívateľské účty] 
+		Ako prvú oblasť, ktorú implementuje väčšina aplikácií je oddelenie prístupu rôznych užívateľov. Táto funkcionalita však nie je nevyhnutná, preto bola ponechaná v tejto časti práce.
+		Užívateľské účty predstavujú možnosť prihlásenia a správu užívateľov v administračnom rozhraní, čo zahŕňa aj rozdelenie práv minimálne na role návštevníka, prihláseného užívateľa a správcu systému.
+		V serverovej časti sa tieto zmeny prejavia nutným oddelením pracovného prostredia jednotlivých užívateľov. To je možné docieliť pomocou EP Service Provider v ktorom sa dá vytvoriť samostatné prostredie definovaním unikátnej URL, napríklad zahrnutím emailu užívateľa.
+		Zmeny sa prejavia aj v databázovej časti, kde bude nutné upraviť štruktúru tabuľky výsledkov.
+		
+		Spoločne s oddelením pracovného prostredia užívateľov je vhodné implementovať autorizáciu volaní v serverovej časti aplikácie.
+
+		\item[Rozšírenie prístupu k Esperu] 
+		Prístup k Esper engine je v tejto verzii limitovaný na správu schém udalostí a príkazov, možnosť spracovania nových udalostí a zobrazenie výsledkov jednotlivých príkazov.
+		Esper však obsahuje viacero prvkov, ktoré sú skryté na pozadí. Vhodným rozšírením v tejto oblasti by bola implementácia možnosti správy premenných a vzorov alebo vytvárania a prehľadu pomenovaných okien alebo tabuliek.
+
+		\item[Definícia typov udalostí v rôznych formátoch]
+		Esper podporuje štyri základné možnosti definície typu udalosti. Pomocou POJO objektu, triedy java.util.Map, definovaním poľa objektov a ich typov a XML dokumentom. V tejto aplikácii je implementovaná posledná možnosť, ktorá umožňuje užívateľovi komunikovať priamo s Esperom.
+		
+		Definícia pomocou XML dokumentu však neumožňuje využitie rozšírenia EsperIO, ktorá slúži na spracovanie udalostí z rôznych vstupov, pretože Esper pri definícii schémy vo forme XML dokumentu vyžaduje aj prichádzajúce udalosti v tomto formáte.
+		
+		\item[Napojenie na relačnú databázu] 
+		Esper umožňuje spracovať údaje z relačnej databázy ako vstupné udalosti. Túto funkcionalitu by tiež bolo možné sprístupniť v administračnom rozhraní. Aplikácia by tak získala nový zdroj spracovania dát bez nutnosti programovania a konfigurácie na serverovej časti.
+		
+		\item[Štatistiky]
+		Pri rozšírení aplikácie o správu užívateľov je vhodné mať k dispozícii aspoň základné štatistiky využitia Esperu. Je tak možné predísť napríklad zahlteniu systému jediným užívateľom.
+		
+		Ďalšie využitie štatistík je možné v prípade poskytovania výpočtového výkonu Esperu ako služby. Pri takomto využití by bolo nutné sledovať využitie jednotlivých užívateľov a vznikla by tak možnosť spoplatniť tieto služby.
+		
+		\item[Notifikácie] 
+		Esper je v mnohých firmách využívaný ako nástroj, ktorý vyhľadáva v prichádzajúcich udalostiach definované vzory a na ich základe vykonáva nejaké akcie. Takouto akciou by mohlo byť odoslanie emailu alebo sms, ktorá by upozornila na výskyt hľadanej udalosti.
+		
+	\end{description}
+

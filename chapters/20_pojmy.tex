@@ -13,7 +13,6 @@
 	\end{itemize}
 	
 	Príkladom takého vzťahu je dočasný vzťah definovaný pomocou korelačných pravidiel. Pomocou agregácie a kompozície je možné generovať nové udalosti a z nich zase odvodiť ďalšie udalosti. 
-	% Korelácia udalostí navyše pomáha redukovať množstvo dát a pomáha tak budovať škálovateľné systémy.
 	
 	\ac{CEP} sa podobne ako iné technológie vyvíjal v čase a je postavený na základe definovanom \ac{SEP} a \ac{ESP} \cite{cepsep}.
 	\begin{itemize}
@@ -59,7 +58,6 @@
 
 	Naproti tomu NoSQL dátový model agreguje ukladané dáta do jedného objektu - napríklad dokumentu v prípade objektových databáz. V NoSQL nie je definovaná operácia JOIN, čo vedie k duplikácií informácií vo viacerých tabuľkách. Tento problém však vyvažuje dnes lacný úložný priestor, flexibilita dátového modelu, zlepšený výkon operácií čítania a zápisu a škálovateľnosť tohoto systému.
 	
-	
 	Pre vyriešenie problémov s rastúcim počtom užívateľov a údajov je nutné aplikácie škálovať - a to horizontálne alebo vertikálne.
 	\begin{itemize}
 		\item Vertikálne škálovanie predstavuje centralizovaný prístup založený na vylepšovaní konfigurácie serverov, prípadne ich nahradení výkonnejšími servermi.
@@ -67,7 +65,7 @@
 	\end{itemize}
 	Pred príchodom NoSQL bolo obvyklé vertikálne škálovanie. Pri raste množstva dát boli potrebné výkonnejšie servery s väčšou RAM, výkonnejšími procesormi a väčším diskovým priestorom. Cena a komplikovanosť takýchto serverov však neúmerne stúpa so zvyšujúcimi sa požiadavkami, ako je možné vidieť na obrázku \ref{image_scale-up-out}. Po istej úrovni už nie je možné konfiguráciu serveru vylepšiť, je nutné zaobstarať ďalší a rozloženie zaťaženia databázy riešiť na aplikačnej úrovni, čo je veľmi náročná úloha pre programátorov aj správcov databázy. 
 	
-	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu}{Škálovanie aplikácie vzhľadom na jej cenu}
+	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu}{Škálovanie aplikácie vzhľadom na jej cenu \cite{nosql}}
 	
 	NoSQL zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
 	

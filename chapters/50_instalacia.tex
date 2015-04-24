@@ -1,4 +1,5 @@
 \chapter{Inštalácia \& Použitie}
+\label{chap:instalacia}
 	Táto kapitola sa bude zaoberať názorným postupom, ktorý je potrebný k spusteniu aplikácie. Postup zahŕňa kroky od prípravy systému, inštalácie aplikácie až po popis administračného rozhrania a názorné príklady použitia.
 	
 	\myTable{
@@ -9,7 +10,9 @@
 			Windows	8	&	Professional N 64-bit	&	Microsoft DreamSpark	\\ \hline
 			Java JDK	&	1.8.0\_31	&	www.oracle.com	\\ \hline
 			Maven	&	3.2.3	&	maven.apache.org	\\ \hline
-			Cassandra	&	2.1.2	&	cassandra.apache.org	\\ \hline
+			Cassandra	&	2.1.2	&	Cassandra.apache.org	\\ \hline
+			HSQLDB		&	2.3.2	&	hsqldb.org	\\ \hline
+			DevCenter		&	1.2.0	&	www.datastax.com	\\ \hline
 			RailsInstaller	&	3.1.0	&	railsinstaller.org	\\ \hline
 			Node.js	&	0.10.31	&	nodejs.org	\\ \hline
 		\end{tabular}
@@ -22,9 +25,9 @@
 	Ako operačný systém bol použitý Windows 8 Professional N 64-bit. Táto verzia je pre študentov FIS dostupná prostredníctvom projektu DreamSpark - software spoločnosti Microsoft licencovaného pre akademické inštitúcie. Windows 8 bol nainštalovaný s predvolenými nastaveniami. Vzhľadom na minimálne požiadavky databázového systému Cassandra 2GB RAM je vhodné použiť systém s minimálne 4GB RAM.
 
 \subsubsection{Java}	% http://download.oracle.com/otn-pub/java/jdk/8u31-b13/jdk-8u31-windows-x64.exe
-	Ako programovací jazyk serverovej časti aplikácie bola použitá java. Demonštračná kompilácia využíva aktuálnu verziu jdk1.8.0\_31. Je samozrejme možné použitie iných verzií, avšak knižnica esper správne pracuje len s niektorými z nich. Konkrétne nastáva problém pri pridaní schémy definovanej XML dokumentom do esper konfigurácie, kde vzniká výnimka:
+	Ako programovací jazyk serverovej časti aplikácie bola použitá java. Demonštračná kompilácia využíva aktuálnu verziu jdk1.8.0\_31. Je samozrejme možné použitie iných verzií, avšak knižnica Esper správne pracuje len s niektorými z nich. Konkrétne nastáva problém pri pridaní schémy definovanej XML dokumentom do Esper konfigurácie, kde vzniká výnimka:
 	\begin{lstlisting}[label=lst:exjava,caption=Výnimka pri definovaní XML schémy v niektorých verziách javy]
-	com.espertech.esper.client.ConfigurationException: Failed to read schema via URL 'null'
+	com.Espertech.Esper.client.ConfigurationException: Failed to read schema via URL 'null'
 	\end{lstlisting}
 	
 	Testované verzie javy a ich kompatibilita je v nasledujúcej tabuľke:
@@ -39,7 +42,7 @@
 		jdk1.8.0\_25	&	nekompatibilná	\\ \hline
 		jdk1.8.0\_31	&	kompatibilná	\\ \hline
 	\end{tabular}
-	}{Kompatibilita verzií javy s esper xml schémami}{table:java-kompatibilita}
+	}{Kompatibilita verzií javy s Esper xml schémami}{table:java-kompatibilita}
 	
 	Java bola nainštalovaná použitím predvolených nastavení, súčasťou ktorých je aj inštalácia JRE. Po nainštalovaní definujeme premennú prostredia JAVA\_HOME nasledovne:
 	\begin{lstlisting}
@@ -52,16 +55,6 @@
 	\begin{lstlisting}
 	PATH = %PATH%;C:\Apache\apache-maven-3.2.3\bin
 	\end{lstlisting}
-
-\subsubsection{Cassandra}	% http://cassandra.apache.org/
-	Cassandra je okrem binárnej verzie distribuovaná aj ako spustiteľný MSI inštalátor vďaka DataStax komunite. Tento spôsob inštalácie je pohodlnejší, avšak aktuálna verzia 2.1.2 pre operačný systém Windows po inštalácii nepracovala správne. Prejavili sa problémy ako chyby pri spustení spôsobené chybnou verziou knižnice jamm použitej pri kompilácii či poruchy Windows agenta.
-		
-	Pre projekt som kvôli týmto dôvodom použil binárnu distribúciu. Inštalácia tejto verzie je veľmi podobná inštalácii Mavenu, preberanému v predošlej sekcii. Na stránkach projektu stiahneme archív a rozbalíme ho do cieľového adresára. Tiež rozšírime systémovú premennú PATH o cestu k spúšťacím súborom takto:
-	\begin{lstlisting}
-	PATH = %PATH%;C:\Apache\apache-cassandra-2.1.2\bin
-	\end{lstlisting}
-	
-	%TODO:CQL Zo stránok projektu je CQL
 
 \subsubsection{RubyOnRails}	% http://railsinstaller.org/ 3.1.0
 	Inštalácia frameworku RubyOnRails na windows platforme ja náročnejšia, pretože obsahuje viacero komponentov, preto použijeme program RailsInstaller. Ten v použitej verzii obsahuje nasledujúce komponenty použité v projekte:
@@ -89,7 +82,39 @@
 	\end{lstlisting}
 	Táto je spôsobená nekompatibilitou predvoleného windows javascript runtime a rails prostredia pri spracovaní assets (css a js) súborov. Jedným z riešení tohoto problému je inštalácia platformy Node.js. Pre potreby projektu postačuje predvolená inštalácia.
 	
-	Týmto krokmi sme pripravili prostredie pre spustenie aplikácie. Podrobný postup pre spustenie je popísaný v nasledujúcej sekcii.
+\section{Vytvorenie databázy}
+	Kód potrebný na vytvorenie databáz je v súbore database.sql v adresári ThesisApi. Pred použitím aplikácie je nutné vytvoriť ako databázu konfigurácie tak databázu udalostí.
+	
+	\subsection{Cassandra}	% http://Cassandra.apache.org/
+	Cassandra je okrem binárnej verzie distribuovaná aj ako spustiteľný MSI inštalátor vďaka DataStax komunite. Tento spôsob inštalácie je pohodlnejší, avšak aktuálna verzia 2.1.2 pre operačný systém Windows po inštalácii nepracovala správne. Prejavili sa problémy ako chyby pri spustení spôsobené chybnou verziou knižnice jamm použitej pri kompilácii či poruchy Windows agenta.
+	
+	Pre projekt som kvôli týmto dôvodom použil binárnu distribúciu. Inštalácia tejto verzie je veľmi podobná inštalácii Mavenu, preberanému v predošlej sekcii. Na stránkach projektu stiahneme archív a rozbalíme ho do cieľového adresára. Tiež rozšírime systémovú premennú PATH o cestu k spúšťacím súborom takto:
+	\begin{lstlisting}
+	PATH = %PATH%;C:\Apache\apache-Cassandra-2.1.2\bin
+	\end{lstlisting}
+	
+	Databázu spustíme z adresára bin. Následne stiahneme nástroj DevCenter, ktorý umožní vytvorenie štruktúry databázy. Po spustení sa nástroj pripojí k databáze.
+	Skopírujeme a vykonáme skript pre vytvorenie databázy výsledkov, ktorý nájdeme v priečinku ThesisApi/database.sql.
+	
+	\subsection{HSQLDB}
+	Súčasťou závislostí definovaných v pom súbore serverovej časti aplikácie je databáza HSQLDB. Pre jej použitím je však nutné vytvoriť tabuľky schém a príkazov. Preto je nutné si zo stránky projektu stiahnuť archív, ktorý obsahuje rozhranie pre prácu s touto databázou.
+	
+	Stiahnutý archív rozbalíme do ľubovoľného adresára a spustíme runManagerSwing.bat, ktorý sa nachádza v adresári bin. Z ponuky typu databázy vyberieme HSQL Database Engine Standalone, špecifikujeme cestu k dátovému súboru jdbc:hsqldb:file:hsqldb a pripojíme sa k databáze.
+	
+	Následne do panelu pre zadávanie príkazov vložíme skript pre vytvorenie databázy konfigurácie zo súboru database.sql a skript spustíme. Týmto krokom sme vytvorili potrebné tabuľky. Následne je nutné v konfigurácii serverovej časti aplikácie nastaviť cestu k databáze. V súbore database.properties upravíme cestu k novo vytvorenej databáze, ktorá sa nachádza v adresári data. Vykonané kroky sú znázornené vo výpise \ref{lst:inst-hsqldb}.
+	\begin{lstlisting}[label=lst:inst-hsqldb,caption=Vytvorenie štruktúry databázy konfigurácie]
+	Spustiť: c:/hsqldb/bin/runManagerSwing.bat
+		Type: HSQL Database Engine Standalone
+		URL:  jdbc:hsqldb:file:hsqldb
+
+	Vykonať skript pre vytvorenie tabuliek konfigurácie,
+	ktorý nájdeme v súbore ThesisApi/database.sql
+	
+	Upraviť resources/database.properties
+		jdbc.url=jdbc:hsqldb:file:c:/hsqldb/data/hsqldb;shutdown=true;write_delay=false;
+	\end{lstlisting}	
+
+	Týmto krokmi sme pripravili prostredie pre spustenie aplikácie. Podrobný postup spustenia je popísaný v nasledujúcej sekcii.
 
 \section{Spustenie aplikácie}
 	Pred samotným spustením aplikácie je potrebné ju stiahnuť a skompilovať. Ak bol dodržaný postup inštalácie popísaný v predchádzajúcej sekcii tak sú všetky potrebné nástroje k dispozícii. Pokračujeme teda stiahnutím zdrojových kódov kompletného projektu z git repozitára. V príkazovom riadku:
@@ -99,7 +124,7 @@
 	Kompletný projekt obsahuje 4 samostatné komponenty. Každá z nich sa spúšťa samostatne, avšak všetky sú závislé na Api a pred použitím je nutné nakonfigurovať schémy a príkazy - na čo slúži komponenta Web. Postup spustenia je preto nasledovný:
 	
 \subsubsection{Api}
-	Predtým než je spustená Api je nutné spustiť cassandra databázu. Tá je spustiteľná z bin priečinka inštalácie súborom cassandra.bat. Pre spustenie vyžaduje administrátorské oprávnenia. Cassandru je tiež možné nainštalovať ako service pridaním parametra ``install''. Pri správnom spustení sa na konzole zobrazí text:
+	Predtým než je spustená Api je nutné spustiť Cassandra databázu. Tá je spustiteľná z bin priečinka inštalácie súborom Cassandra.bat. Pre spustenie vyžaduje administrátorské oprávnenia. Cassandru je tiež možné nainštalovať ako service pridaním parametra ``install''. Pri správnom spustení sa na konzole zobrazí text:
 	\begin{lstlisting}
 	Starting listening for CQL clients on localhost/127.0.0.1:9042...
 	Binding thrift service to localhost/127.0.0.1:9160
@@ -155,7 +180,7 @@
 	
 	Niektoré z volaní vracajú súčasne s dátami aj metadáta poskytujúce dodatočné informácie, napríklad o stránkovaní, schéme udalostí či počte výsledkov. Tieto informácie sú spracované na strane grafického rozhrania a zjednodušujú užívateľovi prácu so systémom.
 	
-	Každá metóda má definovaný spôsob prístupu, teda jedinečnú kombináciu URL a metódy volania (GET, POST, DELETE). Tabuľka \ref{table:rest-urls} poskytuje kompletný prehľad mapovania http metódy a url na funkciu, ktorá obsluhuje dané volanie.	Funkcie sú rozdelené do štyroch hlavných skupín podľa oblasti, ktorú obsluhujú. Takisto ich mapovanie zodpovedá konkrétnej oblasti.
+	Každá metóda má definovaný spôsob prístupu, teda jedinečnú kombináciu URL a metódy volania (GET, POST, DELETE). Tabuľka \ref{table:rest-urls} poskytuje kompletný prehľad mapovania http metódy a URL na funkciu, ktorá obsluhuje dané volanie.	Funkcie sú rozdelené do štyroch hlavných skupín podľa oblasti, ktorú obsluhujú. Takisto ich mapovanie zodpovedá konkrétnej oblasti.
 	
 	\myTable{
 		\begin{tabular}{ | l | l | l | }
@@ -163,8 +188,8 @@
 			HTTP metóda & Funkcia & URL	\\
 			\hline
 			
-			GET    & ping()          & /esper/ping                                           \\
-			POST   & processStream() & /esper/events                                         \\
+			GET    & ping()          & /Esper/ping                                           \\
+			POST   & processStream() & /Esper/events                                         \\
 			&&\\
 			GET    & get()           & /schemas/\{id\}                                       \\
 			GET    & getAll()        & /schemas                                              \\
@@ -194,30 +219,27 @@
 
 	\myFigure{api-funkcie}{Parametre funkcií REST rozhrania}{Parametre funkcií REST rozhrania}
 
-	%TODO Formát prijímaných udalostí udalosti, spracovanie streamu umožňuje veľké súbory
-	%TODO Streamovanie je realizované pomocou Faraday::UploadIO komponentu aplikácie.
-
 	\subsection{ThesisWeb}
-	Hlavná obrazovka zobrazuje tri oblasti esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém a príkazov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_gui-menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym príkazom.
+	Hlavná obrazovka zobrazuje tri oblasti Esperu, ktoré je možné pomocou aplikácie obsluhovať - správu schém a príkazov a formulár pre odosielanie udalostí. Po kliknutí na jednu z nich sa zobrazí obrazovka s rozšíreným menu \ref{image_gui-menu}, ktoré navyše obsahuje možnosť prechodu na zobrazenie výsledkov nájdených konkrétnym príkazom.
 	\myFigure{gui-menu}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
 	
-	Pod týmto menu sa nachádza navigačný panel s informáciou o ceste k práve zobrazovanej stránke. Po jeho pravej strane sú ovládacie tlačidlá na pridávanie, mazanie, prípadne export elementov na stránke. Súčasťou navigačného panelu je na stránke schém a príkazov vyhľadávanie, ktoré umožňuje filtrovať pomocou mena schémy alebo príkazu.
-	
+	Pod týmto menu sa nachádza navigačný panel s informáciou o ceste k práve zobrazovanej stránke \ref{image_gui-breadcrumbs}. Po jeho pravej strane sú ovládacie tlačidlá na pridávanie, mazanie, prípadne export elementov na stránke. Súčasťou navigačného panelu je na stránke schém a príkazov vyhľadávanie, ktoré umožňuje filtrovať pomocou mena schémy alebo príkazu.
+	\myFigure{gui-breadcrumbs}{Navigačný panel s ovládacími prvkami}{Navigačný panel s ovládacími prvkami}
 	
 	Pod navigačným menu sa nachádza samotný obsah stránky. Nasledujúci text popisuje každú zo štyroch hlavných sekcií.
 	\begin{description}
-		\item[Schémy:] Na hlavnej obrazovke je možné vidieť zoznam schém a pri niektorých z nich číslo. Toto číslo reprezentuje počet príkazov závislých na konkrétnej schéme. Pro rozkliknutí schémy sa zobrazí jej detail. Na ľavej strane sú zobrazené dodatočné informácie vrátane zoznamu príkazov závislých na danej schéme. Na pravej strane obrazovky je konkrétna XML schéma. Pomocou ovládacích tlačidiel je možné túto schému exportovať alebo zmazať v prípade že neobsahuje žiaden na nej závislý príkaz.
+		\item[Schémy:] Na hlavnej obrazovke je možné vidieť zoznam schém a pri niektorých z nich číslo. Toto číslo reprezentuje počet príkazov závislých na konkrétnej schéme. Po rozkliknutí schémy sa zobrazí jej detail. Na ľavej strane sú zobrazené dodatočné informácie vrátane zoznamu príkazov závislých na danej schéme. Na pravej strane obrazovky je konkrétna XML schéma. Pomocou ovládacích tlačidiel je možné túto schému exportovať alebo zmazať v prípade že neobsahuje žiaden na nej závislý príkaz.
 
-		Pri vytváraní novej schémy je nutné vyplniť jej meno, koreňový element umožňujúci esper engine jedinečne identifikovať schému (zhodný s koreňovým elementu definície schémy) a XML definíciu schémy.
+		Pri vytváraní novej schémy je nutné vyplniť jej meno, koreňový element umožňujúci Esper engine jedinečne identifikovať schému (zhodný s koreňovým elementu definície schémy) a XML definíciu schémy.
 
 		\item[Príkazy:] Podobne ako v prípade schém nájdeme na hlavnej obrazovke zoznam príkazov a pri každom z nich počet udalostí, ktoré mu vyhovujú. Po rozkliknutí sa zobrazí detail príkazu. Na tejto stránke je zaujímavá v popise príkazu na ľavej strane URL adresa, pomocou ktorej sú výsledky dostupné priamo zo serverovej API a odkaz pre zobrazenie výsledkov.
-		Na pravej strane je zobrazená schéma príkazu s menami polí a ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
+		Na pravej strane je zobrazená schéma príkazu s menami polí a ich dátovými typmi. Nad ňou je panel pre opätovné preposlanie uložených výsledkov do Esper engine. Pri preposlaní je možné zvoliť si počiatočný a konečný dátum ohraničujúci ktoré výsledky sa majú preposlať a meno udalosti pod ktorým sa majú odoslať. Tlačidlo medzi poliami ohraničujúcimi časový úsek umožňuje spočítať vyhovujúce udalosti.
 		Ovládací panel príkazu umožňuje spustiť, pozastaviť alebo zmazať daný príkaz. Pozastavené príkazy nevyhľadávajú nové udalosti.
-		\myFigure{gui-replay-form}{Formulár preposielania historických udalostí na esper engine}{Formulár preposielania historických udalostí}
+		\myFigure{gui-replay-form}{Formulár preposielania historických udalostí na Esper engine}{Formulár preposielania historických udalostí}
 		
-		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať príkaz v esper engine. V prípade že už existuje príkaz s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky príkazu držané v databáze. Posledné textové pole obsahuje text vytváraného príkazu. Novo vytvorený príkaz je predvolene v spustenom stave.
+		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať príkaz v Esper engine. V prípade že už existuje príkaz s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky príkazu držané v databáze. Posledné textové pole obsahuje text vytváraného príkazu. Novo vytvorený príkaz je predvolene v spustenom stave.
 		
-		\item[Streamer:] Pre posielanie nových udalostí existuje viacero spôsobov, jedným z nich je odoslanie udalostí pomocou administračného rozhrania na tejto stránke. V hornej časti je URL, ktorú je možné použiť na odosielanie udalostí priamo na API serverovej časti. Štruktúra odosielanej udalosti je bližšie popísaná v použití serverovej časti aplikácie a esper dokumentácii.
+		\item[Streamer:] Pre posielanie nových udalostí existuje viacero spôsobov, jedným z nich je odoslanie udalostí pomocou administračného rozhrania na tejto stránke. V hornej časti je URL, ktorú je možné použiť na odosielanie udalostí priamo na API serverovej časti. Štruktúra odosielanej udalosti je bližšie popísaná v použití serverovej časti aplikácie a Esper dokumentácii.
 		Pre odoslanie udalostí je možné použiť formulár alebo udalosti načítať zo súboru. Obe možnosti sa dajú použiť súčasne. Pri načítaní zo súboru sú odosielané udalosti streamované, čo umožňuje posielať veľké objemy dát.
 
 		V ovládacích prvkoch stránky nájdeme tlačidlo pre odoslanie vzorky dát. Tieto sú načítané zo súboru a vyhovujú prednastaveným schémam a príkazom. Ich použitie uľahčuje pochopenie fungovania aplikácie.
@@ -231,7 +253,9 @@
 		Vďaka ovládacím prvkom je možné exportovať alebo zmazať všetky výsledky na hlavnej stránke, alebo konkrétny výsledok pri zobrazení jeho detailu. V navigačnom paneli je zobrazené aj UUID výsledku.
 	\end{description}
 	
-	\myFigure{gui-breadcrumbs}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
+	\myFigure{gui-schema}{Zobrazenie schémy udalosti s vnorenými typmi}{Zobrazenie schémy udalosti}
 	
-	\myFigure{gui-schema}{Menu aplikácie rozšírené o zobrazenie výsledkov}{Menu aplikácie}
+	Pre zobrazenie detailu schémy bolo použité javascript rozšírenie pretty-json. Jeho výhodou je možnosť zbaliť a rozbaliť jednotlivé časti schémy a zároveň prehľadne zobraziť celkovú štruktúru, čo je výhodné predovšetkým pri rozsiahlejších schémach. Príklad schémy s vnorenými typmi je na obrázku \ref{image_gui-schema}.
+	
+	Grafické rozhranie je jednoduché, niektoré stránky zámerne obsahujú prázdne miesto - napríklad na zozname schém a príkazov. Tieto časti sú vhodné pre doplnenie funkcionality v prípade dodatočného rozšírenia projektu. Možnosti rozšírenia sú zhrnuté v kapitole popisujúcej návrh aplikácie. Výsledné grafické rozhranie pokrýva základnú funkcionalitu potrebnú k práci s Esper engine.
 	

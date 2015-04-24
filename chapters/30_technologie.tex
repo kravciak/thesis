@@ -6,16 +6,16 @@
 	\begin{description}
 		\item[Esper] je open source s možnosťou komerčnej podpory. Táto verzia obsahuje základ potrebný pre realizáciu CEP, užívateľ však musí jednotlivé príkazy, schémy a nastavenia realizovať programovo. Je preto náročný na použitie pre ľudí, ktorí nevedia programovať. Riešenie je vhodné pre firmy, ktoré buď nevyužijú platenú verziu alebo majú špecifické požiadavky na výsledný produkt a sú schopné túto verziu podľa svojich potrieb upraviť.
 		
-		\item[Esper HA] je riešenie umožňujúce vysokú dostupnosť Esperu. Zabezpečuje že stav je po vypnutí alebo havárii obnoviteľný. Príkazy, schémy a iné nastavenia si EsperHA pri reštarte uchováva, čo je výhoda oproti open source verzii, kde je nutné tieto úkony riešiť programovo. Táto verzia je vhodná pre projekty závislé na vysokej dostupnosti esperu a subjekty, pre ktoré je kritická neustála kontrola prichádzajúcich udalostí.
+		\item[Esper HA] je riešenie umožňujúce vysokú dostupnosť Esperu. Zabezpečuje že stav je po vypnutí alebo havárii obnoviteľný. Príkazy, schémy a iné nastavenia si EsperHA pri reštarte uchováva, čo je výhoda oproti open source verzii, kde je nutné tieto úkony riešiť programovo. Táto verzia je vhodná pre projekty závislé na vysokej dostupnosti Esperu a subjekty, pre ktoré je kritická neustála kontrola prichádzajúcich udalostí.
 		EsperHA je spoplatnený, dostupná je trial len verzia, pre ktorej použitie je nutné identifikovať sa ako spoločnosť. Cena nie je na webových stránkach dostupná.
 		
-		\item[Esper Enterprise Edition] je kompletný produkt "na kľúč", obsahujúci všetky komponenty potrebné pre nasadenie do podniku. V jednom balíku je obsiahnuté GUI pre správu esperu, restové služby poskytujúce prístup zvonku, \ac{EPL} editor, nástroje umožňujúce kontinuálne zobrazenie výsledkov v grafoch a tabuľkách. EsperEE je možné skombinovať s EsperEA pre dodatočné zabezpečenie vysokej dostupnosti. EsperEE je spoplatnený, rovnako ako pri EsperEA je dostupná trial verzia po splnení určitých podmienok. Cena nie je zverejnená a tieto dve riešenia sú určené predovšetkým pre podnikový sektor.
+		\item[Esper Enterprise Edition] je kompletný produkt "na kľúč", obsahujúci všetky komponenty potrebné pre nasadenie do podniku. V jednom balíku je obsiahnuté GUI pre správu Esperu, restové služby poskytujúce prístup zvonku, \ac{EPL} editor, nástroje umožňujúce kontinuálne zobrazenie výsledkov v grafoch a tabuľkách. EsperEE je možné skombinovať s EsperEA pre dodatočné zabezpečenie vysokej dostupnosti. EsperEE je spoplatnený, rovnako ako pri EsperEA je dostupná trial verzia po splnení určitých podmienok. Cena nie je zverejnená a tieto dve riešenia sú určené predovšetkým pre podnikový sektor.
 	\end{description}
 	
 	Pre tento projekt je použitá verzia Esper, ktorú som rozšíril o prístup k základným funkciám pomocou restovej api a persistenciu niektorých nastavení a nájdených výsledkov. Aktuálna verzia 5.1 je dostupná pod GNU General Public License (GPL) (GPL v2).
 
 	\subsection{Typy udalostí}
-	Každá udalosť spracovávaná esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť načítané pri štarte aplikácie, alebo nastavené programovo počas behu. EPL obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti. Prehľad základných typov udalostí je v tabuľke \ref{table:event-types}.
+	Každá udalosť spracovávaná Esperom je definovaná schémou, takzvaným typom udalosti. Tie môžu byť načítané pri štarte aplikácie, alebo nastavené programovo počas behu. EPL obsahuje klauzulu CREATE SCHEMA umožňujúcu definovanie typu udalosti. Prehľad základných typov udalostí je v tabuľke \ref{table:event-types}.
 
 	\myTable{
 	\begin{tabular}{ | l | p{10cm} | }
@@ -50,7 +50,7 @@
 	</xs:schema>	
 	\end{lstlisting}
 	
-	Po definovaní typu udalosti je esper engine schopný prijímať udalosti v XML formáte. Príklad udalosti vyhovujúcej schéme \ref{lst:sample-schema} je vo výpise \ref{lst:sample-event}.
+	Po definovaní typu udalosti je Esper engine schopný prijímať udalosti v XML formáte. Príklad udalosti vyhovujúcej schéme \ref{lst:sample-schema} je vo výpise \ref{lst:sample-event}.
 	\begin{lstlisting}[label=lst:sample-event,caption=Príklad XML udalosti]
 	<?xml version="1.0"?>
 	<events>
@@ -72,12 +72,12 @@
 		</StockXsd>
 	</events>
 	\end{lstlisting}
-	Ako je z výpisu vidieť je možné udalosti zaobaliť do koreňového elementu events. Ten je vhodné použiť v prípade že na esper engine odosielame súbory obsahujúce veľké množstvo udalostí, pretože tým obmedzíme počet HTTP volaní a predídeme možnému zahlteniu serveru. Táto funkcionalita je realizovaná v implementačnej časti aplikácie a nie je súčasťou Esperu.
+	Ako je z výpisu vidieť je možné udalosti zaobaliť do koreňového elementu events. Ten je vhodné použiť v prípade že na Esper engine odosielame súbory obsahujúce veľké množstvo udalostí, pretože tým obmedzíme počet HTTP volaní a predídeme možnému zahlteniu serveru. Táto funkcionalita je realizovaná v implementačnej časti aplikácie a nie je súčasťou Esperu.
 
 	Po definovaní typu udalosti sa na ne môžeme odkazovať klauzulou FROM v EPL príkazoch. Tie sú bližšie popísané v nasledujúcej sekcii.
 
 	\subsection{Event Processing Language}
-		\ac{EPL} je jazyk umožňujúci definovanie príkazov a patternov v CEP. Syntaxou je podobný SQL, pretože obsahuje klauzuly ako SELECT, FROM, WHERE, GROUP BY, HAVING alebo ORDER BY. Namiesto tabuliek však pracuje so tokmi udalostí, kde riadok tabuľky nahrádza prichádzajúca udalosť. Toky udalostí je možné spájať pomocou JOIN, filtrovať alebo agregovať.
+		\ac{EPL} je jazyk umožňujúci definovanie príkazov a vzorov v CEP. Syntaxou je podobný SQL, pretože obsahuje klauzuly ako SELECT, FROM, WHERE, GROUP BY, HAVING alebo ORDER BY. Namiesto tabuliek však pracuje so tokmi udalostí, kde riadok tabuľky nahrádza prichádzajúca udalosť. Toky udalostí je možné spájať pomocou JOIN, filtrovať alebo agregovať.
 		
 		EPL definuje koncept pomenovaných okien (named windows), ktoré slúžia ako štruktúra uchovávajúca udalosti. Je možné do nej vkladať nové udalosti a mazať staré. Výhodou tejto štruktúry je možnosť jej použitia viacerými príkazmi, pretože je globálna, teda zdieľaná v rozsahu daného service providera.	
 		
@@ -102,7 +102,7 @@
 		[limit num_rows]
 		\end{lstlisting}
 
-		Ako môžeme vidieť v tomto výpise, každý EPL príkaz musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly \cite{web:esper-doc}.
+		Ako môžeme vidieť v tomto výpise, každý EPL príkaz musí obsahovať minimálne klauzuly SELECT a FROM. Ďalej je možné filtrovať pomocou klauzuly WHERE, spájať prúdy udalostí pomocou JOIN alebo využiť relačnú databázu ako zdroj udalostí. Nasledujúci popis rozoberá základné EPL klauzuly \cite{web:Esper-doc}.
 		
 		\begin{description}
 			\item[Select] Klauzula SELECT je povinná v každom EPL príkaze. Je v nej možné využiť náhradný znak * alebo vymenovať všetky požadované položky. Ak položka nemá unikátne meno, musí sa použiť predpona s názvom zdroja dát. 
@@ -115,7 +115,7 @@ select [istream | irstream | rstream] [distinct] * | expression_list
 			\end{lstlisting}
 			Obsah klauzuly select tiež definuje typ udalostí vyprodukovaných daným príkazom.
 			
-			\item[FROM] FROM klauzula špecifikuje jeden alebo viac zdrojov, pomenovaných okien alebo tabuliek (od verzie esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero zdrojov dát. Syntax from klauzuly je vo výpise \ref{lst:from-syntax}.
+			\item[FROM] FROM klauzula špecifikuje jeden alebo viac zdrojov, pomenovaných okien alebo tabuliek (od verzie Esper 5.1). Tie môžu byť pomenované klauzulou AS. Pre join je potrebné definovať viacero zdrojov dát. Syntax from klauzuly je vo výpise \ref{lst:from-syntax}.
 			\begin{lstlisting}[label=lst:from-syntax]
 from stream_def [as name] [unidirectional]
 	[retain-union | retain-intersection] 
@@ -165,7 +165,7 @@ output [after suppression_def]
 	
 		\myFigure{cep-windows}{Príklad dátového okna obmedzeného časom a počtom udalostí \cite{web:softwarearchitekturen}}{Príklad dátového okna obmedzeného časom a počtom udalostí}
 
-		Esper rozdeľuje náhľady do menných priestorov. V nasledujúcom zhrnutí sú predstavené tie základné \cite{web:esper-doc}.		
+		Esper rozdeľuje náhľady do menných priestorov. V nasledujúcom zhrnutí sú predstavené tie základné \cite{web:Esper-doc}.		
 		\begin{description}
 			\item[Náhľady do dátových okien] definujú kĺzavé okná a nájdeme ich v mennom priestore win.
 				\subitem win:length - náhľad rozširuje okno o definovaný počet udalostí do minulosti. Nové udalosti vytláčajú tie, ktoré sa do okna už nezmestia, čo vytvára štruktúru podobnú konceptu fifo.
@@ -186,7 +186,7 @@ output [after suppression_def]
 				\subitem stat:weighted\_avg - ako názov napovedá, náhľad umožňuje vypočítať vážený priemer. Podobne ako stat:correl vyžaduje aspoň dva parametra, prvý udáva údaj z ktorého sa počíta priemer a druhý jeho váhu.
 		\end{description}
 		
-		EPL jazyk tiež umožňuje definovať patterny. Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. Je možné ich definovať ako samostatný výraz alebo ako súčasť príkazu. Môžu sa vyskytovať kdekoľvek v klauzule FROM, vrátane join. Vďaka tomu ich je možné použiť v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
+		EPL jazyk tiež umožňuje definovať vzory. Patterny sú výrazy, ktoré hľadajú zhodu podľa definovaného vzoru. Je možné ich definovať ako samostatný výraz alebo ako súčasť príkazu. Môžu sa vyskytovať kdekoľvek v klauzule FROM, vrátane join. Vďaka tomu ich je možné použiť v kombinácii s klauzulami WHERE, GROUP BY, HAVING a INSERT INTO.
 		
 		V nasledujúcich výpisoch sú príklady príkazov, zobrazujúcich príklady syntaxe popisovanej v predchádzajúcom texte.
 		\begin{lstlisting}[label=lst:epl-simple,caption=Jednoduchý EPL príkaz]
@@ -202,7 +202,7 @@ output [after suppression_def]
 		where t.symbol = n.symbol
 		\end{lstlisting}
 
-		\begin{lstlisting}[label=lst:epl-pattern,caption=EPL príkaz s použitím patternu]
+		\begin{lstlisting}[label=lst:epl-pattern,caption=EPL príkaz s použitím vzoru]
 		select a.custId, sum(a.price + b.price)
 		from pattern [every a=ServiceOrder -> 
 			b=ProductOrder(custId = a.custId) where timer:within(1 min)].win:time(2 hour) 
@@ -236,9 +236,9 @@ where severity = 'Medium' and reason like '%withdrawal limit%'
 		\end{lstlisting}
 		
 		\subsubsection{Objektový model}	
-		Objektový model je sada tried poskytujúcich objektovú reprezentáciu príkazu alebo patternu. Tá umožňuje zostrojiť, zmeniť alebo získať údaje z EPL príkazov a patternov na vyššom stupni ako pri práci s textovou reprezentáciou. Objektový model pozostáva z objektového grafu, ktorého prvky je jednoducho prístupné. Objektový model umožňuje plný export do textovej formy a naopak.
+		Objektový model je sada tried poskytujúcich objektovú reprezentáciu príkazu alebo vzoru. Tá umožňuje zostrojiť, zmeniť alebo získať údaje z EPL príkazov a vzorov na vyššom stupni ako pri práci s textovou reprezentáciou. Objektový model pozostáva z objektového grafu, ktorého prvky je jednoducho prístupné. Objektový model umožňuje plný export do textovej formy a naopak.
 		
-		Príkazy vo výpise \ref{lst:epl-nomodel} a \ref{lst:epl-model} sú ekvivalentné. Podobným spôsobom je možné vytvárať príkazy, patterny, definovať premenné premenné alebo vytvárať dátové okná.
+		Príkazy vo výpise \ref{lst:epl-nomodel} a \ref{lst:epl-model} sú ekvivalentné. Podobným spôsobom je možné vytvárať príkazy, vzory, definovať premenné premenné alebo vytvárať dátové okná.
 		
 		\begin{lstlisting}[label=lst:epl-nomodel,caption=EPL príkaz bez použitia objektového modelu]
 	select line, avg(age) as avgAge 
@@ -263,28 +263,28 @@ where severity = 'Medium' and reason like '%withdrawal limit%'
 	model.setOrderByClause(OrderByClause.create("line"));
 		\end{lstlisting}
 	
-		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné. Pomocou objektového modelu je tiež možné skontrolovať syntax príkazu pred pridaním do esper engine.
+		Rovnako ako v textovej reprezentácii sú v objektovej reprezentácii klauzuly SELECT a FROM povinné. Pomocou objektového modelu je tiež možné skontrolovať syntax príkazu pred pridaním do Esper engine.
 
 	\subsection{Api}
 		Esper pre svoje ovládanie neposkytuje grafické rozhranie. Na komunikáciu používa api, ktorá definuje tieto primárne rozhrania:
 		\begin{itemize}
 			\item Rozhranie udalostí a ich typov
-			\item Administrátorské rozhranie na vytváranie a správu EPL príkazov a patternov a definovanie konfigurácie esperu
-			\item Runtime rozhranie, ktoré slúži na posielanie udalostí do esperu, definovanie premenných a spúšťanie on-demand výrazov.
+			\item Administrátorské rozhranie na vytváranie a správu EPL príkazov a vzorov a definovanie konfigurácie Esperu
+			\item Runtime rozhranie, ktoré slúži na posielanie udalostí do Esperu, definovanie premenných a spúšťanie on-demand výrazov.
 		\end{itemize}
 		
 		\subsubsection{EP Service Provider}
-		EPServiceProvider reprezentuje konkrétnu inštanciu esperu. Každá takáto inštancia je nezávislá od ostatných a má svoje vlastné administrátorské a runtime rozhranie. Pri prístupe umožňuje rozhranie voľbu "getDefaultProvider" bez parametrov, ktorá vráti predvolenú inštanciu, alebo "getProvider" s textovým parametrom URI identifikujúcim konkrétnu inštanciu. Tá je vytvorená ak ešte neexistuje. Opakované volania s rovnakým URI vracajú stále rovnakú inštanciu. Túto funkcionalitu je možné využiť napríklad pre oddelenie pracovného prostredia viacerých užívateľov.
+		EPServiceProvider reprezentuje konkrétnu inštanciu Esperu. Každá takáto inštancia je nezávislá od ostatných a má svoje vlastné administrátorské a runtime rozhranie. Pri prístupe umožňuje rozhranie voľbu "getDefaultProvider" bez parametrov, ktorá vráti predvolenú inštanciu, alebo "getProvider" s textovým parametrom URI identifikujúcim konkrétnu inštanciu. Tá je vytvorená ak ešte neexistuje. Opakované volania s rovnakým URI vracajú stále rovnakú inštanciu. Túto funkcionalitu je možné využiť napríklad pre oddelenie pracovného prostredia viacerých užívateľov.
 		
 		\subsubsection{EP Administrator}
-		EPAdministrator umožňuje registrovanie EPL príkazov, patternov alebo ich objektovej reprezentácie do esperu a to metódami createPattern, createStatement a create pre objektový model. Tieto funkcie poskytujú voliteľné parametre umožňujúce definovať meno príkazu a užívateľský objekt, ktorý je v implementačnej časti tejto práce využitý na ukladanie dodatočných informácií o príkaze - napríklad definovanie TTL pri ukladaní výsledkov do databázy.
+		EPAdministrator umožňuje registrovanie EPL príkazov, vzorov alebo ich objektovej reprezentácie do Esperu a to metódami createPattern, createStatement a create pre objektový model. Tieto funkcie poskytujú voliteľné parametre umožňujúce definovať meno príkazu a užívateľský objekt, ktorý je v implementačnej časti tejto práce využitý na ukladanie dodatočných informácií o príkaze - napríklad definovanie TTL pri ukladaní výsledkov do databázy.
 		
 		Po registrácii nového EPL výrazu rozhranie vracia inštanciu vytvoreného EPStatement, pomocou ktorej môžeme ovládať už vytvorený príkaz alebo pristupovať k výsledkom. Praktická časť práce z ovládacích funkcií využíva stop() a start(), ktoré definujú, či je príkaz aktívny.
 		
 		Esper poskytuje tri možnosti ako pristupovať k výsledkom konkrétneho príkazu. Tieto je možné rôzne kombinovať. Možnosti sú predstavené v nasledujúcom výpise:
 		\begin{description}
 			\item[Listener] V prvom prípade aplikácia poskytuje implementáciu rozhraní UpdateListener alebo StatementAwareUpdateListener vytváranému príkazu. Takýto listener bude následne notifikovaný pri výskyte novej udalosti a metóde update bude predaná inštancia EventBean, ktorá obsahuje udalosť produkovanú niektorým z príkazov.
-			\item[Subscriber] Týmto spôsobom esper posiela výsledky na definovaný subscriber. Je to najrýchlejšia možnosť, pretože esper predáva typované výsledky priamo do objektov aplikácie, nemusí teba zostavovať inštancie EventBean ako v predošlom prípade. Nevýhodou je že príkaz môže mať registrovaný maximálne jeden subscriber, naproti predošlému spôsobu, kde umožňoval definovať viacero listenerov.
+			\item[Subscriber] Týmto spôsobom Esper posiela výsledky na definovaný subscriber. Je to najrýchlejšia možnosť, pretože Esper predáva typované výsledky priamo do objektov aplikácie, nemusí teba zostavovať inštancie EventBean ako v predošlom prípade. Nevýhodou je že príkaz môže mať registrovaný maximálne jeden subscriber, naproti predošlému spôsobu, kde umožňoval definovať viacero listenerov.
 			\item[Pull Api] Týmto spôsobom aplikácia pristupuje k výsledkom on-demand spôsobom, kde jednorázovou žiadosťou o výsledky daného príkazu získa zoznam EventBean prístupný pomocou iterátora. Toto je využiteľné v prípade kedy aplikácia nevyžaduje nepretržité spracovanie nových výsledkov v real-time.
 		\end{description}
 		V tomto projekte bol použitý prvý spôsob listenera. Aplikácia v tomto prípade použije implementáciu rozhrania StatementAwareUpdateListener, ktorá je registrovaná pri vytváraní nového príkazu metódou addListener. Vďaka použitiu rozhrania StatementAwareUpdateListener a nie UpdateListener získava aplikácia prístup k príkazu, ktorý konkrétnu udalosť vyprodukoval, pre všetky príkazy môže byť preto definovaný jediný spoločný listener.
@@ -292,31 +292,31 @@ where severity = 'Medium' and reason like '%withdrawal limit%'
 		Esper podporuje tiež spracovanie udalostí, ktoré nevyhoveli žiadnemu statemenentu. Tieto výsledky získame registrovaním implementácie rozhrania UnmatchedListener. 
 		
 		\subsubsection{EP Runtime}
-		EPRuntime rozhranie slúži na odosielanie nových udalostí do esperu k spracovaniu, nastavenie a prístup k hodnotám premenných a spúšťanie on-demand EPL výrazov. Na odosielanie nových udalostí slúži metóda sendEvent, ktorá je preťažená. Typ parametra tejto metódy indikuje typ udalosti odosielanej do esperu. Tieto typy boli bližšie popísané v predchádzajúcich sekciách.
+		EPRuntime rozhranie slúži na odosielanie nových udalostí do Esperu k spracovaniu, nastavenie a prístup k hodnotám premenných a spúšťanie on-demand EPL výrazov. Na odosielanie nových udalostí slúži metóda sendEvent, ktorá je preťažená. Typ parametra tejto metódy indikuje typ udalosti odosielanej do Esperu. Tieto typy boli bližšie popísané v predchádzajúcich sekciách.
 		
 		V prípade použitia XML definície typov udalostí sa pri spracovaní prichádzajúcej udalosti skontroluje že meno koreňového elementu prichádzajúcej udalosti je zhodné s menom typu udalosti definovanej XML schémou.
 		
 		Ak aplikácia nepozná EPL výrazy dopredu alebo nevyžaduje streamovanie výsledkov, je možné prostredníctvom EPRuntime spúšťať jednorázové výrazy. Tieto nie sú permanentné, po ich vykonaní je výsledok okamžite predaný aplikácii na spracovanie. Použitie nachádzajú napríklad v spojení s pomenovanými oknami a tabuľkami, ktoré je možné indexovať pre zrýchlenie prístupu.		
 
 \section{Cassandra}
-	Cassandra je databázový projekt, ktorý pôvodne vznikol vo firme Facebook. Neskôr bol zverejnený ako open-source a v roku 2009 bol prijatý do Apache inkubátora. V roku 2010 získal top prioritu a je naďalej vyvíjaný a dostupný pod Apache 2.0 licenciou \cite{what-is-cassandra}.
+	Cassandra je databázový projekt, ktorý pôvodne vznikol vo firme Facebook. Neskôr bol zverejnený ako open-source a v roku 2009 bol prijatý do Apache inkubátora. V roku 2010 získal top prioritu a je naďalej vyvíjaný a dostupný pod Apache 2.0 licenciou \cite{what-is-Cassandra}.
 	
-	Cassandra je distribuovaná databáza, ktorá umožňuje spracovanie a uchovávanie veľkého množstva dát rozložených na veľkom počte menej výkonných serverov, ako je to znázornené na obrázku \ref{image_intro_cassandra}. Táto architektúra zároveň poskytuje vysokú dostupnosť dát pri zabezpečení proti strate dát pri výpadku niektorého zo serverov. Cassandra je navrhnutá na použitie veľkého počtu počítačov (v ráde stoviek) podľa možností rozložených v rôznych častiach sveta.
+	Cassandra je distribuovaná databáza, ktorá umožňuje spracovanie a uchovávanie veľkého množstva dát rozložených na veľkom počte menej výkonných serverov, ako je to znázornené na obrázku \ref{image_intro_Cassandra}. Táto architektúra zároveň poskytuje vysokú dostupnosť dát pri zabezpečení proti strate dát pri výpadku niektorého zo serverov. Cassandra je navrhnutá na použitie veľkého počtu počítačov (v ráde stoviek) podľa možností rozložených v rôznych častiach sveta.
 
-	\myFigure{intro_cassandra}{Škálovanie databázy cassandra s rastúcou záťažou \cite{img:scaling}}{Škálovanie databázy cassandra s rastúcou záťažou}
+	\myFigure{intro_Cassandra}{Škálovanie databázy Cassandra s rastúcou záťažou \cite{img:scaling}}{Škálovanie databázy Cassandra s rastúcou záťažou}
 	
 	Cassandra bola navrhnutá pre beh na cenovo dostupnom hardware a podporuje rýchly zápis veľkého množstva dát pri zachovaní efektívnosti prístupu k nim. Týmto pomáha znižovať firemné náklady na hardware.
 	
-	Vďaka týmto vlastnostiam je cassandra využívaná množstvom známych firiem, medzi ktoré patrí napríklad CERN, eBay, GitHub, Netflix, Twitter alebo Cisco. Veľké produkčné nasadenia obsahujú stovky TB dát v klastroch zložených zo stoviek serverov. Pri porovnaní výkonnosti s ostatnými NoSQL databázami  Cassandra získava výborné výkonnostné výsledky aj vďaka svojej jednoduchej architektúre.
+	Vďaka týmto vlastnostiam je Cassandra využívaná množstvom známych firiem, medzi ktoré patrí napríklad CERN, eBay, GitHub, Netflix, Twitter alebo Cisco. Veľké produkčné nasadenia obsahujú stovky TB dát v klastroch zložených zo stoviek serverov. Pri porovnaní výkonnosti s ostatnými NoSQL databázami  Cassandra získava výborné výkonnostné výsledky aj vďaka svojej jednoduchej architektúre.
 	
 %TODO too much
-% porovnanie s alternatívami vidíme na obrázku \ref{image_cassandra-performance}
+% porovnanie s alternatívami vidíme na obrázku \ref{image_Cassandra-performance}
 	
-%	\myFigure{cassandra-performance}{Porovnanie výkonnosti cassandry s alternatívnymi NoSQL databázami}{Výkonnosť Cassandra databázy}
+%	\myFigure{Cassandra-performance}{Porovnanie výkonnosti cassandry s alternatívnymi NoSQL databázami}{Výkonnosť Cassandra databázy}
 	
-	Cassandra je dostupná z dvoch zdrojov, prvým z nich stránka projektu Apache cassandra. Tá je základnou verziou a obsahuje databázový engine a cqlsh nástroj slúžiaci ako vývojový shell. Pre jeho spustenie je nutné mať nainštalované interpretátor jazyka python.
+	Cassandra je dostupná z dvoch zdrojov, prvým z nich stránka projektu Apache Cassandra. Tá je základnou verziou a obsahuje databázový engine a cqlsh nástroj slúžiaci ako vývojový shell. Pre jeho spustenie je nutné mať nainštalované interpretátor jazyka python.
 	
-	Druhou je nadstavba tretej strany DataStax cassandra, ktorá odlišuje komerčnú a nekomerčnú verziu. V nekomerčnej verzii nájdeme rovnako ako v Apache balíku databázový engine a cqlsh. Navyše na svojich stránkach DataStax poskytuje zdarma rozšírenia, ktoré zjednodušujú prácu s databázou, a to:
+	Druhou je nadstavba tretej strany DataStax Cassandra, ktorá odlišuje komerčnú a nekomerčnú verziu. V nekomerčnej verzii nájdeme rovnako ako v Apache balíku databázový engine a cqlsh. Navyše na svojich stránkach DataStax poskytuje zdarma rozšírenia, ktoré zjednodušujú prácu s databázou, a to:
 	
 	\begin{description}
 		\item[OpsCenter] je grafický nástroj na správu databázy. Poskytuje prehľadné rozhranie pre administrátorov a vývojárov v ktorom je možné vidieť jednotlivé časti klastru. Umožňuje monitorovať stav, aktuálnu zátaž, pridávať a odoberať servery do konfigurácie klastra, nastaviť zálohovanie či generovať štatistiky. Pomocou neho je možné prehľadne spravovať klastre zložené zo stoviek serverov.
@@ -361,7 +361,7 @@ where severity = 'Medium' and reason like '%withdrawal limit%'
 		\item[Kľúč partície] (Partition key) určuje na ktorých uzloch sa uložia dáta. Je tiež zodpovedný za distribúciu naprieč jednotlivé uzly. V príklade je to key\_one.
 		\item[Zoskupovací kľúč] (Clustering key) určuje zoskupovanie dát, čo je proces, ktorý usporadúva dáta v rámci daného úseku. V príklade je použitý zložený kľúč pozostávajúci z key\_two a key\_three.
 	\end{description}
-	Keďže cassandra je distribuovaná databáza, tieto kľúče slúžia k vyhľadaniu miesta, kde sú uložená vyhľadávané záznamy. A práve toto vyhľadávanie je veľmi ovplyvnené architektúrou databázy.
+	Keďže Cassandra je distribuovaná databáza, tieto kľúče slúžia k vyhľadaniu miesta, kde sú uložená vyhľadávané záznamy. A práve toto vyhľadávanie je veľmi ovplyvnené architektúrou databázy.
 	
 	Práve tu vzniká jedna z najväčších odlišností od relačných databáz, ktorých užívatelia sú zvyknutí filtrovať údaje podľa ľubovoľného stĺpca tabuľky. Vyhľadávanie v klauzule WHERE je možné len podľa stĺpcov z ktorých sa primárny kľúč skladá a to v poradí v ktorom sú definované. Vo výpise \ref{lst:cql-pk-use} vidíme možnosti filtrovania v dotazoch do tabuľky definovanej výpisom \ref{lst:cql-pk}.
 	
@@ -390,7 +390,7 @@ Príklad nevalidných dotazov:
 	\end{description}
 
 	Výpis \ref{lst:dtypes} zobrazuje príklad použitia týchto dátových typov.
-	\begin{lstlisting}[label=lst:dtypes,caption=Príklad použitia dátových typov databázy cassandra]
+	\begin{lstlisting}[label=lst:dtypes,caption=Príklad použitia dátových typov databázy Cassandra]
 CREATE TABLE incident (
 	tid timeuuid primary key,
 	data <tuple<int, text, float>>,
@@ -411,7 +411,7 @@ INSERT INTO incident (tid, data, notified) VALUES(
 	
 	Klauzulu ORDER BY tiež nie je možné použiť ľubovoľne na každom definovanom stĺpci. V prípade že tabuľka definuje zoskupovací stĺpec, je možné ho použiť pre zoradenie výsledkov. V opačnom prípade je možné použiť len stĺpce definované v zoskupovacom kľúči.
 	
-	Klauzula COUNT je implementovaná rozdielne ako v relačných databázach. Operácia pre zápis v databáze cassandra prebieha bez nutnosti čítania už existujúcich záznamov. To zvyšuje rýchlosť zápisu, avšak databáza neudržiava informáciu o aktuálnom počte záznamov. Operácia count preto musí pri zavolaní spočítať existujúce záznamy, čo je časovo náročná operácia. Preto sa táto klauzula zvyčajne používa spolu s klauzulou limit, ktorá zamedzí zbytočnému zahlteniu databázy \cite{cascount}. \\
+	Klauzula COUNT je implementovaná rozdielne ako v relačných databázach. Operácia pre zápis v databáze Cassandra prebieha bez nutnosti čítania už existujúcich záznamov. To zvyšuje rýchlosť zápisu, avšak databáza neudržiava informáciu o aktuálnom počte záznamov. Operácia count preto musí pri zavolaní spočítať existujúce záznamy, čo je časovo náročná operácia. Preto sa táto klauzula zvyčajne používa spolu s klauzulou limit, ktorá zamedzí zbytočnému zahlteniu databázy \cite{cascount}. \\
 	
 	Tieto rozdiely sú pri prechode z relačných databáz prekvapením, návrh databáz je totiž z veľkej časti obmedzujúci. Obmedzenia vyplývajú predovšetkým z architektúry dátového úložiska databázy, avšak práve táto architektúra ponúka aj mnoho výhod. Preto je použitie NoSQL databázy nutné dôkladne zvážiť a prispôsobiť potrebám konkrétnej aplikácie.
 	
@@ -447,7 +447,7 @@ INSERT INTO incident (tid, data, notified) VALUES(
 	V konfigurácii framework nájdeme tiež súbory initializers, ktoré sú spustené pri štarte projektu a inicializujú jednotlivé komponenty a súbor routes obsahujúci smerovanie prichádzajúcich požiadavkov na jednotlivé controllery. Závislosti a použité komponenty sú definované v súbore Gemfile.
 	
 	\subsection{Sinatra}
-	Sinatra je jazyk použiteľný pre rýchly vývoj jednoduchých webových aplikácií postavených na ruby. Framework zapuzdruje jednoduchý webový server. Umožňuje definovať takzvané route, predstavujúce url, ktoré aplikácia rozoznáva. Obsahom bloku definujúceho route je telo metódy, ktorá sa má vykonať pri zavolaní danej url. Tieto bloky akceptujú vstupné parametre, predstavujúce GET a POST parametre. Príklad takejto routy zobrazuje nasledujúci výpis.
+	Sinatra je jazyk použiteľný pre rýchly vývoj jednoduchých webových aplikácií postavených na ruby. Framework zapuzdruje jednoduchý webový server. Umožňuje definovať takzvané route, predstavujúce URL, ktoré aplikácia rozoznáva. Obsahom bloku definujúceho route je telo metódy, ktorá sa má vykonať pri zavolaní danej URL. Tieto bloky akceptujú vstupné parametre, predstavujúce GET a POST parametre. Príklad takejto routy zobrazuje nasledujúci výpis.
 	\begin{lstlisting}[label=lst:sinatra-sampel,caption=Príklad definovania GET route vo frameworku Sinatra]
 	get '/hello/:name' do |n|
 		"Ahoj #{n}!"
@@ -475,7 +475,7 @@ INSERT INTO incident (tid, data, notified) VALUES(
 	
 	Rozloženie stránky vytvorenej týmto kódom zobrazuje obrázok \ref{image_bootstrap-grid}.
 		
-	\myFigure{bootstrap-grid}{Ukážka Bootstrap grid systému}{Bootstrap grid systém}
+	\myFigure{bootstrap-grid}{Ukážka Bootstrap grid systému}{Bootstrap grid systém \cite{bootstrap}}
 			
 	V tejto aplikácii bol bootstrap použitý pri vytváraní front-end administračného rozhrania ThesisWeb a usecase webu klientov.
 	
