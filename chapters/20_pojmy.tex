@@ -38,6 +38,12 @@
 	
 	Systémy riadené udalosťami môžu automaticky reagovať na detekované udalosti podľa predom stanovených pravidiel. Tie zvyčajne pozostávajú z notifikácie (užívateľa alebo ďalšieho systému), jednoduchých akcií (automatický nákup akcií, aktivácia požiarneho systému) alebo interakciou s iným systémom (spustením nového procesu).
 
+	CEP patrí do nástrojov v kategórii \ac{BI}. Je modernou formou spracovania udalostí v reálnom čase a poskytuje takmer okamžitý pohľad na stav systému alebo jeho zmeny (udalosti). Rovnako ako ostatné BI nástroje je jeho úlohou pomáhať spoločnostiam rýchlejšie a lepšie sa rozhodovať.
+	Pri porovnaní s tradičnými BI nástrojmi si je možné všimnúť viacero rozdielov, prevažne v architektúre a role tohoto systému. Taktiež rozhodnutia, ktoré sú založené na tradičných BI nástrojoch sú typicky pomalšie, napríklad rozhodnutia managementu ohľadom alokácie zdrojov, zmeny cien, plánovaní rozpočtu či úprave stavov zásob.
+	Naproti tomu CEP je používaný k rozhodnutiam, ktoré je potrebné vykonávať s minimálnym časovým oneskorením. Takýmito sú napríklad monitorovanie elektrickej siete kvôli možnosti detekcie výpadkov, odhaľovanie finančných podvodov pri online transakciách či hľadanie vzorov v senzorových systémoch pre prevenciu voči mechanickým poruchám, čo umožňuje včasné objednanie náhradných dielov.
+	
+	CEP nie je kompletná aplikácia, jeho logika je zvyčajne využívaná v rozsiahlejšom systéme alebo aplikácii. Na rozdiel od BI riešení, ktoré dávkovo spracovávajú dátové súbory je spustený nepretržite a spracováva prichádzajúce toky dát vo forme udalostí. Aplikácie využívajúce CEP majú zvyčajne zabudovaný systém upozornení pre oznámenie výskytu hľadanej udalosti alebo spustenie reakcie na daný stav systému. 
+	
 	Na trhu existuje viacero komerčných CEP riešení od firiem ako Tibco, Oracle či IBM. Zo zástupcov open-source produktov sú to napríklad JBoss Drools Fusion alebo Esper od firmy EsperTech, na ktorom bude postavená aj táto diplomová práca.
 
 \section{NoSQL}
@@ -63,9 +69,12 @@
 		\item Vertikálne škálovanie predstavuje centralizovaný prístup založený na vylepšovaní konfigurácie serverov, prípadne ich nahradení výkonnejšími servermi.
 		\item Horizontálne škálovanie predstavuje distribuovaný prístup, kde sú do konfigurácie pridané ďalšie servery, ktoré umožňujú rozloženie záťaže.
 	\end{itemize}
-	Pred príchodom NoSQL bolo obvyklé vertikálne škálovanie. Pri raste množstva dát boli potrebné výkonnejšie servery s väčšou RAM, výkonnejšími procesormi a väčším diskovým priestorom. Cena a komplikovanosť takýchto serverov však neúmerne stúpa so zvyšujúcimi sa požiadavkami, ako je možné vidieť na obrázku \ref{image_scale-up-out}. Po istej úrovni už nie je možné konfiguráciu serveru vylepšiť, je nutné zaobstarať ďalší a rozloženie zaťaženia databázy riešiť na aplikačnej úrovni, čo je veľmi náročná úloha pre programátorov aj správcov databázy. 
+
+	Pred príchodom NoSQL bolo obvyklé vertikálne škálovanie. Pri raste množstva dát boli potrebné výkonnejšie servery s väčšou RAM, výkonnejšími procesormi a väčším diskovým priestorom. Cena a komplikovanosť takýchto serverov však neúmerne stúpa so zvyšujúcimi sa požiadavkami, ako je možné vidieť na obrázku \ref{image_scale-up-out}.
 	
-	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu}{Škálovanie aplikácie vzhľadom na jej cenu \cite{nosql}}
+	\myFigure{scale-up-out}{Škálovanie aplikácie vzhľadom na jej cenu \cite{nosql}}{Škálovanie aplikácie vzhľadom na jej cenu}
+		
+	Po istej úrovni už nie je možné konfiguráciu serveru vylepšiť, je nutné zaobstarať ďalší a rozloženie zaťaženia databázy riešiť na aplikačnej úrovni, čo je veľmi náročná úloha pre programátorov aj správcov databázy. 
 	
 	NoSQL zahrňuje širokú škálu rôznych databázových technológií v reakcii na prudký nárast množstva ukladaných dát, frekvencie prístupu k údajom a výkonnostným požiadavkom, ktoré z tohoto nárastu  vyplývajú.
 	

@@ -9,7 +9,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 \section{ThesisApi}
 	Esper je voľne dostupný pre dve vývojové platformy - javu a .net. Pre serverovú časť aplikácie som zvolil javu s použitím spring frameworku.
 
-	Vo finálnej verzii som ponechal aj súbory v balíčku sample, ktoré slúžia na testovanie aplikácie. Ich použitím je možné jednorázovo spustiť serverovú časť aplikácie, načítať schémy a definovanými pravidlami vyhodnotiť udalosti uložené v csv súboroch v resources adresári. Takéto jednorázové spustenie uľahčuje hľadanie chýb, prípadne testovanie novej funkcionality aplikácie.
+	Vo finálnej verzii som ponechal aj súbory v balíčku sample, ktoré slúžia na testovanie aplikácie. Ich použitím je možné jednorázovo spustiť serverovú časť aplikácie, načítať schémy a definovanými pravidlami vyhodnotiť udalosti uložené v csv súboroch v adresári resources. Takéto jednorázové spustenie uľahčuje hľadanie chýb, prípadne testovanie novej funkcionality aplikácie.
 
 	Súčasťou restovej api sú funkcie pre prístup k výsledkom v dvoch podobách, a to getAll a exportAll. V implementácii týchto funkcií sú dve hlavné rozdiely. Prvý je ten že funkcia getAll vracia aj metadáta obsahujúce napríklad informácie o stránkovaní. Druhou dôležitou odlišnosťou je streamovaný výstup funkcie exportAll, ktorý umožňuje získanie veľkého objemu dát bez nutnosti ich udržiavať v operačnej pamäti servera. Takto môžeme stiahnuť všetky výsledky daného príkazu, naproti funkcii getAll, ktorá vracia len časť dát obmedzenú parametrami požiadavku.
 	
@@ -35,10 +35,10 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Databáza obsahuje tabuľku schém a príkazov, ktoré sú načítavané pri štarte Api. Jej štruktúru vidíme na obrázku \ref{image_db-model-1}.
 		\myFigure{db-model-1}{Model databázy konfigurácie}{Model databázy konfigurácie}
 		
-		Pri ukončení aplikácie je nutné sa od databázy odpojiť aby boli zmeny dočasne uložené v pamäti presunuté na disk. Toto odpojenie zaobstaráva spúšťací súbor aplikácie, volaním príkazu "SHUTDOWN". Odpojenie je nutné vykonať aj pri nastavení automatického ukončenia relácie v parametroch pripojenia k databáze.
+		Pri ukončení aplikácie je nutné sa od databázy odpojiť aby boli zmeny dočasne uložené v pamäti presunuté na disk. Toto odpojenie zaobstaráva spúšťací súbor aplikácie, volaním príkazu ``SHUTDOWN''. Odpojenie je nutné vykonať aj pri nastavení automatického ukončenia relácie v parametroch pripojenia k databáze.
 		
 		\subsubsection{Databáza udalostí}
-		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných príkazov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci "proof of concept" princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí Esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
+		Databáza udalostí slúži na ukladanie výsledkov vyhovujúcich niektorému z definovaných príkazov. Ako konkrétne riešenie som použil databázu Cassandra. Cassandra je jedným z predstaviteľov NoSQL databáz. Jednou z jej výhod je možnosť rozšíriteľnosti v prípade veľkého objemu dát a optimalizácia pre zápis. Použitie tejto databázy je v rámci ``proof of concept'' princípu, kde by bolo jednoduchšie pracovať napríklad s HSQLDB ako v prípade konfigurácie, avšak kvôli možnosti generovania veľkého množstva udalostí Esperom je použitá databáza na to vhodná. Model tabuľky je na obrázku \ref{image_db-model-2}.
 		\myFigure{db-model-2}{Model databázy udalostí}{Model databázy udalostí}
 
 		Ako unikátny identifikátor je použitý time\_id, ktorý je typu TimeUUID. Tento typ je zložený z kombinácie časovej značky, mac adresy a sekvenčného čísla. Tá zaručuje unikátnosť a súčasne umožňuje zistiť čas vytvorenia záznamu. Stĺpec event obsahuje samotnú udalosť v JSON alebo XML formáte a statement\_id identifikátor príkazu, ktorý danú udalosť vyprodukoval.
@@ -130,7 +130,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 			\end{itemize}
 				
 
-			Pri pridávaní príkazu do Esper engine je kontrolovaná unikátnosť mena v rámci daného Esper providera. V prípade že existuje príkaz s rovnakým menom je meno doplnené o "--N", kde N značí najbližšie voľné celé číslo. Takto upravený príkaz je následne uložený.
+			Pri pridávaní príkazu do Esper engine je kontrolovaná unikátnosť mena v rámci daného Esper providera. V prípade že existuje príkaz s rovnakým menom je meno doplnené o ``--N'', kde N značí najbližšie voľné celé číslo. Takto upravený príkaz je následne uložený.
 			
 			Pri pridávaní XML schém udalostí je nutné ich konvertovať do typu Document. To zaobstaráva trieda Helpers.java, ktorá sa zároveň stará napríklad o konvertovanie typov udalostí do JSON formátu. Dôležitou súčasťou tejto triedy je funkcia eventTypeToJSON, ktorá rekurzívne skonvertuje typ udalosti a jej dedičností do JSON objektu vhodného k odoslaniu klientovi.
 			
@@ -158,7 +158,7 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		Maven tiež umožňuje vytvárať v pom.xml súboroch závislosti a odkazovať sa na externé konfigurácie. Táto funkcionalita je v projekte využitá pri spring závislostiach, kde je verzia niektorých komponent definovaná v externom rodičovskom súbore. Rodičom spring závislostí projektu je spring-boot-starter-parent.
 		
 \section{ThesisWeb}
-	Web časť projektu slúži ako administračné rozhranie. Je riešená formou webovej aplikácie, ktorej základ je framework Ruby On Rails. Ten umožňuje rýchle vytváranie stránok, kde prevažuje prístup "convention over configuration". Dôležitou súčasťou frameworku sú gemy, ktoré reprezentujú závislosti projektu. Jedným z najpodstatnejších v tomto projekte je gem "her", ktorý zabezpečuje komunikáciu s Api časťou projektu.
+	Web časť projektu slúži ako administračné rozhranie. Je riešená formou webovej aplikácie, ktorej základ je framework Ruby On Rails. Ten umožňuje rýchle vytváranie stránok, kde prevažuje prístup convention over configuration. Dôležitou súčasťou frameworku sú gemy, ktoré reprezentujú závislosti projektu. Jedným z najpodstatnejších v tomto projekte je gem her, ktorý zabezpečuje komunikáciu s Api časťou projektu.
 	
 	\myFigure{usecase}{UseCase diagram}{UseCase diagram}
 	
@@ -220,6 +220,6 @@ Jednotlivé komponenty nájdeme vo výslednom projekte v samostatných adresáro
 		
 		\item[Notifikácie] 
 		Esper je v mnohých firmách využívaný ako nástroj, ktorý vyhľadáva v prichádzajúcich udalostiach definované vzory a na ich základe vykonáva nejaké akcie. Takouto akciou by mohlo byť odoslanie emailu alebo sms, ktorá by upozornila na výskyt hľadanej udalosti.
-		
 	\end{description}
 
+	Tieto rozšírenia nie sú potrebné pre základnú prácu s Esperom, na čo sa orientuje táto diplomová práca. CEP je možné využiť vo viacerých oblastiach a každá z nich potrebuje špecifické sady nástrojov. Preto by mal byť ďalší vývoj odvodený od konkrétnej potreby využitia tohoto nástroja. Napríklad v prípade reálneho nasadenia je potrebnejšia notifikačná časť a pre uľahčenie práce programátora rozšírenie prístupu k Esperu.

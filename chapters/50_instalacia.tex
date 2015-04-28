@@ -45,14 +45,14 @@
 	}{Kompatibilita verzií javy s Esper xml schémami}{table:java-kompatibilita}
 	
 	Java bola nainštalovaná použitím predvolených nastavení, súčasťou ktorých je aj inštalácia JRE. Po nainštalovaní definujeme premennú prostredia JAVA\_HOME nasledovne:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:javahome,caption=Definícia premennej prostredia JAVA\_HOME]
 	JAVA_HOME - C:\Program Files\Java\jdk1.8.0_31
 	\end{lstlisting}
 	Toto nastavenie je vyžadované nástrojom Maven, ktorý popisuje nasledujúca sekcia.
 	
 \subsubsection{Maven}	% http://maven.apache.org/
 	Na zostavenie projektu bol použitý Maven vo verzii 3.2.3. Inštalácia pozostáva zo stiahnutia zip archívu (binárnej distribúcie) zo stránky projektu a rozbalenia do cieľového adresára. Pre jednoduchšie použitie je vhodné rozšíriť PATH o cestu k binárnym súborom nástroja, v tomto prípade:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:apachepath,caption=Rozšírenie premennej prostredia PATH o nástroj Maven]
 	PATH = %PATH%;C:\Apache\apache-maven-3.2.3\bin
 	\end{lstlisting}
 
@@ -67,17 +67,17 @@
 	\end{itemize}
 
 	Pri inštalácii použijeme predvolené nastavenia. Pri prvom použití nástroja bundler však narazíme na problém s certifikátmi:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:errorssl,caption=Problém s certifikátom v Ruby On Rails]
 	Error:SSL\_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed.
 	\end{lstlisting}
 	Riešenie pozostáva zo stiahnutia súboru obsahujúceho certifikáty certifikačných autorít. Ten následne sprístupníme pre ruby definovaním premennej prostredia \cite{web:certificate-fix}.
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:sslfix,caption=Riešenie problému s certifikátmi]
 	ruby "%USERPROFILE%\Desktop\win_fetch_cacerts.rb"
 	SSL_CERT_FILE = C:\RailsInstaller\cacert.pem
 	\end{lstlisting}
 		
 	Problém s certifikátmi sa týmto vyriešil. Pri vytvorení a spustení prvej aplikácie ale narazíme na ďalšu výnimku:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:errorjs,caption=Problém s javascript runtime]
 	ExecJS::ProgramError - TypeError: Object doesn't support this property or method
 	\end{lstlisting}
 	Táto je spôsobená nekompatibilitou predvoleného windows javascript runtime a rails prostredia pri spracovaní assets (css a js) súborov. Jedným z riešení tohoto problému je inštalácia platformy Node.js. Pre potreby projektu postačuje predvolená inštalácia.
@@ -89,7 +89,7 @@
 	Cassandra je okrem binárnej verzie distribuovaná aj ako spustiteľný MSI inštalátor vďaka DataStax komunite. Tento spôsob inštalácie je pohodlnejší, avšak aktuálna verzia 2.1.2 pre operačný systém Windows po inštalácii nepracovala správne. Prejavili sa problémy ako chyby pri spustení spôsobené chybnou verziou knižnice jamm použitej pri kompilácii či poruchy Windows agenta.
 	
 	Pre projekt som kvôli týmto dôvodom použil binárnu distribúciu. Inštalácia tejto verzie je veľmi podobná inštalácii Mavenu, preberanému v predošlej sekcii. Na stránkach projektu stiahneme archív a rozbalíme ho do cieľového adresára. Tiež rozšírime systémovú premennú PATH o cestu k spúšťacím súborom takto:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:pathcas,caption=Rozšírenie premennej prostredia PATH o Cassandru]
 	PATH = %PATH%;C:\Apache\apache-Cassandra-2.1.2\bin
 	\end{lstlisting}
 	
@@ -118,21 +118,21 @@
 
 \section{Spustenie aplikácie}
 	Pred samotným spustením aplikácie je potrebné ju stiahnuť a skompilovať. Ak bol dodržaný postup inštalácie popísaný v predchádzajúcej sekcii tak sú všetky potrebné nástroje k dispozícii. Pokračujeme teda stiahnutím zdrojových kódov kompletného projektu z git repozitára. V príkazovom riadku:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:gitclone,caption=Stiahnutie zdrojových súborov projektu]
 	git clone https://github.com/kravciak/thesis-diploma-code.git
 	\end{lstlisting}
 	Kompletný projekt obsahuje 4 samostatné komponenty. Každá z nich sa spúšťa samostatne, avšak všetky sú závislé na Api a pred použitím je nutné nakonfigurovať schémy a príkazy - na čo slúži komponenta Web. Postup spustenia je preto nasledovný:
 	
 \subsubsection{Api}
 	Predtým než je spustená Api je nutné spustiť Cassandra databázu. Tá je spustiteľná z bin priečinka inštalácie súborom Cassandra.bat. Pre spustenie vyžaduje administrátorské oprávnenia. Cassandru je tiež možné nainštalovať ako service pridaním parametra ``install''. Pri správnom spustení sa na konzole zobrazí text:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:thrift,caption=Spustenie databázy výsledkov]
 	Starting listening for CQL clients on localhost/127.0.0.1:9042...
 	Binding thrift service to localhost/127.0.0.1:9160
 	Listening for thrift clients...
 	\end{lstlisting}
 	
 	Api nájdeme v priečinku ThesisApi. Je závislá na viacerých knižniciach, ktoré sú automaticky stiahnuté nástrojom Maven pri zostavovaní. Po úspešnom zostavení aplikáciu spustíme. Zmienené kroky dosiahneme použitím dvoch príkazov:
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:runapi,caption=Spustenie serverovej časti aplikácie]
 	mvn install
 	mvn exec:java
 	\end{lstlisting}
@@ -140,7 +140,7 @@
 	
 \subsubsection{Web}
 	Administračné rozhranie sa nachádza v priečinku ThesisWeb. Podobne ako Api aj Web je závislý na viacerých gemoch. Tie sú stiahnuteľné pomocou bundleru, ktorého inštalácia je popísaná v predchádzajúcej sekcii. Po stiahnutí závislostí môžeme web spustiť.
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:runweb,caption=Spustenie administračného rozhrania]
 	bundle install
 	rails s
 	\end{lstlisting}
@@ -148,7 +148,7 @@
 		
 \subsubsection{Twitter Stream}
 	Twitter stream závisí na dvoch gemoch, builder a twitter gem. Twitter gem slúži na prijatie vzorky tweetov a builder na transformáciu tweetu do formy xml. Obe nainštalujeme pomocou príkazu gem install, ktorý je dostupný ako súčasť ruby.
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:uctwitter,caption=Spustenie vzorového streamu udalostí]
 	gem install twitter builder
 	ruby generator.rb
 	\end{lstlisting}
@@ -156,7 +156,7 @@
 	
 \subsubsection{Contacts Web}
 	Závislosti contacts webu nainštalujeme rovnako ako v prípade twitter streamu.		
-	\begin{lstlisting}
+	\begin{lstlisting}[label=lst:ucweb,caption=Spustenie vzorovej webovej aplikácie]
 	gem install sinatra faraday gyoku json
 	ruby client.rb
 	\end{lstlisting}
@@ -237,7 +237,7 @@
 		Ovládací panel príkazu umožňuje spustiť, pozastaviť alebo zmazať daný príkaz. Pozastavené príkazy nevyhľadávajú nové udalosti.
 		\myFigure{gui-replay-form}{Formulár preposielania historických udalostí na Esper engine}{Formulár preposielania historických udalostí}
 		
-		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať príkaz v Esper engine. V prípade že už existuje príkaz s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme "--n". Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky príkazu držané v databáze. Posledné textové pole obsahuje text vytváraného príkazu. Novo vytvorený príkaz je predvolene v spustenom stave.
+		Pri vytváraní novej schémy je potrebné zadať jej meno, umožňujúce jedinečne identifikovať príkaz v Esper engine. V prípade že už existuje príkaz s rovnakým menom je na jeho koniec automaticky pridané číslo vo forme ``--n''. Voliteľne je možné zadať TTL, ktoré špecifikuje ako dlho majú byť výsledky príkazu držané v databáze. Posledné textové pole obsahuje text vytváraného príkazu. Novo vytvorený príkaz je predvolene v spustenom stave.
 		
 		\item[Streamer:] Pre posielanie nových udalostí existuje viacero spôsobov, jedným z nich je odoslanie udalostí pomocou administračného rozhrania na tejto stránke. V hornej časti je URL, ktorú je možné použiť na odosielanie udalostí priamo na API serverovej časti. Štruktúra odosielanej udalosti je bližšie popísaná v použití serverovej časti aplikácie a Esper dokumentácii.
 		Pre odoslanie udalostí je možné použiť formulár alebo udalosti načítať zo súboru. Obe možnosti sa dajú použiť súčasne. Pri načítaní zo súboru sú odosielané udalosti streamované, čo umožňuje posielať veľké objemy dát.

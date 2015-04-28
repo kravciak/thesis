@@ -1,27 +1,8 @@
-% Streamovanie je realizované pomocou Faraday::UploadIO komponentu aplikácie.
-% popisat use case
-% k pravidlam syntaxe popis alebo odstranit cislovane odkazy
 % uvod do cassandry
 % named windows
 % názorné priklady - 3 sposoby vkladania dat - zo suboru / handleru / webova aplikacia
-% odstranit duplicitny priklad schemy
 % obrazok z nosql do cassandry
 % obrazok z esper do views?
-
-%= plugin pre zobrazenie schemy / xml
-%= vytvorenie databazy
-%= statement = vyraz, pattern - vzor, observer
-%= rest api vracia metadata (strankovanie, schema...)
-%= insert into clause
-%= std:lastevent, win:length...
-%= UUID, rozdiel v cassandra DAO
-%= vytvorenie cassandra tabulky a priklad vyhladania - preco takyto primary key
-%= cassandra join, order, count
-%= komplexna schema
-%= priklad udalosti
-%= klauzuly select from ...
-%= priklad objektoveho modelu
-
 
 %\documentclass[12pt, a4paper]{book}
 \documentclass[12pt, a4paper, oneside]{book} %isis
@@ -85,7 +66,7 @@
 %	comment=[l]{\#},
 %  commentstyle=\color{blue}
 }
-\lstset{morekeywords={select, where, order, by, limit, and, or, from, asc, desc, having, output, group, as}}
+%\lstset{morekeywords={select, where, order, by, limit, and, or, from, asc, desc, having, output, group, as}}
 \renewcommand\lstlistingname{Výpis}
 	
 % ----- Zoznam skratiek -----
@@ -102,11 +83,11 @@
 \begin{document}
 
 % ----- Info o práci -----
-%\title{Esper Web: Webové rozhranie pre spracovanie udalostí v reálnom čase}
-\title{Esper Web: Webové rozhraní pro zpracování událostí v reálném čase}
+\title{Esper Web: Webové rozhranie pre spracovanie udalostí v reálnom čase}
+%\title{Esper Web: Webové rozhraní pro zpracování událostí v reálném čase}
 
 \author{Martin Kravec}
-\date{Marec 23, 2015}
+\date{Apríl 23, 2015}
 
 %--------------------------------------------------------------
 \frontmatter
@@ -128,7 +109,7 @@ Chcem poďakovať všetkým, ktorí ma podporovali a pomáhali mi, najmä svojim
 %\label{abstract}
 
 \chapter*{Abstrakt}
-Táto diplomová práca sa zaoberá problematikou spracovania komplexných udalostí. V teoretickej časti nájdeme vysvetlenie základných pojmov a popis použitých technológií. Čitateľ sa tiež zoznámi so základmi práce v Esperi.
+Táto diplomová práca sa zaoberá problematikou spracovania komplexných udalostí. Teoretická časť obsahuje vysvetlenie základných pojmov a popis použitých technológií. Čitateľ sa tiež zoznámi so základmi práce v Esperi.
 
 Praktická časť práce sa zaoberá vytvorením administračného rozhrania, ktoré po napojení na serverovú časť aplikácie umožní použitie základnej funkcionality Esper engine aj bez predchádzajúcej znalosti programovania. Súčasťou praktickej časti je postup prípravy systému, inštalácie a spustenia aplikácie, keďže ide o netriviálnu úlohu.
 
