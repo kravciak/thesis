@@ -72,14 +72,14 @@
 		</StockXsd>
 	</events>
 	\end{lstlisting}
-	Ako je z výpisu vidieť je možné udalosti zaobaliť do koreňového elementu events. Ten je vhodné použiť v prípade že na Esper engine odosielame súbory obsahujúce veľké množstvo udalostí, pretože tým obmedzíme počet HTTP volaní a predídeme možnému zahlteniu serveru. Táto funkcionalita je realizovaná v implementačnej časti aplikácie a nie je súčasťou Esperu.
+	Ako je z výpisu vidieť je možné udalosti zaobaliť do koreňového elementu events. Ten je vhodné použiť v prípade, že na Esper engine odosielame súbory obsahujúce veľké množstvo udalostí, pretože tým obmedzíme počet HTTP volaní a predídeme možnému zahlteniu serveru. Táto funkcionalita je realizovaná v implementačnej časti aplikácie a nie je súčasťou Esperu.
 
 	Po definovaní typu udalosti sa na ne môžeme odkazovať klauzulou FROM v EPL príkazoch. Tie sú bližšie popísané v nasledujúcej sekcii.
 
 	\subsection{Event Processing Language}
-		\ac{EPL} je jazyk umožňujúci definovanie príkazov a vzorov v CEP. Syntaxou je podobný SQL, pretože obsahuje klauzuly ako SELECT, FROM, WHERE, GROUP BY, HAVING alebo ORDER BY. Namiesto tabuliek však pracuje so tokmi udalostí, kde riadok tabuľky nahrádza prichádzajúca udalosť. Toky udalostí je možné spájať pomocou JOIN, filtrovať alebo agregovať.
+		\ac{EPL} je jazyk umožňujúci definovanie príkazov a vzorov v CEP. Syntaxou je podobný SQL, pretože obsahuje klauzuly ako SELECT, FROM, WHERE, GROUP BY, HAVING alebo ORDER BY. Namiesto tabuliek však pracuje s tokmi udalostí, kde riadok tabuľky nahrádza prichádzajúca udalosť. Toky udalostí je možné spájať pomocou JOIN, filtrovať alebo agregovať.
 		
-		EPL definuje koncept pomenovaných okien (named windows), ktoré slúžia ako štruktúra uchovávajúca udalosti. Je možné do nej vkladať nové udalosti a mazať staré. Výhodou tejto štruktúry je možnosť jej použitia viacerými príkazmi, pretože je globálna, teda zdieľaná v rozsahu daného service providera.	
+		EPL definuje koncept pomenovaných okien (named windows), ktoré slúžia ako štruk\-túra uchovávajúca udalosti. Je možné do nej vkladať nové udalosti a mazať staré. Výhodou tejto štruktúry je možnosť jej použitia viacerými príkazmi, pretože je globálna, teda zdieľaná v rozsahu daného service providera.	
 		
 		Pomocou EPL môžeme tiež definovať premenné, ktoré sa dajú následne použiť napríklad na vkladanie parametrov do príkazov.
 		
@@ -183,7 +183,7 @@ output [after suppression_def]
 
 			\item[Štatistické náhľady] Štatistické náhľady pokrýva menný priestor stat.
 				\subitem stat:uni - umožňuje pristupovať k štatistickým hodnotám, napríklad priemeru, smerodajnej odchýlky, súčtu či rozptylu.
-				\subitem stat:correl - počíta korelačnú hodnotu. Funkcia vyžaduje minimálne dva parametra, ktorých korelačnú hodnotu počíta.
+				\subitem stat:correl - počíta korelačnú hodnotu. Funkcia vyžaduje minimálne dva parametre, ktorých korelačnú hodnotu počíta.
 				\subitem stat:weighted\_avg - ako názov napovedá, náhľad umožňuje vypočítať vážený priemer. Podobne ako stat:correl vyžaduje aspoň dva parametra, prvý udáva údaj z ktorého sa počíta priemer a druhý jeho váhu.
 		\end{description}
 		
@@ -344,7 +344,7 @@ where severity = 'Medium' and reason like '%withdrawal limit%'
 	
 	\myFigure{keyspace-colfamily}{Porovnanie štruktúry SQL a NoSQL databázy \cite{img:colfamily}}{Porovnanie štruktúry SQL a NoSQL databázy}
 	
-	V predchádzajúcich verziách CQL bolo možné sa stretnúť s skupinami stĺpcov (column family). Tento pojem bol používaný v spojení s dynamickým modelom databázy, kedy stĺpce nebolo nutné definovať, ich definíciou sa vynucoval typ obsahu. V najnovšej verzii CQL sa však od tohoto prístupu upustilo, a dnes v aktuálnej verzii nájdeme tabuľky podobne ako ich poznáme z relačných databáz. Klauzula COLUMN FAMILY ostala ako synonym klauzuly TABLE. Porovnanie štruktúry SQL a NoSQL databázy je na obrázku \ref{image_keyspace-colfamily}.
+	V predchádzajúcich verziách CQL bolo možné sa stretnúť so skupinami stĺpcov (column family). Tento pojem bol používaný v spojení s dynamickým modelom databázy, kedy stĺpce nebolo nutné definovať, ich definíciou sa vynucoval typ obsahu. V najnovšej verzii CQL sa však od tohoto prístupu upustilo, a dnes v aktuálnej verzii nájdeme tabuľky podobne ako ich poznáme z relačných databáz. Klauzula COLUMN FAMILY ostala ako synonym klauzuly TABLE. Porovnanie štruktúry SQL a NoSQL databázy je na obrázku \ref{image_keyspace-colfamily}.
 	
 	\subsection{Primárny kľúč}
 	Podobne ako v relačnej databáze musí mať každý riadok unikátny identifikátor - primárny kľúč. Ten môže byť tvorený jediným údajom, alebo môže byť zložený z viacerých stĺpcov. Naproti relačnej databáze má primárny kľúč aj dodatočný význam.
@@ -429,7 +429,7 @@ INSERT INTO incident (tid, data, notified) VALUES(
 	\subsection{Spring}
 	Spring je framework napísaný v jave, distribuovaný pod Apache License verzie 2.0. Spring pozostáva z viacerých projektov zameraných na riešenie konkrétnych problémov vývoja aplikácie. V praktickej časti tejto aplikácie boli použité nasledujúce spring komponenty:
 	\begin{description}
-		\item[Spring Framework] svojou funkcionalitou rieši základné oblasti vývoja java aplikácií. Obsahuje základnú podporu pre injektovanie závislostí, správu transakcií, vývoj webových aplikácií alebo prístup k dátam. Táto funkcionalita je rozdelená do komponentov, z v praktickej časti sú použité spring-core, spring-jdbc a spring-webmvc.
+		\item[Spring Framework] svojou funkcionalitou rieši základné oblasti vývoja java aplikácií. Obsahuje základnú podporu pre injektovanie závislostí, správu transakcií, vývoj webových aplikácií alebo prístup k dátam. Táto funkcionalita je rozdelená do komponentov, v praktickej časti sú použité spring-core, spring-jdbc a spring-webmvc.
 		
 		\item[Spring Boot] je spôsob ako urýchliť vývoj spring aplikácií. Rovnako ako Ruby On Rails sa prikláňa k prístupu convention over configuration. Z využitej funkcionality je dôležitý hlavne webový server Tomcat, ktorý tento komponent obsahuje. Vďaka nemu nie je nutné robiť deploy war súborov serverovej časti aplikácie, stačí jednoducho zdrojové kódy preložiť a spustiť. Je možné tiež využiť komponenty obsiahnuté v rodičovskom pom súbore. Spring boot automaticky nakonfiguruje spring aplikáciu bez nutnosti XML konfiguračných súborov s predvolenými nastaveniami.
 	\end{description}
